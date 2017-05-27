@@ -2,31 +2,38 @@
   "name": "xclap",
   "version": "0.1.0",
   "description": "Task executor",
-  "main": "lib/xclap.js",
-  "directories": {
-    "test": "test"
-  },
+  "main": "lib/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "format": "prettier --write  --print-width 120 lib/*.js"
+    "test": "mocha --recursive test/spec",
+    "coverage": "nyc --all --reporter=lcov --reporter=text --reporter=text-summary npm test",
+    "format": "prettier --write --print-width 120 lib/*.js test/**/*.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://gitlab.com/jchip/xclap.git"
+    "url": "https://github.com/jchip/xclap.git"
   },
-  "keywords": [],
+  "keywords": [
+    "clap",
+    "xclap",
+    "javascript",
+    "task",
+    "executor"
+  ],
   "author": "Joel Chen <joel123@gmail.com>",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://gitlab.com/jchip/xclap/issues"
+    "url": "https://github.com/jchip/xclap/issues"
   },
-  "homepage": "https://gitlab.com/jchip/xclap#README",
+  "homepage": "https://github.com/jchip/xclap",
   "dependencies": {
     "chalk": "^1.1.3",
     "insync": "^2.1.1",
     "shelljs": "^0.7.7"
   },
   "devDependencies": {
+    "chai": "^4.0.0",
+    "mocha": "^3.4.2",
+    "nyc": "^10.3.2",
     "prettier": "^1.2.2"
   }
 }
