@@ -356,6 +356,50 @@ describe("xclap", function() {
     });
   });
 
+  it("should supply context as this to task function", done => {
+    let foo = 0, foo3 = 0;
+    const xclap = new XClap();
+    xclap.load({
+      foo2: {
+        dep: "set a=0",
+        task: ["foo3"]
+      },
+      foo3: [
+        "~$set b=0",
+        function() {
+          this.run([".", "foo4", () => foo3++], err => foo++);
+        }
+      ],
+      foo4: "set c=0"
+    });
+    const exeEvents = [
+      "lookup",
+      "shell",
+      "serial-arr",
+      "lookup",
+      "serial-arr",
+      "shell",
+      "function",
+      "serial-arr",
+      "lookup",
+      "shell",
+      "function"
+    ];
+    xclap.on("execute", data => {
+      expect(data.type).to.equal(exeEvents[0]);
+      exeEvents.shift();
+    });
+
+    xclap.run("foo2", err => {
+      if (err) {
+        return done(err);
+      }
+      expect(foo).to.equal(1);
+      expect(foo3).to.equal(1);
+      done();
+    });
+  });
+
   it("should ignore value returned by task function that's not string/funciton/array", done => {
     let foo;
     const xclap = new XClap({
