@@ -90,6 +90,107 @@ describe("xclap", function() {
     });
   });
 
+  it("should execute a dep string as shell directly", done => {
+    let foo = 0;
+    const xclap = new XClap({
+      foo: {
+        dep: "set a=0",
+        task: () => foo++
+      }
+    });
+    const exeEvents = ["lookup", "shell", "function"];
+
+    xclap.on("execute", data => {
+      expect(data.type).to.equal(exeEvents[0]);
+      exeEvents.shift();
+    });
+
+    xclap.run("foo", err => {
+      if (err) {
+        return done(err);
+      }
+      expect(foo).to.equal(1);
+      done(err);
+    });
+  });
+
+  it("should execute a dep function directly", done => {
+    let foo = 0, dep = 0;
+    const xclap = new XClap({
+      foo: {
+        dep: () => dep++,
+        task: () => foo++
+      }
+    });
+    const exeEvents = ["lookup", "function", "function"];
+
+    xclap.on("execute", data => {
+      expect(data.type).to.equal(exeEvents[0]);
+      exeEvents.shift();
+    });
+
+    xclap.run("foo", err => {
+      if (err) {
+        return done(err);
+      }
+      expect(dep).to.equal(1);
+      expect(foo).to.equal(1);
+      done(err);
+    });
+  });
+
+  it("should execute a dep as serial array", done => {
+    let foo = 0, foo2 = 0;
+    const xclap = new XClap({
+      foo: {
+        dep: ["foo2"],
+        task: () => foo++
+      },
+      foo2: () => foo2++
+    });
+    const exeEvents = ["lookup", "serial-arr", "lookup", "function", "function"];
+
+    xclap.on("execute", data => {
+      expect(data.type).to.equal(exeEvents[0]);
+      exeEvents.shift();
+    });
+
+    xclap.run("foo", err => {
+      if (err) {
+        return done(err);
+      }
+      expect(foo).to.equal(1);
+      expect(foo2).to.equal(1);
+      done(err);
+    });
+  });
+
+  it("should execute a dep as serial and then concurrent array", done => {
+    let foo = 0, foo2 = 0;
+    const xclap = new XClap({
+      foo: {
+        dep: [["foo2"]],
+        task: () => foo++
+      },
+      foo2: () => foo2++
+    });
+    const exeEvents = ["lookup", "serial-arr", "concurrent-arr", "lookup", "function", "function"];
+
+    xclap.on("execute", data => {
+      expect(data.type).to.equal(exeEvents[0]);
+      exeEvents.shift();
+    });
+
+    xclap.run("foo", err => {
+      if (err) {
+        return done(err);
+      }
+      expect(foo).to.equal(1);
+      expect(foo2).to.equal(1);
+      done(err);
+    });
+  });
+
   it("should await a promise a task function returned", done => {
     let foo2 = 0;
     const xclap = new XClap({
