@@ -18,8 +18,12 @@ describe("xclap", function() {
       exeEvents.shift();
     });
 
+    let doneItem = 0;
+    xclap.on("done-item", () => doneItem++);
+
     xclap.run("foo", err => {
       expect(err).to.not.exist;
+      expect(doneItem).to.equal(1);
       expect(foo).to.equal(1);
       done();
     });
@@ -38,10 +42,14 @@ describe("xclap", function() {
       exeEvents.shift();
     });
 
+    let doneItem = 0;
+    xclap.on("done-item", () => doneItem++);
+
     xclap.run("foo", err => {
       if (err) {
         return done(err);
       }
+      expect(doneItem).to.equal(2);
       expect(foo).to.equal(1);
       done();
     });
@@ -61,10 +69,14 @@ describe("xclap", function() {
       exeEvents.shift();
     });
 
+    let doneItem = 0;
+    xclap.on("done-item", () => doneItem++);
+
     xclap.run("foo", err => {
       if (err) {
         return done(err);
       }
+      expect(doneItem).to.equal(4);
       expect(foo2).to.equal(1);
       expect(foo3).to.equal(1);
       done(err);
@@ -83,10 +95,14 @@ describe("xclap", function() {
       exeEvents.shift();
     });
 
+    let doneItem = 0;
+    xclap.on("done-item", () => doneItem++);
+
     xclap.run("foo", err => {
       if (err) {
         return done(err);
       }
+      expect(doneItem).to.equal(2);
       expect(foo).to.equal(1);
       done(err);
     });
@@ -107,10 +123,131 @@ describe("xclap", function() {
       exeEvents.shift();
     });
 
+    let doneItem = 0;
+    xclap.on("done-item", () => doneItem++);
+
     xclap.run("foo", err => {
       if (err) {
         return done(err);
       }
+      expect(doneItem).to.equal(2);
+      expect(foo).to.equal(1);
+      done(err);
+    });
+  });
+
+  it("should execute serial tasks", done => {
+    let foo = 0;
+    const xclap = new XClap({
+      foo: [() => foo++, [".", "a", "b", "c"]],
+      a: cb => process.nextTick(cb),
+      b: cb => process.nextTick(cb),
+      c: cb => process.nextTick(cb)
+    });
+    const exeEvents = [
+      "lookup",
+      "serial-arr",
+      "function",
+      "serial-arr",
+      "lookup",
+      "function",
+      "lookup",
+      "function",
+      "lookup",
+      "function"
+    ];
+
+    xclap.on("execute", data => {
+      expect(data.type).to.equal(exeEvents[0]);
+      exeEvents.shift();
+    });
+
+    let doneItem = 0;
+    xclap.on("done-item", () => doneItem++);
+
+    xclap.run("foo", err => {
+      if (err) {
+        return done(err);
+      }
+      expect(doneItem).to.equal(6);
+      expect(foo).to.equal(1);
+      done(err);
+    });
+  });
+
+  it("should handle top serial tasks with first dot", done => {
+    let foo = 0;
+    const xclap = new XClap({
+      foo: [".", () => foo++, [".", "a", "b", "c"]],
+      a: cb => process.nextTick(cb),
+      b: cb => process.nextTick(cb),
+      c: cb => process.nextTick(cb)
+    });
+    const exeEvents = [
+      "lookup",
+      "serial-arr",
+      "function",
+      "serial-arr",
+      "lookup",
+      "function",
+      "lookup",
+      "function",
+      "lookup",
+      "function"
+    ];
+
+    xclap.on("execute", data => {
+      expect(data.type).to.equal(exeEvents[0]);
+      exeEvents.shift();
+    });
+
+    let doneItem = 0;
+    xclap.on("done-item", () => doneItem++);
+
+    xclap.run("foo", err => {
+      if (err) {
+        return done(err);
+      }
+      expect(doneItem).to.equal(6);
+      expect(foo).to.equal(1);
+      done(err);
+    });
+  });
+
+  it("should execute concurrent tasks", done => {
+    let foo = 0;
+    const xclap = new XClap({
+      foo: [() => foo++, ["a", "b", "c"]],
+      a: cb => process.nextTick(cb),
+      b: cb => process.nextTick(cb),
+      c: cb => process.nextTick(cb)
+    });
+    const exeEvents = [
+      "lookup",
+      "serial-arr",
+      "function",
+      "concurrent-arr",
+      "lookup",
+      "lookup",
+      "lookup",
+      "function",
+      "function",
+      "function"
+    ];
+
+    xclap.on("execute", data => {
+      expect(data.type).to.equal(exeEvents[0]);
+      exeEvents.shift();
+    });
+
+    let doneItem = 0;
+    xclap.on("done-item", () => doneItem++);
+
+    xclap.run("foo", err => {
+      if (err) {
+        return done(err);
+      }
+      expect(doneItem).to.equal(6);
       expect(foo).to.equal(1);
       done(err);
     });
@@ -131,10 +268,14 @@ describe("xclap", function() {
       exeEvents.shift();
     });
 
+    let doneItem = 0;
+    xclap.on("done-item", () => doneItem++);
+
     xclap.run("foo", err => {
       if (err) {
         return done(err);
       }
+      expect(doneItem).to.equal(2);
       expect(dep).to.equal(1);
       expect(foo).to.equal(1);
       done(err);
