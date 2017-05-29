@@ -1,3 +1,5 @@
+"use strict";
+
 const XClap = require("../../lib/xclap");
 const sample1 = require("../fixtures/sample1");
 const expect = require("chai").expect;
@@ -25,6 +27,8 @@ describe("sample1", function() {
       "bbbb\n",
       "aaaaa\n",
       "cccc\n",
+      "hello, this is xfoo4\n",
+      "hello, this is xfoo4\n",
       "aaaaa\n",
       "bbbb\n",
       "bbbb\n",
@@ -35,8 +39,6 @@ describe("sample1", function() {
       "bbbb\n",
       "aaaaa\n",
       "cccc\n",
-      "hello, this is xfoo4\n",
-      "hello, this is xfoo4\n",
       "hello, this is xfoo4\n"
     ];
     const xclap = new XClap(sample1);

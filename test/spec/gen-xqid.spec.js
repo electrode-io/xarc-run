@@ -1,3 +1,5 @@
+"use strict";
+
 const genXqId = require("../../lib/gen-xqid");
 const expect = require("chai").expect;
 

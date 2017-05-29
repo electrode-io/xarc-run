@@ -1,3 +1,5 @@
+"use strict";
+
 var util = require('util');
 
 // Intercept stdout and stderr to pass output thru callback.

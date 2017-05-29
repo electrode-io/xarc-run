@@ -1,3 +1,5 @@
+"use strict";
+
 const stringify = require("../../lib/stringify");
 const expect = require("chai").expect;
 

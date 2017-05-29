@@ -1,3 +1,5 @@
+"use strict";
+
 const tasks = {
   xfoo1: cb => {
     setTimeout(() => {
@@ -11,28 +13,40 @@ const tasks = {
     setTimeout(() => {
       console.log("hello, this is xfoo4");
       cb();
-    }, 200);
+    }, 20);
   },
   a: cb => {
-    const i = setInterval(() => console.log("aaaaa"), 50);
-    setTimeout(() => {
-      clearInterval(i);
-      cb();
-    }, 200);
+    let i, n = 0;
+    i = setInterval(() => {
+      if (n++ === 3) {
+        clearInterval(i);
+        cb();
+      } else {
+        console.log("aaaaa");
+      }
+    }, 10);
   },
   b: cb => {
-    const i = setInterval(() => console.log("bbbb"), 50);
-    setTimeout(() => {
-      clearInterval(i);
-      cb();
-    }, 200);
+    let i, n = 0;
+    i = setInterval(() => {
+      if (n++ === 3) {
+        clearInterval(i);
+        cb();
+      } else {
+        console.log("bbbb");
+      }
+    }, 10);
   },
   c: cb => {
-    const i = setInterval(() => console.log("cccc"), 50);
-    setTimeout(() => {
-      clearInterval(i);
-      cb();
-    }, 200);
+    let i, n = 0;
+    i = setInterval(() => {
+      if (n++ === 3) {
+        clearInterval(i);
+        cb();
+      } else {
+        console.log("cccc");
+      }
+    }, 10);
   },
   foo2a: [
     "xfoo1",

@@ -1,3 +1,5 @@
+"use strict";
+
 const XReporterConsole = require("../../../lib/reporters/console");
 const XClap = require("../../../lib/xclap");
 const XQItem = require("../../../lib/xqitem");

@@ -1,3 +1,5 @@
+"use strict";
+
 const XQTree = require("../../lib/xqtree");
 const expect = require("chai").expect;
 

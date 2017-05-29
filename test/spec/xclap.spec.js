@@ -1,3 +1,5 @@
+"use strict";
+
 const XClap = require("../../lib/xclap");
 const expect = require("chai").expect;
 const interceptStdout = require("../intercept-stdout");

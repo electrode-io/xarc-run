@@ -1,3 +1,5 @@
+"use strict";
+
 const xclap = require("../../..");
 const sample1 = require("../../fixtures/sample1");
 const expect = require("chai").expect;
@@ -29,7 +31,6 @@ describe("sample1 console report", function () {
 --Processing task foo3-dep serial array ["foo3Dep"]
 ...Executing task foo3Dep as function
 >>>Done Executing task foo3Dep as function
->>Done Processing task foo3-dep serial array ["foo3Dep"]
 --Executing task foo3 as function
 >>Done Executing task foo3 as function
 ..Processing task foo2a.S concurrent array ["a","b",["a","c"],"xfoo4","b","xfoo4","func"]
@@ -43,11 +44,11 @@ describe("sample1 console report", function () {
 >>>Done Executing task foo2a.S.C anonymous function
 ....Executing task a as function
 ----Executing task c as function
+>>>Done Executing task xfoo4 as function
+>>>Done Executing task xfoo4 as function
 >>>Done Executing task a as function
 >>>Done Executing task b as function
->>>Done Executing task xfoo4 as function
 >>>Done Executing task b as function
->>>Done Executing task xfoo4 as function
 >>>>Done Executing task a as function
 >>>>Done Executing task c as function
 >>>Done Processing task foo2a.S.C concurrent array ["a","c"]
@@ -55,8 +56,6 @@ describe("sample1 console report", function () {
 ..Executing task xfoo4 as function
 >>Done Executing task xfoo4 as function
 >Done Processing task foo2a serial array ["xfoo1","xfoo2","~$echo test anon shell",[".","a","b"],"func","foo3",["a","b",["a","c"],"xfoo4","b","xfoo4","func"],"xfoo4"]
->Done Processing task foo2a serial array ["xfoo1","xfoo2","~$echo test anon shell",[".","a","b"],"func","foo3",["a","b",["a","c"],"xfoo4","b","xfoo4","func"],"xfoo4"]
-Done Processing task foo2 serial array ["foo2a"]
 Done Processing task foo2 serial array ["foo2a"]
 `;
     const intercept = interceptStdout.intercept(true);
@@ -96,7 +95,6 @@ Done Processing task foo2 serial array ["foo2a"]
 .Processing task foo3-dep serial array ["foo3Dep"]
 --Executing task foo3Dep as function
 >>Done Executing task foo3Dep as function
->Done Processing task foo3-dep serial array ["foo3Dep"]
 .Executing task foo3 as function
 >Done Executing task foo3 as function
 -Processing task foo2ba.S concurrent array ["a","b",["a","c"],"xerr","b","xerr","func"]
@@ -113,7 +111,6 @@ Done Processing task foo2 serial array ["foo2a"]
 >>Failed Executing task xerr as function
 >>Failed Executing task xerr as function
 >Done Processing task foo2ba.S concurrent array ["a","b",["a","c"],"xerr","b","xerr","func"]
-Done Processing task foo2ba serial array ["xfoo1","xfoo2","~$echo test anon shell",[".","a","b"],"func","foo3",["a","b",["a","c"],"xerr","b","xerr","func"],"xfoo4"]
 Done Processing task foo2ba serial array ["xfoo1","xfoo2","~$echo test anon shell",[".","a","b"],"func","foo3",["a","b",["a","c"],"xerr","b","xerr","func"],"xfoo4"]
 `;
     let intercept = interceptStdout.intercept(true);

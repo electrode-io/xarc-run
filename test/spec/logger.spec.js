@@ -1,3 +1,5 @@
+"use strict";
+
 const logger = require("../../lib/logger");
 const interceptStdout = require("../intercept-stdout");
 const expect = require("chai").expect;

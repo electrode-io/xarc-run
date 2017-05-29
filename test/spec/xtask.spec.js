@@ -1,3 +1,5 @@
+"use strict";
+
 const XTasks = require("../../lib/xtasks");
 const expect = require("chai").expect;
 const sample1 = require("../fixtures/sample1");

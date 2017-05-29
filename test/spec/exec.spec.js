@@ -1,3 +1,5 @@
+"use strict";
+
 const exec = require("../../lib/exec");
 const interceptStdout = require("../intercept-stdout");
 const expect = require("chai").expect;

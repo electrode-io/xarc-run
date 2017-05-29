@@ -1,3 +1,5 @@
+"use strict";
+
 const xclap = require("..");
 const sample1 = require("./fixtures/sample1");
 
