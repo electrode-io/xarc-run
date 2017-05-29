@@ -49,8 +49,7 @@ describe("sample1", function() {
   });
 
   it("should run sample1:foo2b tasks", done => {
-    const intercept = interceptStdout.intercept(true);
-
+    let intercept = interceptStdout.intercept(true);
     const expectOutput = [
       "hello, this is xfoo1\n",
       "a direct shell command xfoo2\n",
@@ -71,7 +70,11 @@ describe("sample1", function() {
       intercept.restore();
       expect(err).to.exist;
       expect(intercept.stdout).to.deep.equal(expectOutput);
-      done();
+      intercept = interceptStdout.intercept(true);
+      xclap.waitAllPending(() => {
+        intercept.restore();
+        done();
+      });
     });
   });
 
