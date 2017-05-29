@@ -29,7 +29,7 @@ describe("xclap", function() {
       foo: () => "foo2",
       foo2: () => foo++
     });
-    const exeEvents = ["lookup", "function", "serial-arr", "lookup", "function"];
+    const exeEvents = ["lookup", "function", "lookup", "function"];
 
     xclap.on("execute", data => {
       expect(data.type).to.equal(exeEvents[0]);
@@ -37,8 +37,11 @@ describe("xclap", function() {
     });
 
     xclap.run("foo", err => {
+      if (err) {
+        return done(err);
+      }
       expect(foo).to.equal(1);
-      done(err);
+      done();
     });
   });
 
@@ -57,7 +60,9 @@ describe("xclap", function() {
     });
 
     xclap.run("foo", err => {
-      expect(err).to.not.exist;
+      if (err) {
+        return done(err);
+      }
       expect(foo2).to.equal(1);
       expect(foo3).to.equal(1);
       done(err);
@@ -69,7 +74,7 @@ describe("xclap", function() {
     const xclap = new XClap({
       foo: () => () => foo++
     });
-    const exeEvents = ["lookup", "function", "serial-arr", "function"];
+    const exeEvents = ["lookup", "function", "function"];
 
     xclap.on("execute", data => {
       expect(data.type).to.equal(exeEvents[0]);
@@ -77,7 +82,9 @@ describe("xclap", function() {
     });
 
     xclap.run("foo", err => {
-      expect(err).to.not.exist;
+      if (err) {
+        return done(err);
+      }
       expect(foo).to.equal(1);
       done(err);
     });
@@ -90,14 +97,16 @@ describe("xclap", function() {
       foo2: () => foo2++
     });
 
-    const exeEvents = ["lookup", "function", "serial-arr", "lookup", "function"];
+    const exeEvents = ["lookup", "function", "lookup", "function"];
     xclap.on("execute", data => {
       expect(data.type).to.equal(exeEvents[0]);
       exeEvents.shift();
     });
 
     xclap.run("foo", err => {
-      expect(err).to.not.exist;
+      if (err) {
+        return done(err);
+      }
       expect(foo2).to.equal(1);
       done(err);
     });
@@ -240,7 +249,7 @@ describe("xclap", function() {
     xclap.run("foo", err => {
       expect(err).to.exist;
       expect(err[0].message).to.equal(
-        "Unable to process task foo:S because value type Boolean is unknown and no value.item"
+        "Unable to process task foo.S because value type Boolean is unknown and no value.item"
       );
       done();
     });

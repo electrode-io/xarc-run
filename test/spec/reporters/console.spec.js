@@ -7,7 +7,7 @@ describe("XReporterConsole", function () {
   it("should indent by qitem level", () => {
     const xclap = new XClap();
     const reporter = new XReporterConsole(xclap);
-    const xqi = new XQItem({});
+    const xqi = new XQItem({ name: "test" });
     expect(reporter._indent(xqi)).to.equal("");
     xqi.level = 1;
     expect(reporter._indent(xqi)).to.equal("-");

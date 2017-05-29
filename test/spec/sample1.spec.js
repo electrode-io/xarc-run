@@ -42,7 +42,9 @@ describe("sample1", function() {
     const xclap = new XClap(sample1);
     xclap.run("foo2", err => {
       intercept.restore();
-      expect(err).to.not.exist;
+      if (err) {
+        return done(err);
+      }
       expect(intercept.stdout).to.deep.equal(expectOutput);
       done();
     });
