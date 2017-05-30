@@ -4,7 +4,7 @@ const XClap = require("../../lib/xclap");
 const expect = require("chai").expect;
 const interceptStdout = require("../intercept-stdout");
 
-describe("xclap", function() {
+describe("xclap", function () {
   it("should lookup and exe a task as a function once", done => {
     let foo = 0;
     const xclap = new XClap({
@@ -135,6 +135,58 @@ describe("xclap", function() {
       done(err);
     });
   });
+
+  it("should handle error from dep shell", done => {
+    let foo = 0;
+    const xclap = new XClap({
+      foo: {
+        dep: "exit 1",
+        task: () => foo++
+      }
+    });
+    const exeEvents = ["lookup", "shell", "function"];
+
+    xclap.on("execute", data => {
+      expect(data.type).to.equal(exeEvents[0]);
+      exeEvents.shift();
+    });
+
+    let doneItem = 0;
+    xclap.on("done-item", data => doneItem++);
+
+    xclap.run("foo", err => {
+      expect(err).to.exist;
+      expect(err[0].message).to.equal("exit 1 return code 1");
+      expect(doneItem).to.equal(1);
+      expect(foo).to.equal(0);
+      done();
+    });
+  });
+
+  it("should handle error from task shell", done => {
+    const xclap = new XClap({
+      foo: {
+        task: "exit 1"
+      }
+    });
+    const exeEvents = ["lookup", "shell"];
+
+    xclap.on("execute", data => {
+      expect(data.type).to.equal(exeEvents[0]);
+      exeEvents.shift();
+    });
+
+    let doneItem = 0;
+    xclap.on("done-item", data => doneItem++);
+
+    xclap.run("foo", err => {
+      expect(err).to.exist;
+      expect(err[0].message).to.equal("exit 1 return code 1");
+      expect(doneItem).to.equal(1);
+      done();
+    });
+  });
+
 
   it("should execute serial tasks", done => {
     let foo = 0;
@@ -366,7 +418,7 @@ describe("xclap", function() {
       },
       foo3: [
         "~$set b=0",
-        function() {
+        function () {
           this.run([".", "foo4", () => foo3++], err => foo++);
         }
       ],
