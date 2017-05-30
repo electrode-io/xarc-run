@@ -1,6 +1,9 @@
+[![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url]
+[![Dependency Status][daviddm-image]][daviddm-url] [![devDependency Status][daviddm-dev-image]][daviddm-dev-url]
+
 # xclap
 
-An advanced and flexible JS task executor.
+An advanced and flexible JavaScript task executor.
 
 ## Features
 
@@ -16,7 +19,7 @@ const tasks = {
   xfoo2: `echo "a direct shell command xfoo2"`,
   xfoo3: `echo "a direct shell command xfoo3"`,
   xfoo4: () => console.log("hello, this is xfoo4"),
-  foo2: ["xfoo1", "xfoo2", "xfoo3", "xfoo4"], // concurrent tasks
+  foo2: ["xfoo1", "xfoo2", "xfoo3", "xfoo4"],
   foo3: {
     desc: "description for task foo3",
     task: () => {
@@ -64,12 +67,12 @@ A task can be:
 
 `clap foo` will cause the function to be called.
 
-The `this` context for the function will the clap Execution context.
+The `this` context for the function will the clap [Execution Context](#execution-context).  If you don't want to use `this`, then you can use fat arrow function for your task.
 
 Then function can return:
 
 -   `Promise` - `clap` will await for the promise.
--   `array` - `clap` will treat the array as a list of tasks to be executed, with the [array serial/concurrent rules] applied.
+-   `array` - `clap` will treat the array as a list of tasks to be executed, with the [array serial/concurrent rules](#array-serialconcurrent-rules) applied.
 -   `string` - `clap` will treat the string as a shell command to be spawned.
 -   `function` - `clap` will call the function as another task function.
 -   `stream` - [TBD]
@@ -154,6 +157,22 @@ You can run more tasks under the same context with `this.run`
 
 -   `this.run("task_name")` will run a single task
 
--   `this.run("name1", "name2", "name3", ....)` will execute them serially.
+-   `this.run([ ".", "name1", "name2", "name3"])` will execute them serially.
 
 -   `this.run(["name1", "name2", "name3"])` will execute them concurrently.
+
+[travis-image]: https://travis-ci.org/jchip/xclap.svg?branch=master
+
+[travis-url]: https://travis-ci.org/jchip/xclap
+
+[npm-image]: https://badge.fury.io/js/xclap.svg
+
+[npm-url]: https://npmjs.org/package/xclap
+
+[daviddm-image]: https://david-dm.org/jchip/xclap/status.svg
+
+[daviddm-url]: https://david-dm.org/jchip/xclap
+
+[daviddm-dev-image]: https://david-dm.org/jchip/xclap/dev-status.svg
+
+[daviddm-dev-url]: https://david-dm.org/jchip/xclap?type=dev
