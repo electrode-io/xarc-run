@@ -4,7 +4,7 @@ const XClap = require("../../lib/xclap");
 const expect = require("chai").expect;
 const interceptStdout = require("../intercept-stdout");
 
-describe("xclap", function () {
+describe("xclap", function() {
   it("should lookup and exe a task as a function once", done => {
     let foo = 0;
     const xclap = new XClap({
@@ -186,7 +186,6 @@ describe("xclap", function () {
       done();
     });
   });
-
 
   it("should execute serial tasks", done => {
     let foo = 0;
@@ -418,7 +417,7 @@ describe("xclap", function () {
       },
       foo3: [
         "~$set b=0",
-        function () {
+        function() {
           this.run([".", "foo4", () => foo3++], err => foo++);
         }
       ],

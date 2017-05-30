@@ -12,52 +12,52 @@ describe("sample1 console report", function () {
 
   it("should log report to console", done => {
     const expectOutput =
-      `Processing foo2 serial array ["foo2a"]
--Processing foo2a serial array ["xfoo1","xfoo2","~$echo test anon shell",[".","a","b"],"func","foo3",["a","b",["a","c"],"xfoo4","b","xfoo4","func"],"xfoo4"]
-..Executing xfoo1 as function
->>Done Executing xfoo1 as function
---Executing xfoo2 echo "a direct shell command xfoo2"
->>Done Executing xfoo2 echo "a direct shell command xfoo2"
-..Executing echo test anon shell
->>Done Executing echo test anon shell
---Processing foo2a.S serial array [".","a","b"]
-...Executing a as function
->>>Done Executing a as function
----Executing b as function
->>>Done Executing b as function
->>Done Processing foo2a.S serial array [".","a","b"]
-..Executing foo2a.S anonymous function
->>Done Executing foo2a.S anonymous function
---Processing foo3's dependency serial array ["foo3Dep"]
-...Executing foo3Dep as function
->>>Done Executing foo3Dep as function
->>Done Processing foo3's dependency serial array ["foo3Dep"]
---Executing foo3 as function
->>Done Executing foo3 as function
-..Processing foo2a.S concurrent array ["a","b",["a","c"],"xfoo4","b","xfoo4","func"]
----Processing foo2a.S.C concurrent array ["a","c"]
-...Executing foo2a.S.C anonymous function
----Executing a as function
-...Executing b as function
----Executing xfoo4 as function
-...Executing b as function
----Executing xfoo4 as function
->>>Done Executing foo2a.S.C anonymous function
-....Executing a as function
-----Executing c as function
->>>Done Executing xfoo4 as function
->>>Done Executing xfoo4 as function
->>>Done Executing a as function
->>>Done Executing b as function
->>>Done Executing b as function
->>>>Done Executing a as function
->>>>Done Executing c as function
->>>Done Processing foo2a.S.C concurrent array ["a","c"]
->>Done Processing foo2a.S concurrent array ["a","b",["a","c"],"xfoo4","b","xfoo4","func"]
-..Executing xfoo4 as function
->>Done Executing xfoo4 as function
->Done Processing foo2a serial array ["xfoo1","xfoo2","~$echo test anon shell",[".","a","b"],"func","foo3",["a","b",["a","c"],"xfoo4","b","xfoo4","func"],"xfoo4"]
-Done Processing foo2 serial array ["foo2a"]
+      `Process foo2 serial array ["foo2a"]
+-Process foo2a serial array ["xfoo1","xfoo2","~$echo test anon shell",[".","a","b"],"func","foo3",["a","b",["a","c"],"xfoo4","b","xfoo4","func"],"xfoo4"]
+..Execute xfoo1 as function
+>>Done Execute xfoo1 as function
+--Execute xfoo2 echo "a direct shell command xfoo2"
+>>Done Execute xfoo2 echo "a direct shell command xfoo2"
+..Execute echo test anon shell
+>>Done Execute echo test anon shell
+--Process foo2a.S serial array [".","a","b"]
+...Execute a as function
+>>>Done Execute a as function
+---Execute b as function
+>>>Done Execute b as function
+>>Done Process foo2a.S serial array [".","a","b"]
+..Execute foo2a.S anonymous function
+>>Done Execute foo2a.S anonymous function
+--Process foo3's dependency serial array ["foo3Dep"]
+...Execute foo3Dep as function
+>>>Done Execute foo3Dep as function
+>>Done Process foo3's dependency serial array ["foo3Dep"]
+--Execute foo3 as function
+>>Done Execute foo3 as function
+..Process foo2a.S concurrent array ["a","b",["a","c"],"xfoo4","b","xfoo4","func"]
+---Process foo2a.S.C concurrent array ["a","c"]
+...Execute foo2a.S.C anonymous function
+---Execute a as function
+...Execute b as function
+---Execute xfoo4 as function
+...Execute b as function
+---Execute xfoo4 as function
+>>>Done Execute foo2a.S.C anonymous function
+....Execute a as function
+----Execute c as function
+>>>Done Execute xfoo4 as function
+>>>Done Execute xfoo4 as function
+>>>Done Execute a as function
+>>>Done Execute b as function
+>>>Done Execute b as function
+>>>>Done Execute a as function
+>>>>Done Execute c as function
+>>>Done Process foo2a.S.C concurrent array ["a","c"]
+>>Done Process foo2a.S concurrent array ["a","b",["a","c"],"xfoo4","b","xfoo4","func"]
+..Execute xfoo4 as function
+>>Done Execute xfoo4 as function
+>Done Process foo2a serial array ["xfoo1","xfoo2","~$echo test anon shell",[".","a","b"],"func","foo3",["a","b",["a","c"],"xfoo4","b","xfoo4","func"],"xfoo4"]
+Done Process foo2 serial array ["foo2a"]
 `;
     const intercept = interceptStdout.intercept(true);
     xclap.load(sample1);
@@ -78,42 +78,42 @@ Done Processing foo2 serial array ["foo2a"]
 
   it("should log failure report to console", done => {
     const expectOutput =
-      `Processing foo2ba serial array ["xfoo1","xfoo2","~$echo test anon shell",[".","a","b"],"func","foo3",["a","b",["a","c"],"xerr","b","xerr","func"],"xfoo4"]
--Executing xfoo1 as function
->Done Executing xfoo1 as function
-.Executing xfoo2 echo "a direct shell command xfoo2"
->Done Executing xfoo2 echo "a direct shell command xfoo2"
--Executing echo test anon shell
->Done Executing echo test anon shell
-.Processing foo2ba.S serial array [".","a","b"]
---Executing a as function
->>Done Executing a as function
-..Executing b as function
->>Done Executing b as function
->Done Processing foo2ba.S serial array [".","a","b"]
--Executing foo2ba.S anonymous function
->Done Executing foo2ba.S anonymous function
-.Processing foo3's dependency serial array ["foo3Dep"]
---Executing foo3Dep as function
->>Done Executing foo3Dep as function
->Done Processing foo3's dependency serial array ["foo3Dep"]
-.Executing foo3 as function
->Done Executing foo3 as function
--Processing foo2ba.S concurrent array ["a","b",["a","c"],"xerr","b","xerr","func"]
-..Processing foo2ba.S.C concurrent array ["a","c"]
---Executing foo2ba.S.C anonymous function
-..Executing a as function
---Executing b as function
-..Executing xerr as function
---Executing b as function
-..Executing xerr as function
->>Done Executing foo2ba.S.C anonymous function
----Executing a as function
-...Executing c as function
->>Failed Executing xerr as function
->>Failed Executing xerr as function
->Done Processing foo2ba.S concurrent array ["a","b",["a","c"],"xerr","b","xerr","func"]
-Done Processing foo2ba serial array ["xfoo1","xfoo2","~$echo test anon shell",[".","a","b"],"func","foo3",["a","b",["a","c"],"xerr","b","xerr","func"],"xfoo4"]
+      `Process foo2ba serial array ["xfoo1","xfoo2","~$echo test anon shell",[".","a","b"],"func","foo3",["a","b",["a","c"],"xerr","b","xerr","func"],"xfoo4"]
+-Execute xfoo1 as function
+>Done Execute xfoo1 as function
+.Execute xfoo2 echo "a direct shell command xfoo2"
+>Done Execute xfoo2 echo "a direct shell command xfoo2"
+-Execute echo test anon shell
+>Done Execute echo test anon shell
+.Process foo2ba.S serial array [".","a","b"]
+--Execute a as function
+>>Done Execute a as function
+..Execute b as function
+>>Done Execute b as function
+>Done Process foo2ba.S serial array [".","a","b"]
+-Execute foo2ba.S anonymous function
+>Done Execute foo2ba.S anonymous function
+.Process foo3's dependency serial array ["foo3Dep"]
+--Execute foo3Dep as function
+>>Done Execute foo3Dep as function
+>Done Process foo3's dependency serial array ["foo3Dep"]
+.Execute foo3 as function
+>Done Execute foo3 as function
+-Process foo2ba.S concurrent array ["a","b",["a","c"],"xerr","b","xerr","func"]
+..Process foo2ba.S.C concurrent array ["a","c"]
+--Execute foo2ba.S.C anonymous function
+..Execute a as function
+--Execute b as function
+..Execute xerr as function
+--Execute b as function
+..Execute xerr as function
+>>Done Execute foo2ba.S.C anonymous function
+---Execute a as function
+...Execute c as function
+>>Failed Execute xerr as function
+>>Failed Execute xerr as function
+>Done Process foo2ba.S concurrent array ["a","b",["a","c"],"xerr","b","xerr","func"]
+Done Process foo2ba serial array ["xfoo1","xfoo2","~$echo test anon shell",[".","a","b"],"func","foo3",["a","b",["a","c"],"xerr","b","xerr","func"],"xfoo4"]
 `;
     let intercept = interceptStdout.intercept(true);
     xclap.load(sample1);
