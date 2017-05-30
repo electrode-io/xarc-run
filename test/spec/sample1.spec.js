@@ -5,7 +5,7 @@ const sample1 = require("../fixtures/sample1");
 const expect = require("chai").expect;
 const interceptStdout = require("../intercept-stdout");
 
-describe("sample1", function () {
+describe("sample1", function() {
   it("should run sample1:foo2 tasks", done => {
     const intercept = interceptStdout.intercept(true);
     const expectOutput = [

@@ -266,9 +266,9 @@ describe("xclap", function() {
   });
 
   it("should execute concurrent tasks", done => {
-    let foo = 0;
+    let foo = 0, foo2 = 0;
     const xclap = new XClap({
-      foo: [() => foo++, ["a", "b", "c"]],
+      foo: [() => foo++, ["a", "b", () => foo2++, "c"]],
       a: cb => process.nextTick(cb),
       b: cb => process.nextTick(cb),
       c: cb => process.nextTick(cb)
@@ -281,6 +281,7 @@ describe("xclap", function() {
       "lookup",
       "lookup",
       "lookup",
+      "function",
       "function",
       "function",
       "function"
@@ -298,9 +299,59 @@ describe("xclap", function() {
       if (err) {
         return done(err);
       }
+      expect(doneItem).to.equal(7);
+      expect(foo).to.equal(1);
+      expect(foo2).to.equal(1);
+      done(err);
+    });
+  });
+
+  it("should return all errors from concurrent tasks", done => {
+    let foo = 0, foo2 = 0;
+    const xclap = new XClap({
+      foo: [() => foo++, ["a", "b", () => foo2++, "c"]],
+      a: cb => {
+        throw new Error("a failed");
+      },
+      b: cb => setTimeout(() => process.nextTick(cb), 20),
+      c: cb => {
+        throw new Error("c failed");
+      }
+    });
+    const exeEvents = [
+      "lookup",
+      "serial-arr",
+      "function",
+      "concurrent-arr",
+      "lookup",
+      "lookup",
+      "lookup",
+      "function",
+      "function",
+      "function",
+      "function"
+    ];
+
+    xclap.on("execute", data => {
+      expect(data.type).to.equal(exeEvents[0]);
+      exeEvents.shift();
+    });
+
+    let doneItem = 0;
+    xclap.on("done-item", () => doneItem++);
+
+    xclap.run("foo", err => {
+      expect(err).to.exist;
+      expect(err.length).to.equal(2);
+      expect(err[0].message).to.equal("a failed");
+      expect(err[1].message).to.equal("c failed");
       expect(doneItem).to.equal(6);
       expect(foo).to.equal(1);
-      done(err);
+      expect(foo2).to.equal(1);
+      xclap.waitAllPending(() => {
+        expect(doneItem).to.equal(7);
+        done();
+      });
     });
   });
 
