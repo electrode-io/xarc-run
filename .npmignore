@@ -1,0 +1,9 @@
+node_modules
+.vscode
+coverage
+.nyc*
+*.swp
+package-lock.json
+.npmignore
+test
+.travis.yml
