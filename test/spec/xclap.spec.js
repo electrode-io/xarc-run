@@ -124,7 +124,7 @@ describe("xclap", function() {
     });
 
     let doneItem = 0;
-    xclap.on("done-item", () => doneItem++);
+    xclap.on("done-item", data => doneItem++);
 
     xclap.run("foo", err => {
       if (err) {

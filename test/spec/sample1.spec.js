@@ -5,7 +5,7 @@ const sample1 = require("../fixtures/sample1");
 const expect = require("chai").expect;
 const interceptStdout = require("../intercept-stdout");
 
-describe("sample1", function() {
+describe("sample1", function () {
   it("should run sample1:foo2 tasks", done => {
     const intercept = interceptStdout.intercept(true);
     const expectOutput = [
@@ -83,7 +83,7 @@ describe("sample1", function() {
   });
 
   it("should run sample1:foo2b tasks with stopOnError false", done => {
-    const intercept = interceptStdout.intercept(true);
+    let intercept = interceptStdout.intercept(true);
     const xclap = new XClap(sample1);
     xclap.stopOnError = false;
     xclap.run("foo2ba", err => {
@@ -92,7 +92,11 @@ describe("sample1", function() {
       expect(err.length).to.equal(2);
       expect(err[0].message).to.equal("xerr");
       expect(err[1].message).to.equal("xerr");
-      done();
+      intercept = interceptStdout.intercept(true);
+      xclap.waitAllPending((err) => {
+        intercept.restore();
+        done(err);
+      });
     });
   });
 });
