@@ -35,13 +35,13 @@ describe("sample1 console report", function () {
 --Execute foo3 as function
 >>Done Execute foo3 as function
 ..Process foo2a.S concurrent array ["a","b",["a","c"],"xfoo4","b","xfoo4","func"]
----Process foo2a.S.C concurrent array ["a","c"]
-...Execute foo2a.S.C anonymous function
 ---Execute a as function
 ...Execute b as function
----Execute xfoo4 as function
-...Execute b as function
----Execute xfoo4 as function
+---Process foo2a.S.C concurrent array ["a","c"]
+...Execute xfoo4 as function
+---Execute b as function
+...Execute xfoo4 as function
+---Execute foo2a.S.C anonymous function
 >>>Done Execute foo2a.S.C anonymous function
 ....Execute a as function
 ----Execute c as function
@@ -100,18 +100,17 @@ Done Process foo2 serial array ["foo2a"]
 .Execute foo3 as function
 >Done Execute foo3 as function
 -Process foo2ba.S concurrent array ["a","b",["a","c"],"xerr","b","xerr","func"]
-..Process foo2ba.S.C concurrent array ["a","c"]
---Execute foo2ba.S.C anonymous function
 ..Execute a as function
 --Execute b as function
-..Execute xerr as function
---Execute b as function
-..Execute xerr as function
+..Process foo2ba.S.C concurrent array ["a","c"]
+--Execute xerr as function
+..Execute b as function
+--Execute xerr as function
+..Execute foo2ba.S.C anonymous function
+>>Failed Execute xerr as function
+>>Failed Execute xerr as function
 >>Done Execute foo2ba.S.C anonymous function
----Execute a as function
-...Execute c as function
->>Failed Execute xerr as function
->>Failed Execute xerr as function
+>>Done Process foo2ba.S.C concurrent array ["a","c"]
 >Done Process foo2ba.S concurrent array ["a","b",["a","c"],"xerr","b","xerr","func"]
 Done Process foo2ba serial array ["xfoo1","xfoo2","~$echo test anon shell",[".","a","b"],"func","foo3",["a","b",["a","c"],"xerr","b","xerr","func"],"xfoo4"]
 `;
