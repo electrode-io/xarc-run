@@ -35,5 +35,14 @@
     "mocha": "^3.4.2",
     "nyc": "^10.3.2",
     "prettier": "^1.2.2"
+  },
+  "nyc": {
+    "check-coverage": true,
+    "lines": 100,
+    "statements": 100,
+    "functions": 100,
+    "branches": 100,
+    "cache": true,
+    "all": true
   }
 }
