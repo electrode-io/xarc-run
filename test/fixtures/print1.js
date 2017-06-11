@@ -7,7 +7,7 @@ const tasks = {
       cb();
     }, 100);
   },
-  xfoo2: `echo "a direct shell command xfoo2"`,
+  xfoo2: `echo "a direct ${process.cwd()}/node_modules/test shell command xfoo2"`,
   xfoo3: `echo "a direct shell command xfoo3"`,
   xfoo4: cb => {
     setTimeout(() => {
@@ -64,7 +64,7 @@ const tasks = {
   foo2ba: [
     "xfoo1",
     "xfoo2",
-    "~$echo test anon shell",
+    `~$echo test anon shell ${process.cwd()}/test`,
     [".", "a", "b"],
     () => console.log("anonymous"),
     "foo3",
@@ -85,10 +85,18 @@ const tasks = {
       console.log("function task for foo3");
     }
   },
+  foo4: {
+    desc: "task as a string with dir",
+    task: `test dir ${process.cwd()}/node_modules/test`
+  },
+  foo5: {
+    desc: "task as an array with dir",
+    task: ["a", `~$test dir ${process.cwd()}/node_modules/test`]
+  },
   noDesc: {
     task: "should not show this"
   },
-  unknown: 0,
+  unknown_type: 0,
   very_long_task_name_but_no_desc_should_be_hidden: {
     task: () => undefined
   },
