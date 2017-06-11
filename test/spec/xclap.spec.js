@@ -56,21 +56,14 @@ describe("xclap", function() {
   });
 
   it("should exe task array return by function", done => {
-    let foo2 = 0, foo3 = 0;
+    let foo2 = 0,
+      foo3 = 0;
     const xclap = new XClap({
       foo: () => ["foo2", "foo3"],
       foo2: () => foo2++,
       foo3: () => foo3++
     });
-    const exeEvents = [
-      "lookup",
-      "function",
-      "concurrent-arr",
-      "lookup",
-      "lookup",
-      "function",
-      "function"
-    ];
+    const exeEvents = ["lookup", "function", "concurrent-arr", "lookup", "lookup", "function", "function"];
 
     xclap.on("execute", data => {
       expect(data.type).to.equal(exeEvents[0]);
@@ -274,7 +267,8 @@ describe("xclap", function() {
   });
 
   it("should execute concurrent tasks", done => {
-    let foo = 0, foo2 = 0;
+    let foo = 0,
+      foo2 = 0;
     const xclap = new XClap({
       foo: [() => foo++, ["a", "b", () => foo2++, "c"]],
       a: cb => process.nextTick(cb),
@@ -315,7 +309,9 @@ describe("xclap", function() {
   });
 
   it("should run a user array concurrently", done => {
-    let foo = 0, foo2 = 0, fooX = 0;
+    let foo = 0,
+      foo2 = 0,
+      fooX = 0;
     const xclap = new XClap({
       foo: [() => foo++, ["a", "b", () => foo2++, "c"]],
       fooX: cb => {
@@ -364,7 +360,8 @@ describe("xclap", function() {
   });
 
   it("should return all errors from concurrent tasks", done => {
-    let foo = 0, foo2 = 0;
+    let foo = 0,
+      foo2 = 0;
     const xclap = new XClap({
       foo: [() => foo++, ["a", "b", () => foo2++, "c"]],
       a: cb => {
@@ -413,7 +410,8 @@ describe("xclap", function() {
   });
 
   it("should execute a dep function directly", done => {
-    let foo = 0, dep = 0;
+    let foo = 0,
+      dep = 0;
     const xclap = new XClap({
       foo: {
         dep: () => dep++,
@@ -442,7 +440,8 @@ describe("xclap", function() {
   });
 
   it("should execute a dep as serial array", done => {
-    let foo = 0, foo2 = 0;
+    let foo = 0,
+      foo2 = 0;
     const xclap = new XClap({
       foo: {
         dep: ["foo2"],
@@ -468,7 +467,8 @@ describe("xclap", function() {
   });
 
   it("should execute a dep as serial and then concurrent array", done => {
-    let foo = 0, foo2 = 0;
+    let foo = 0,
+      foo2 = 0;
     const xclap = new XClap({
       foo: {
         dep: [["foo2"]],
@@ -516,7 +516,8 @@ describe("xclap", function() {
   });
 
   it("should supply context as this to task function", done => {
-    let foo = 0, foo3 = 0;
+    let foo = 0,
+      foo3 = 0;
     const xclap = new XClap();
     xclap.load({
       foo2: {
@@ -712,6 +713,66 @@ describe("xclap", function() {
       expect(err[0].message).to.equal(
         "Unable to process task foo.S because value type Boolean is unknown and no value.item"
       );
+      done();
+    });
+  });
+
+  it("should fail if task name is not found", done => {
+    const xclap = new XClap({});
+    xclap.run("foo", err => {
+      expect(err[0].message).to.equal("Task foo not found");
+      done();
+    });
+  });
+
+  it("should fail if namespace is not found", done => {
+    const xclap = new XClap({});
+    xclap.run(":foo:bar", err => {
+      expect(err[0].message).to.equal("No task namespace foo exist");
+      done();
+    });
+  });
+
+  it("should fail if task name is empty", done => {
+    const xclap = new XClap({});
+    xclap.run("", err => {
+      expect(err[0].message).to.equal("xqitem must have a name");
+      done();
+    });
+  });
+
+  it("should fail if namespace is invalid", done => {
+    const xclap = new XClap({});
+    xclap.run("::bar", err => {
+      expect(err[0].message).to.equal("Invalid namespace in task name ::bar");
+      done();
+    });
+  });
+
+  it("should fail if namespace doesn't exist", done => {
+    const xclap = new XClap({});
+    xclap.run(":foo:bar", err => {
+      expect(err[0].message).to.equal("No task namespace foo exist");
+      done();
+    });
+  });
+
+  it("should fail if task is not in namespace", done => {
+    const xclap = new XClap("foo", {
+      test: () => undefined
+    });
+    xclap.run(":foo:bar", err => {
+      expect(err[0].message).to.equal("Task bar in namespace foo not found");
+      done();
+    });
+  });
+
+  it("should fail if task is not in default namespace", done => {
+    const xclap = new XClap({
+      test: () => undefined
+    });
+    xclap.run(":bar", err => {
+      expect(err[0].message).to.equal("Task bar in namespace : not found");
       done();
     });
   });

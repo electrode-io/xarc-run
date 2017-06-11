@@ -16,7 +16,8 @@ const tasks = {
     }, 20);
   },
   a: cb => {
-    let i, n = 0;
+    let i,
+      n = 0;
     i = setInterval(() => {
       if (n++ === 3) {
         clearInterval(i);
@@ -27,7 +28,8 @@ const tasks = {
     }, 10);
   },
   b: cb => {
-    let i, n = 0;
+    let i,
+      n = 0;
     i = setInterval(() => {
       if (n++ === 3) {
         clearInterval(i);
@@ -38,7 +40,8 @@ const tasks = {
     }, 10);
   },
   c: cb => {
-    let i, n = 0;
+    let i,
+      n = 0;
     i = setInterval(() => {
       if (n++ === 3) {
         clearInterval(i);

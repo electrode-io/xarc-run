@@ -29,6 +29,14 @@ Any task can be invoked with the command `clap`:
 $ clap <task1> [task1 options] <task2> ... <taskN>
 ```
 
+### Global CLI command
+
+To have the `clap` command available globally, please install the small invoker [xclap-cli]
+
+```bash
+$ npm install -g xclap-cli
+```
+
 ### Simple Task Definitions
 
 Save this to `clap.js`
@@ -93,7 +101,7 @@ If you run a task without specifying the namespace, then it's searched through a
 
 > For obvious reasons, this means task names cannot **_start_** with `:`.
 
-### Detailed Refrence
+### Detailed Reference
 
 See [reference](./REFERENCE.md) for more detailed information.
 
@@ -112,3 +120,5 @@ See [reference](./REFERENCE.md) for more detailed information.
 [daviddm-dev-image]: https://david-dm.org/jchip/xclap/dev-status.svg
 
 [daviddm-dev-url]: https://david-dm.org/jchip/xclap?type=dev
+
+[xclap-cli]: https://github.com/jchip/xclap-cli
