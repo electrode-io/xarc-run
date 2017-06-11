@@ -3,4 +3,3 @@ node_modules
 coverage
 .nyc*
 *.swp
-package-lock.json
