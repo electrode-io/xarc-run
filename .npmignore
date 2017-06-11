@@ -7,3 +7,4 @@ package-lock.json
 .npmignore
 test
 .travis.yml
+./xclap.js

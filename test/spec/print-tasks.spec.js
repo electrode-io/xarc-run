@@ -12,6 +12,7 @@ describe("print tasks", function() {
     const intercept = interceptStdout.intercept(true);
     xclap.load(print1);
     xclap.load("ns1", print1);
+    xclap.load("ns2", {});
     xclap.printTasks();
     intercept.restore();
     const outFile = process.version.startsWith("v4.")

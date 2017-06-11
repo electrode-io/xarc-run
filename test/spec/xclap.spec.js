@@ -62,7 +62,15 @@ describe("xclap", function() {
       foo2: () => foo2++,
       foo3: () => foo3++
     });
-    const exeEvents = ["lookup", "function", "concurrent-arr", "lookup", "lookup", "function", "function"];
+    const exeEvents = [
+      "lookup",
+      "function",
+      "concurrent-arr",
+      "lookup",
+      "lookup",
+      "function",
+      "function"
+    ];
 
     xclap.on("execute", data => {
       expect(data.type).to.equal(exeEvents[0]);
@@ -302,6 +310,55 @@ describe("xclap", function() {
       expect(doneItem).to.equal(7);
       expect(foo).to.equal(1);
       expect(foo2).to.equal(1);
+      done(err);
+    });
+  });
+
+  it("should run a user array concurrently", done => {
+    let foo = 0, foo2 = 0, fooX = 0;
+    const xclap = new XClap({
+      foo: [() => foo++, ["a", "b", () => foo2++, "c"]],
+      fooX: cb => {
+        fooX++;
+        process.nextTick(cb);
+      },
+      a: cb => process.nextTick(cb),
+      b: cb => process.nextTick(cb),
+      c: cb => process.nextTick(cb)
+    });
+    const exeEvents = [
+      "concurrent-arr",
+      "lookup",
+      "lookup",
+      "serial-arr",
+      "function",
+      "function",
+      "concurrent-arr",
+      "lookup",
+      "lookup",
+      "lookup",
+      "function",
+      "function",
+      "function",
+      "function"
+    ];
+
+    xclap.on("execute", data => {
+      expect(data.type).to.equal(exeEvents[0]);
+      exeEvents.shift();
+    });
+
+    let doneItem = 0;
+    xclap.on("done-item", () => doneItem++);
+
+    xclap.run(["foo", "fooX"], err => {
+      if (err) {
+        return done(err);
+      }
+      expect(doneItem).to.equal(9);
+      expect(foo).to.equal(1);
+      expect(foo2).to.equal(1);
+      expect(fooX).to.equal(1);
       done(err);
     });
   });
