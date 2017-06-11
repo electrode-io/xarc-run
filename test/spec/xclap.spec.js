@@ -598,7 +598,21 @@ describe("xclap", function() {
         throw new Error("test");
       }
     });
-    xclap.run("1:foo", err => {
+    xclap.run(":1:foo", err => {
+      expect(err).to.exist;
+      expect(err[0].message).to.equal("test");
+      done();
+    });
+  });
+
+  it("should allow non-leading : in task names", done => {
+    const xclap = new XClap();
+    xclap.load("1", {
+      "foo:bar": () => {
+        throw new Error("test");
+      }
+    });
+    xclap.run(":1:foo:bar", err => {
       expect(err).to.exist;
       expect(err[0].message).to.equal("test");
       done();

@@ -38,9 +38,9 @@ describe("xtasks", function() {
     expect(xtasks.lookup(":def1")).to.equal("default1");
   });
 
-  it("should lookup task by namespace:name", () => {
+  it("should lookup task by :namespace:name", () => {
     const xtasks = makeIt();
-    expect(xtasks.lookup("1:foo1")).to.equal("1-foo1");
-    expect(xtasks.lookup("sample1:foo1")).to.equal("sample1-foo1");
+    expect(xtasks.lookup(":1:foo1")).to.equal("1-foo1");
+    expect(xtasks.lookup(":sample1:foo1")).to.equal("sample1-foo1");
   });
 });
