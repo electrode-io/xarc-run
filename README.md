@@ -13,6 +13,8 @@ An advanced and flexible JavaScript task executor.
 -   Proper nesting hierarchy
 -   Promise or callback support
 
+The namespace feature allows you to have tasks with the same name so you can modify certain tasks without replacing them.
+
 ## Getting Started
 
 ### Install
