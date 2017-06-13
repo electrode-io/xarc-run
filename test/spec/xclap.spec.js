@@ -63,7 +63,15 @@ describe("xclap", function() {
       foo2: () => foo2++,
       foo3: () => foo3++
     });
-    const exeEvents = ["lookup", "function", "concurrent-arr", "lookup", "lookup", "function", "function"];
+    const exeEvents = [
+      "lookup",
+      "function",
+      "concurrent-arr",
+      "lookup",
+      "lookup",
+      "function",
+      "function"
+    ];
 
     xclap.on("execute", data => {
       expect(data.type).to.equal(exeEvents[0]);

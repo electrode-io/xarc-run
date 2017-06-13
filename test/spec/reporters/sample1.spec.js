@@ -6,13 +6,12 @@ const expect = require("chai").expect;
 const interceptStdout = require("../../intercept-stdout");
 const chalk = require("chalk");
 
-describe("sample1 console report", function () {
-  before(() => chalk.enabled = false);
-  after(() => chalk.enabled = true);
+describe("sample1 console report", function() {
+  before(() => (chalk.enabled = false));
+  after(() => (chalk.enabled = true));
 
   it("should log report to console", done => {
-    const expectOutput =
-      `Process foo2 serial array ["foo2a"]
+    const expectOutput = `Process foo2 serial array ["foo2a"]
 -Process foo2a serial array ["xfoo1","xfoo2","~$echo test anon shell",[".","a","b"],"func","foo3",["a","b",["a","c"],"xfoo4","b","xfoo4","func"],"xfoo4"]
 ..Execute xfoo1 as function
 >>Done Execute xfoo1 as function
@@ -61,7 +60,7 @@ Done Process foo2 serial array ["foo2a"]
 `;
     const intercept = interceptStdout.intercept(true);
     xclap.load(sample1);
-    xclap.run("foo2", (err) => {
+    xclap.run("foo2", err => {
       intercept.restore();
       if (err) {
         return done(err);
@@ -77,8 +76,7 @@ Done Process foo2 serial array ["foo2a"]
   });
 
   it("should log failure report to console", done => {
-    const expectOutput =
-      `Process foo2ba serial array ["xfoo1","xfoo2","~$echo test anon shell",[".","a","b"],"func","foo3",["a","b",["a","c"],"xerr","b","xerr","func"],"xfoo4"]
+    const expectOutput = `Process foo2ba serial array ["xfoo1","xfoo2","~$echo test anon shell",[".","a","b"],"func","foo3",["a","b",["a","c"],"xerr","b","xerr","func"],"xfoo4"]
 -Execute xfoo1 as function
 >Done Execute xfoo1 as function
 .Execute xfoo2 echo "a direct shell command xfoo2"
@@ -117,7 +115,7 @@ Done Process foo2ba serial array ["xfoo1","xfoo2","~$echo test anon shell",[".",
 `;
     let intercept = interceptStdout.intercept(true);
     xclap.load(sample1);
-    xclap.run("foo2ba", (err) => {
+    xclap.run("foo2ba", err => {
       intercept.restore();
       expect(err).to.exist;
       expect(err.length).to.equal(2);
@@ -135,6 +133,5 @@ Done Process foo2ba serial array ["xfoo1","xfoo2","~$echo test anon shell",[".",
         done();
       });
     });
-  })
-
+  });
 });
