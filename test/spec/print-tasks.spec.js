@@ -2,14 +2,14 @@
 
 const xclap = require("../..");
 const print1 = require("../fixtures/print1");
-const interceptStdout = require("../intercept-stdout");
+const xstdout = require("xstdout");
 const Fs = require("fs");
 const Path = require("path");
 const expect = require("chai").expect;
 
 describe("print tasks", function() {
   it("should print tasks", () => {
-    const intercept = interceptStdout.intercept(true);
+    const intercept = xstdout.intercept(true);
     xclap.load(print1);
     xclap.load("ns1", print1);
     xclap.load("ns2", {});

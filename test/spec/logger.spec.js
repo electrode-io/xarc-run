@@ -1,12 +1,12 @@
 "use strict";
 
 const logger = require("../../lib/logger");
-const interceptStdout = require("../intercept-stdout");
+const xstdout = require("xstdout");
 const expect = require("chai").expect;
 
 describe("logger", function() {
   it("should log to stdout", () => {
-    const intercept = interceptStdout.intercept(true);
+    const intercept = xstdout.intercept(true);
     logger.log("test");
     intercept.restore();
     expect(intercept.stdout.join("")).include("test");

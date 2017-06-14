@@ -3,7 +3,7 @@
 const xclap = require("../../..");
 const sample1 = require("../../fixtures/sample1");
 const expect = require("chai").expect;
-const interceptStdout = require("../../intercept-stdout");
+const xstdout = require("xstdout");
 const chalk = require("chalk");
 
 describe("sample1 console report", function() {
@@ -58,7 +58,7 @@ describe("sample1 console report", function() {
 >Done Process foo2a serial array ["xfoo1","xfoo2","~$echo test anon shell",[".","a","b"],"func","foo3",["a","b",["a","c"],"xfoo4","b","xfoo4","func"],"xfoo4"]
 Done Process foo2 serial array ["foo2a"]
 `;
-    const intercept = interceptStdout.intercept(true);
+    const intercept = xstdout.intercept(true);
     xclap.load(sample1);
     xclap.run("foo2", err => {
       intercept.restore();
@@ -113,7 +113,7 @@ Done Process foo2 serial array ["foo2a"]
 >Done Process foo2ba.S concurrent array ["a","b",["a","c"],"xerr","b","xerr","func"]
 Done Process foo2ba serial array ["xfoo1","xfoo2","~$echo test anon shell",[".","a","b"],"func","foo3",["a","b",["a","c"],"xerr","b","xerr","func"],"xfoo4"]
 `;
-    let intercept = interceptStdout.intercept(true);
+    let intercept = xstdout.intercept(true);
     xclap.load(sample1);
     xclap.run("foo2ba", err => {
       intercept.restore();
@@ -127,7 +127,7 @@ Done Process foo2ba serial array ["xfoo1","xfoo2","~$echo test anon shell",[".",
         .map(x => x.replace(/^\[[^\]]+\] /, ""))
         .join("");
       expect(output).to.equal(expectOutput);
-      intercept = interceptStdout.intercept(true);
+      intercept = xstdout.intercept(true);
       xclap.waitAllPending(() => {
         intercept.restore();
         done();

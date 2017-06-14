@@ -2,7 +2,7 @@
 
 const XClap = require("../../lib/xclap");
 const expect = require("chai").expect;
-const interceptStdout = require("../intercept-stdout");
+const xstdout = require("xstdout");
 
 describe("xclap", function() {
   it("should lookup and exe a task as a function once", done => {
@@ -642,7 +642,7 @@ describe("xclap", function() {
   });
 
   it("should exit on error", done => {
-    const intercept = interceptStdout.intercept(true);
+    const intercept = xstdout.intercept(true);
     let testStatus;
     const ox = process.exit;
     process.exit = status => (testStatus = status);
@@ -662,7 +662,7 @@ describe("xclap", function() {
   });
 
   it("should not exit on error if stopOnError is false", done => {
-    const intercept = interceptStdout.intercept(true);
+    const intercept = xstdout.intercept(true);
     let testStatus = "test";
     const ox = process.exit;
     process.exit = () => {

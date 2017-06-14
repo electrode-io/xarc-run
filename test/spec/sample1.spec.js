@@ -3,11 +3,11 @@
 const XClap = require("../../lib/xclap");
 const sample1 = require("../fixtures/sample1");
 const expect = require("chai").expect;
-const interceptStdout = require("../intercept-stdout");
+const xstdout = require("xstdout");
 
 describe("sample1", function() {
   it("should run sample1:foo2 tasks", done => {
-    const intercept = interceptStdout.intercept(true);
+    const intercept = xstdout.intercept(true);
     const expectOutput = [
       "hello, this is xfoo1\n",
       "a direct shell command xfoo2\n",
@@ -53,7 +53,7 @@ describe("sample1", function() {
   });
 
   it("should run sample1:foo2b tasks", done => {
-    let intercept = interceptStdout.intercept(true);
+    let intercept = xstdout.intercept(true);
     const expectOutput = [
       "hello, this is xfoo1\n",
       "a direct shell command xfoo2\n",
@@ -74,7 +74,7 @@ describe("sample1", function() {
       intercept.restore();
       expect(err).to.exist;
       expect(intercept.stdout.sort()).to.deep.equal(expectOutput.sort());
-      intercept = interceptStdout.intercept(true);
+      intercept = xstdout.intercept(true);
       xclap.waitAllPending(() => {
         intercept.restore();
         done();
@@ -83,7 +83,7 @@ describe("sample1", function() {
   });
 
   it("should run sample1:foo2b tasks with stopOnError false", done => {
-    let intercept = interceptStdout.intercept(true);
+    let intercept = xstdout.intercept(true);
     const xclap = new XClap(sample1);
     xclap.stopOnError = false;
     xclap.run("foo2ba", err => {
@@ -92,7 +92,7 @@ describe("sample1", function() {
       expect(err.length).to.equal(2);
       expect(err[0].message).to.equal("xerr");
       expect(err[1].message).to.equal("xerr");
-      intercept = interceptStdout.intercept(true);
+      intercept = xstdout.intercept(true);
       xclap.waitAllPending(err => {
         intercept.restore();
         done(err);
