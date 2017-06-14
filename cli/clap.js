@@ -7,6 +7,7 @@ const xclap = require("..");
 const chalk = require("chalk");
 const logger = require("../lib/logger");
 const usage = require("./usage");
+const envPath = require("xsh").envPath;
 
 function clap(argv, offset) {
   if (!argv) {
@@ -35,6 +36,11 @@ function clap(argv, offset) {
       console.log(`${usage}\n`);
     }
     process.exit(0);
+  }
+
+  const nmBin = Path.resolve("node_modules", ".bin");
+  if (Fs.existSync(nmBin)) {
+    envPath.addToFront(nmBin);
   }
 
   xclap.run(claps.tasks.length === 1 ? claps.tasks[0] : claps.tasks);
