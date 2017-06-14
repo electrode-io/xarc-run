@@ -39,7 +39,7 @@
   "devDependencies": {
     "chai": "^4.0.0",
     "mocha": "^3.4.2",
-    "nyc": "^10.3.2",
+    "nyc": "^11.0.2",
     "prettier": "^1.2.2",
     "xstdout": "^0.1.0"
   },
