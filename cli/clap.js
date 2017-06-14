@@ -29,13 +29,18 @@ function clap(argv, offset) {
 
   const loaded = chalk.green(`$CWD/${file}`);
   logger.log(`Loaded tasks from ${loaded}`);
+  const numTasks = xclap.countTasks();
 
-  if (claps.opts.help || claps.tasks.length === 0) {
+  if (numTasks === 0) {
+    logger.log(chalk.red("No tasks found - please load some."));
+  }
+
+  if (claps.opts.help || claps.tasks.length === 0 || numTasks === 0) {
     xclap.printTasks();
     if (claps.opts.help) {
       console.log(`${usage}\n`);
     }
-    process.exit(0);
+    process.exit(1);
   }
 
   const nmBin = Path.resolve("node_modules", ".bin");
