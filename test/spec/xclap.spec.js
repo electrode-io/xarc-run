@@ -235,6 +235,15 @@ describe("xclap", function() {
     });
   });
 
+  it("should count tasks", () => {
+    const xclap = new XClap();
+    expect(xclap.countTasks()).to.equal(0);
+    xclap.load({ foo: () => undefined });
+    expect(xclap.countTasks()).to.equal(1);
+    xclap.load("1", { foo: () => undefined, bar: () => undefined });
+    expect(xclap.countTasks()).to.equal(3);
+  });
+
   it("should handle top serial tasks with first dot", done => {
     let foo = 0;
     const xclap = new XClap({
