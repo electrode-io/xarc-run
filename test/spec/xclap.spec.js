@@ -165,7 +165,7 @@ describe("xclap", function() {
 
     xclap.run("foo", err => {
       expect(err).to.exist;
-      expect(err[0].message).to.equal("exit 1 return code 1");
+      expect(err[0].message).to.equal("exit 1 exit code 1");
       expect(doneItem).to.equal(1);
       expect(foo).to.equal(0);
       done();
@@ -190,7 +190,7 @@ describe("xclap", function() {
 
     xclap.run("foo", err => {
       expect(err).to.exist;
-      expect(err[0].message).to.equal("exit 1 return code 1");
+      expect(err[0].message).to.equal("exit 1 exit code 1");
       expect(doneItem).to.equal(1);
       done();
     });
