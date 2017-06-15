@@ -1,5 +1,11 @@
 "use strict";
 
 module.exports = {
-  help: {}
+  help: {
+    alias: "h"
+  },
+  nmbin: {
+    type: "boolean",
+    default: true
+  }
 };

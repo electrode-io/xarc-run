@@ -8,6 +8,7 @@ const chalk = require("chalk");
 const logger = require("../lib/logger");
 const usage = require("./usage");
 const envPath = require("xsh").envPath;
+const Fs = require("fs");
 
 function clap(argv, offset) {
   if (!argv) {
@@ -43,9 +44,14 @@ function clap(argv, offset) {
     process.exit(1);
   }
 
-  const nmBin = Path.resolve("node_modules", ".bin");
-  if (Fs.existSync(nmBin)) {
-    envPath.addToFront(nmBin);
+  if (claps.opts.nmbin) {
+    const nmBin = Path.join("node_modules", ".bin");
+    const fullNmBin = Path.resolve(nmBin);
+    if (Fs.existsSync(fullNmBin)) {
+      const x = chalk.magenta(`CWD/${nmBin}`);
+      logger.log(`Adding ${x} to PATH`);
+      envPath.addToFront(fullNmBin);
+    }
   }
 
   xclap.run(claps.tasks.length === 1 ? claps.tasks[0] : claps.tasks);
