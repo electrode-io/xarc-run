@@ -18,6 +18,11 @@ function clap(argv, offset) {
 
   const claps = nixClap(argv, offset);
 
+  if (claps.opts.help && claps.tasks.length === 0) {
+    claps.parser.showHelp();
+    process.exit(0);
+  }
+
   let clapFile;
   const file = ["clap.js", "xclap.js", "gulpfile.js"].find(
     f => (clapFile = optionalRequire(Path.resolve(f)))
@@ -36,12 +41,15 @@ function clap(argv, offset) {
     logger.log(chalk.red("No tasks found - please load some."));
   }
 
-  if (claps.opts.help || claps.tasks.length === 0 || numTasks === 0) {
+  if (claps.tasks.length === 0 || numTasks === 0) {
     xclap.printTasks();
-    if (claps.opts.help) {
-      console.log(`${usage}\n`);
-    }
+    console.log(`${usage}\n`);
     process.exit(1);
+  }
+
+  if (claps.opts.help) {
+    console.log("help for tasks:", claps.tasks);
+    process.exit(0);
   }
 
   if (claps.opts.nmbin) {

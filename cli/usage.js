@@ -1,8 +1,11 @@
 const chalk = require("chalk");
+const t1 = chalk.cyan("task1");
+const t2 = chalk.cyan("task2");
+const o = chalk.gray("[task options]");
 const usage =
   "\n" +
   chalk.bold("Usage:") +
   " clap " +
-  chalk.blue("[flags] [--]") +
-  chalk.green(" [task [task options] task [task options] ...]");
+  chalk.blue("[options] [--]") +
+  ` [${t1} ${o} ${t2} ${o} ...]`;
 module.exports = usage;
