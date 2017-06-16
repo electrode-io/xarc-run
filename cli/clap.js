@@ -10,6 +10,7 @@ const usage = require("./usage");
 const envPath = require("xsh").envPath;
 const Fs = require("fs");
 const Pkg = require("../package.json");
+const npmLoader = require("./npm-loader");
 
 function clap(argv, offset) {
   if (!argv) {
@@ -38,6 +39,9 @@ function clap(argv, offset) {
 
   const loaded = chalk.green(`$CWD/${file}`);
   logger.log(`Loaded tasks from ${loaded}`);
+
+  npmLoader(xclap);
+
   const numTasks = xclap.countTasks();
 
   if (numTasks === 0) {
@@ -64,6 +68,8 @@ function clap(argv, offset) {
       envPath.addToFront(fullNmBin);
     }
   }
+
+  process.env.FORCE_COLOR = "true";
 
   xclap.run(claps.tasks.length === 1 ? claps.tasks[0] : claps.tasks);
 }

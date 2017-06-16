@@ -57,5 +57,10 @@
       "test",
       "coverage"
     ]
+  },
+  "xclap": {
+    "__config": {
+    },
+    "test": "echo pkg test"
   }
 }
