@@ -40,7 +40,7 @@ function clap(argv, offset) {
   const loaded = chalk.green(`$CWD/${file}`);
   logger.log(`Loaded tasks from ${loaded}`);
 
-  npmLoader(xclap);
+  npmLoader(xclap, claps.opts);
 
   const numTasks = xclap.countTasks();
 

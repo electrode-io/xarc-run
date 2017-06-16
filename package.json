@@ -59,7 +59,7 @@
     ]
   },
   "xclap": {
-    "__config": {
+    "__options": {
     },
     "test": "echo pkg test"
   }

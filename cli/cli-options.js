@@ -13,5 +13,11 @@ module.exports = {
     alias: ["nb"],
     desc: `add ${chalk.magenta("CWD/node_modules/.bin")} to PATH`,
     default: true
+  },
+  npm: {
+    type: "boolean",
+    alias: "n",
+    desc: `load npm scripts into namespace npm`,
+    default: true
   }
 };

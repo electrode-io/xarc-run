@@ -1,11 +1,22 @@
 "use strict";
 
+const Path = require("path");
 const cliOptions = require("./cli-options");
 const Yargs = require("yargs");
 const usage = require("./usage");
+const optionalRequire = require("optional-require")(require);
+const Pkg = optionalRequire(Path.resolve("package.json"));
+const logger = require("../lib/logger");
+const chalk = require("chalk");
 
 function nixClap(argv, start) {
   const parser = Yargs.usage(usage, cliOptions);
+
+  if (Pkg && Pkg.xclap && Pkg.xclap.__options) {
+    const pkgName = chalk.magenta("CWD/package.json");
+    logger.log(`Applying ${chalk.green("xclap __options")} from ${pkgName}`);
+    parser.config(Pkg.xclap.__options);
+  }
 
   function getOpt(name) {
     if (cliOptions.hasOwnProperty(name)) {
