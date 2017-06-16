@@ -11,6 +11,7 @@ const envPath = require("xsh").envPath;
 const Fs = require("fs");
 const Pkg = require("../package.json");
 const npmLoader = require("./npm-loader");
+const xsh = require("xsh");
 
 function clap(argv, offset) {
   if (!argv) {
@@ -29,17 +30,26 @@ function clap(argv, offset) {
 
   npmLoader(xclap, claps.opts);
 
+  const clapDir = claps.opts.dir;
+
   let clapFile;
+  let clapTasks;
   const file = ["clap.js", "xclap.js", "gulpfile.js"].find(
-    f => (clapFile = optionalRequire(Path.resolve(f)))
+    f => (clapTasks = optionalRequire((clapFile = Path.join(clapDir, f))))
   );
 
-  if (!clapFile) {
-    logger.log("No clap.js found in CWD");
+  if (!clapTasks) {
+    logger.log(`No clap.js found in ${clapDir}`);
     process.exit(1);
   }
 
-  const loaded = chalk.green(`$CWD/${file}`);
+  if (typeof clapTasks === "function") {
+    clapTasks(xclap);
+  } else if (typeof clapTasks === "object") {
+    xclap.load("clap", clapTasks);
+  }
+
+  const loaded = chalk.green(`${xsh.pathCwd.replace(clapFile)}`);
   logger.log(`Loaded tasks from ${loaded}`);
 
   const numTasks = xclap.countTasks();
@@ -60,12 +70,11 @@ function clap(argv, offset) {
   }
 
   if (claps.opts.nmbin) {
-    const nmBin = Path.join("node_modules", ".bin");
-    const fullNmBin = Path.resolve(nmBin);
-    if (Fs.existsSync(fullNmBin)) {
-      const x = chalk.magenta(`CWD/${nmBin}`);
+    const nmBin = Path.resolve("node_modules", ".bin");
+    if (Fs.existsSync(nmBin)) {
+      const x = chalk.magenta(`${xsh.pathCwdNm.replace(nmBin)}`);
       logger.log(`Adding ${x} to PATH`);
-      envPath.addToFront(fullNmBin);
+      envPath.addToFront(nmBin);
     }
   }
 

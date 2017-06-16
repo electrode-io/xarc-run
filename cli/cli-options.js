@@ -19,5 +19,11 @@ module.exports = {
     alias: "n",
     desc: `load npm scripts into namespace npm`,
     default: true
+  },
+  dir: {
+    type: "string",
+    alias: "d",
+    desc: `Set dir to look for clap.js`,
+    default: process.cwd()
   }
 };
