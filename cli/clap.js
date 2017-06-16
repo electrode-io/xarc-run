@@ -9,6 +9,7 @@ const logger = require("../lib/logger");
 const usage = require("./usage");
 const envPath = require("xsh").envPath;
 const Fs = require("fs");
+const Pkg = require("../package.json");
 
 function clap(argv, offset) {
   if (!argv) {
@@ -17,6 +18,8 @@ function clap(argv, offset) {
   }
 
   const claps = nixClap(argv, offset);
+
+  logger.log(`${chalk.green("xclap")} version ${Pkg.version}`);
 
   if (claps.opts.help && claps.tasks.length === 0) {
     claps.parser.showHelp();
