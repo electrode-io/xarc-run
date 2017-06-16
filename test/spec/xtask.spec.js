@@ -29,18 +29,22 @@ describe("xtasks", function() {
 
   it("should lookup task by name from first matching namespace", () => {
     const xtasks = makeIt();
-    expect(xtasks.lookup("foo1")).to.equal("1-foo1");
+    expect(xtasks.lookup("foo1")).to.deep.equal({ ns: "1", name: "foo1", item: "1-foo1" });
   });
 
   it("should lookup task by name from default namespace", () => {
     const xtasks = makeIt();
-    expect(xtasks.lookup("def1")).to.equal("default1");
-    expect(xtasks.lookup(":def1")).to.equal("default1");
+    expect(xtasks.lookup("def1")).to.deep.equal({ ns: ":", name: "def1", item: "default1" });
+    expect(xtasks.lookup(":def1")).to.deep.equal({ ns: ":", name: "def1", item: "default1" });
   });
 
   it("should lookup task by :namespace:name", () => {
     const xtasks = makeIt();
-    expect(xtasks.lookup(":1:foo1")).to.equal("1-foo1");
-    expect(xtasks.lookup(":sample1:foo1")).to.equal("sample1-foo1");
+    expect(xtasks.lookup(":1:foo1")).to.deep.equal({ ns: "1", name: "foo1", item: "1-foo1" });
+    expect(xtasks.lookup(":sample1:foo1")).to.deep.equal({
+      ns: "sample1",
+      name: "foo1",
+      item: "sample1-foo1"
+    });
   });
 });
