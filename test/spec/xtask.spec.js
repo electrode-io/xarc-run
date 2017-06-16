@@ -29,12 +29,22 @@ describe("xtasks", function() {
 
   it("should lookup task by name from first matching namespace", () => {
     const xtasks = makeIt();
-    expect(xtasks.lookup("foo1")).to.deep.equal({ ns: "1", name: "foo1", item: "1-foo1" });
+    expect(xtasks.lookup("foo1")).to.deep.equal({
+      ns: "1",
+      name: "foo1",
+      item: "1-foo1",
+      search: true
+    });
   });
 
   it("should lookup task by name from default namespace", () => {
     const xtasks = makeIt();
-    expect(xtasks.lookup("def1")).to.deep.equal({ ns: ":", name: "def1", item: "default1" });
+    expect(xtasks.lookup("def1")).to.deep.equal({
+      ns: ":",
+      name: "def1",
+      item: "default1",
+      search: true
+    });
     expect(xtasks.lookup(":def1")).to.deep.equal({ ns: ":", name: "def1", item: "default1" });
   });
 

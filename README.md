@@ -7,11 +7,13 @@ An advanced and flexible JavaScript task executor.
 
 ## Features
 
--   Support namespaces
+-   **_Support [namespaces](#namespace) for tasks!!!_**
 -   Serial tasks execution
 -   Concurrent tasks execution
 -   Proper nesting hierarchy
 -   Promise or callback support
+-   Load and execute npm scripts from `package.json`
+-   Support custom task execution reporter
 
 The namespace feature allows you to have tasks with the same name so you can modify certain tasks without replacing them.
 
@@ -28,7 +30,13 @@ $ npm install xclap --save-dev
 Any task can be invoked with the command `clap`:
 
 ```bash
-$ clap <task1> [task1 options] <task2> ... <taskN>
+$ clap task1 [task1 options] [<task2> ... <taskN>]
+```
+
+For help on usage:
+
+```bash
+$ clap -h
 ```
 
 ### Global CLI command

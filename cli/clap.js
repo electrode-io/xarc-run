@@ -18,14 +18,16 @@ function clap(argv, offset) {
     offset = 2;
   }
 
-  const claps = nixClap(argv, offset);
-
   logger.log(`${chalk.green("xclap")} version ${Pkg.version}`);
+
+  const claps = nixClap(argv, offset);
 
   if (claps.opts.help && claps.tasks.length === 0) {
     claps.parser.showHelp();
     process.exit(0);
   }
+
+  npmLoader(xclap, claps.opts);
 
   let clapFile;
   const file = ["clap.js", "xclap.js", "gulpfile.js"].find(
@@ -39,8 +41,6 @@ function clap(argv, offset) {
 
   const loaded = chalk.green(`$CWD/${file}`);
   logger.log(`Loaded tasks from ${loaded}`);
-
-  npmLoader(xclap, claps.opts);
 
   const numTasks = xclap.countTasks();
 

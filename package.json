@@ -6,7 +6,8 @@
   "scripts": {
     "test": "mocha --recursive test/spec",
     "coverage": "nyc --all --reporter=lcov --reporter=text --reporter=text-summary npm test",
-    "format": "prettier --write --print-width 100 lib/*.js test/**/*.js"
+    "format": "prettier --write --print-width 100 lib/*.js test/**/*.js",
+    "xfoo2": "echo xfoo2 from npm scripts"
   },
   "repository": {
     "type": "git",
