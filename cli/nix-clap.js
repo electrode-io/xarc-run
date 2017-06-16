@@ -18,6 +18,8 @@ function nixClap(argv, start) {
     parser.config(Pkg.xclap.__options);
   }
 
+  parser.strict();
+
   function getOpt(name) {
     if (cliOptions.hasOwnProperty(name)) {
       return cliOptions[name];
