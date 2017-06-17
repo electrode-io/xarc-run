@@ -94,3 +94,7 @@ xclap.load("1", tasks);
 xclap.load({
   hello: "echo hello world"
 });
+
+module.exports = {
+  c1: "echo this is c1"
+};

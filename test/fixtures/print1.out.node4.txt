@@ -1,5 +1,5 @@
 [7m[1m[31mNamespace ':'[39m[22m[27m
-[4mPrimary Tasks[24m
+[4m[1mPrimary Tasks[22m[24m
 
 [36m  a ............[39m function 
 [34m  b ------------[39m function 
@@ -27,14 +27,14 @@
 [36m  xfoo3 ........[39m [35mecho "a direct shell command xfoo3"[39m
 [34m  xfoo4 --------[39m function 
 
-[4mOther Tasks[24m
+[4m[1mOther Tasks[22m[24m
 
 [36m  other-name1 .[39m [32m["other"][39m
 [34m  other-obj ---[39m [33mtask name with - should be other[39m
 [2m[32m                  tasks: ["other"][39m[22m
 
 [7m[1m[31mNamespace 'ns1'[39m[22m[27m
-[4mPrimary Tasks[24m
+[4m[1mPrimary Tasks[22m[24m
 
 [36m  a ............[39m function 
 [34m  b ------------[39m function 
@@ -62,7 +62,7 @@
 [36m  xfoo3 ........[39m [35mecho "a direct shell command xfoo3"[39m
 [34m  xfoo4 --------[39m function 
 
-[4mOther Tasks[24m
+[4m[1mOther Tasks[22m[24m
 
 [36m  other-name1 .[39m [32m["other"][39m
 [34m  other-obj ---[39m [33mtask name with - should be other[39m

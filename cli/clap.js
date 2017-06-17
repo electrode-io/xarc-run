@@ -63,8 +63,12 @@ function clap(argv, offset) {
       clapTasks(xclap);
       logger.log(`Called export function from ${loaded}`);
     } else if (typeof clapTasks === "object") {
-      xclap.load("clap", clapTasks);
-      logger.log(`Loaded tasks from ${loaded}`);
+      if (Object.keys(clapTasks).length > 0) {
+        xclap.load("clap", clapTasks);
+        logger.log(`Loaded tasks from ${loaded} into namespace ${chalk.magenta("clap")}`);
+      } else {
+        logger.log(`Loaded ${loaded}`);
+      }
     } else {
       logger.log(`Unknown export type ${chalk.yellow(typeof clapTasks)} from ${loaded}`);
     }
