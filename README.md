@@ -103,13 +103,13 @@ A group of tasks can be assigned a namespace.
 xclap.load([namepsace], tasks)
 ```
 
-You refer to the namespaces with leading `:`, ie: `:ns:foo`.
+You refer to the namespaces with `/`, ie: `ns/foo`.
 
-Anything that was loaded without a namespace is assigned to the default namespace, which can be accessed with a simple leading `:`, ie: `:foo`.
+Anything that was loaded without a namespace is assigned to the default namespace `/`, which can be accessed with a simple leading `/`, ie: `/foo`.
 
 If you run a task without specifying the namespace, then it's searched through all namespaces until it's found.  The default namespace is the first one to search.  The search is done in the order the namespaces were loaded.
 
-> For obvious reasons, this means task names cannot **_start_** with `:`.
+> For obvious reasons, this means task names cannot contain `/`.
 
 ### Detailed Reference
 

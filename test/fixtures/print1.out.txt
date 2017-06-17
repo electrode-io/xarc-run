@@ -1,4 +1,4 @@
-[7m[1m[31mNamespace ':'[39m[22m[27m
+[7m[1m[31mNamespace '/'[39m[22m[27m
 [4m[1mPrimary Tasks[22m[24m
 
 [36m  a ............[39m function a

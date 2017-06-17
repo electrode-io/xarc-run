@@ -40,18 +40,18 @@ describe("xtasks", function() {
   it("should lookup task by name from default namespace", () => {
     const xtasks = makeIt();
     expect(xtasks.lookup("def1")).to.deep.equal({
-      ns: ":",
+      ns: "/",
       name: "def1",
       item: "default1",
       search: true
     });
-    expect(xtasks.lookup(":def1")).to.deep.equal({ ns: ":", name: "def1", item: "default1" });
+    expect(xtasks.lookup("/def1")).to.deep.equal({ ns: "/", name: "def1", item: "default1" });
   });
 
-  it("should lookup task by :namespace:name", () => {
+  it("should lookup task by namespace/name", () => {
     const xtasks = makeIt();
-    expect(xtasks.lookup(":1:foo1")).to.deep.equal({ ns: "1", name: "foo1", item: "1-foo1" });
-    expect(xtasks.lookup(":sample1:foo1")).to.deep.equal({
+    expect(xtasks.lookup("1/foo1")).to.deep.equal({ ns: "1", name: "foo1", item: "1-foo1" });
+    expect(xtasks.lookup("sample1/foo1")).to.deep.equal({
       ns: "sample1",
       name: "foo1",
       item: "sample1-foo1"
@@ -85,24 +85,24 @@ describe("xtasks", function() {
   it("should return full names", () => {
     const xtasks = makeIt();
     expect(xtasks.fullNames()).to.deep.equal([
-      ":def1",
-      ":1:foo1",
-      ":1:def1",
-      ":sample1:xfoo1",
-      ":sample1:xfoo2",
-      ":sample1:xfoo3",
-      ":sample1:xfoo4",
-      ":sample1:a",
-      ":sample1:b",
-      ":sample1:c",
-      ":sample1:foo2a",
-      ":sample1:xerr",
-      ":sample1:foo2ba",
-      ":sample1:foo1",
-      ":sample1:foo2",
-      ":sample1:foo2b",
-      ":sample1:foo3Dep",
-      ":sample1:foo3"
+      "/def1",
+      "1/foo1",
+      "1/def1",
+      "sample1/xfoo1",
+      "sample1/xfoo2",
+      "sample1/xfoo3",
+      "sample1/xfoo4",
+      "sample1/a",
+      "sample1/b",
+      "sample1/c",
+      "sample1/foo2a",
+      "sample1/xerr",
+      "sample1/foo2ba",
+      "sample1/foo1",
+      "sample1/foo2",
+      "sample1/foo2b",
+      "sample1/foo3Dep",
+      "sample1/foo3"
     ]);
   });
 });

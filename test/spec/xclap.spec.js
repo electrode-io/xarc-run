@@ -618,21 +618,7 @@ describe("xclap", function() {
         throw new Error("test");
       }
     });
-    xclap.run(":1:foo", err => {
-      expect(err).to.exist;
-      expect(err[0].message).to.equal("test");
-      done();
-    });
-  });
-
-  it("should allow non-leading : in task names", done => {
-    const xclap = new XClap();
-    xclap.load("1", {
-      "foo:bar": () => {
-        throw new Error("test");
-      }
-    });
-    xclap.run(":1:foo:bar", err => {
+    xclap.run("1/foo", err => {
       expect(err).to.exist;
       expect(err[0].message).to.equal("test");
       done();
@@ -746,7 +732,7 @@ describe("xclap", function() {
 
   it("should fail if namespace is not found", done => {
     const xclap = new XClap({});
-    xclap.run(":foo:bar", err => {
+    xclap.run("foo/bar", err => {
       expect(err[0].message).to.equal("No task namespace foo exist");
       done();
     });
@@ -760,27 +746,11 @@ describe("xclap", function() {
     });
   });
 
-  it("should fail if namespace is invalid", done => {
-    const xclap = new XClap({});
-    xclap.run("::bar", err => {
-      expect(err[0].message).to.equal("Invalid namespace in task name ::bar");
-      done();
-    });
-  });
-
-  it("should fail if namespace doesn't exist", done => {
-    const xclap = new XClap({});
-    xclap.run(":foo:bar", err => {
-      expect(err[0].message).to.equal("No task namespace foo exist");
-      done();
-    });
-  });
-
   it("should fail if task is not in namespace", done => {
     const xclap = new XClap("foo", {
       test: () => undefined
     });
-    xclap.run(":foo:bar", err => {
+    xclap.run("foo/bar", err => {
       expect(err[0].message).to.equal("Task bar in namespace foo not found");
       done();
     });
@@ -790,8 +760,8 @@ describe("xclap", function() {
     const xclap = new XClap({
       test: () => undefined
     });
-    xclap.run(":bar", err => {
-      expect(err[0].message).to.equal("Task bar in namespace : not found");
+    xclap.run("/bar", err => {
+      expect(err[0].message).to.equal("Task bar in namespace / not found");
       done();
     });
   });

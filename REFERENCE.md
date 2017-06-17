@@ -1,5 +1,7 @@
 # Advanced Details
 
+Tasks is defined in an object, for example:
+
 ```js
 const tasks = {
   xfoo1: `echo "a direct shell command xfoo1"`,
@@ -70,8 +72,6 @@ Then function can return:
 
 ### Object
 
-
-
 ### Array serial/concurrent rules
 
 When you definte a task as an array, it should contain a list of task names to be executed serially or concurrently.
@@ -124,6 +124,26 @@ ie:
   foo: [["foo1", "foo2", "foo3"]]
 }
 ```
+
+## Loading Task
+
+Tasks can be loaded with `xclap.load`.  You can specify a namespace for the tasks.
+
+### Namespace
+
+A group of tasks can be assigned a namespace.
+
+```js
+xclap.load([namepsace], tasks)
+```
+
+You refer to the namespaces with `/`, ie: `ns/foo`.
+
+Anything that was loaded without a namespace is assigned to the default namespace `/`, which can be accessed with a simple leading `/`, ie: `/foo`.
+
+If you run a task without specifying the namespace, then it's searched through all namespaces until it's found.  The default namespace is the first one to search.  The search is done in the order the namespaces were loaded.
+
+> For obvious reasons, this means task names cannot contain `/`.
 
 ## Execution Context
 
