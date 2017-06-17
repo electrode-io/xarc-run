@@ -30,7 +30,7 @@ function clap(argv, offset) {
 
   npmLoader(xclap, claps.opts);
 
-  const clapDir = claps.opts.dir;
+  const clapDir = Path.resolve(claps.opts.dir);
 
   let clapFile;
   let clapTasks;
@@ -39,18 +39,18 @@ function clap(argv, offset) {
   );
 
   if (!clapTasks) {
-    logger.log(`No clap.js found in ${clapDir}`);
-    process.exit(1);
-  }
+    const x = chalk.magenta(xsh.pathCwd.replace(clapDir));
+    logger.log(`No ${chalk.green("clap.js")} found in ${x}`);
+  } else {
+    if (typeof clapTasks === "function") {
+      clapTasks(xclap);
+    } else if (typeof clapTasks === "object") {
+      xclap.load("clap", clapTasks);
+    }
 
-  if (typeof clapTasks === "function") {
-    clapTasks(xclap);
-  } else if (typeof clapTasks === "object") {
-    xclap.load("clap", clapTasks);
+    const loaded = chalk.green(`${xsh.pathCwd.replace(clapFile)}`);
+    logger.log(`Loaded tasks from ${loaded}`);
   }
-
-  const loaded = chalk.green(`${xsh.pathCwd.replace(clapFile)}`);
-  logger.log(`Loaded tasks from ${loaded}`);
 
   const numTasks = xclap.countTasks();
 
