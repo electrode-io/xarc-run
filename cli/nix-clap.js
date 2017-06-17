@@ -45,7 +45,8 @@ function nixClap(argv, start) {
   }
 
   function findCutOff() {
-    for (let i = start; i < argv.length && argv[i] !== "--"; i++) {
+    let i = start;
+    for (; i < argv.length && argv[i] !== "--"; i++) {
       if (!argv[i].startsWith("-")) {
         return i;
       }
@@ -55,7 +56,7 @@ function nixClap(argv, start) {
       }
     }
 
-    return argv.length;
+    return i;
   }
 
   const cutOff = findCutOff();
