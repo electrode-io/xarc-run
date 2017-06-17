@@ -3,6 +3,8 @@
 const XClap = require("../../lib/xclap");
 const expect = require("chai").expect;
 const xstdout = require("xstdout");
+const chalk = require("chalk");
+const assert = require("assert");
 
 describe("xclap", function() {
   it("should lookup and exe a task as a function once", done => {
@@ -165,7 +167,7 @@ describe("xclap", function() {
 
     xclap.run("foo", err => {
       expect(err).to.exist;
-      expect(err[0].message).to.equal("exit 1 exit code 1");
+      expect(err[0].message).to.equal("shell cmd 'exit 1' exit code 1");
       expect(doneItem).to.equal(1);
       expect(foo).to.equal(0);
       done();
@@ -190,7 +192,7 @@ describe("xclap", function() {
 
     xclap.run("foo", err => {
       expect(err).to.exist;
-      expect(err[0].message).to.equal("exit 1 exit code 1");
+      expect(err[0].message).to.equal("shell cmd 'exit 1' exit code 1");
       expect(doneItem).to.equal(1);
       done();
     });
@@ -664,7 +666,7 @@ describe("xclap", function() {
     setTimeout(() => {
       process.exit = ox;
       intercept.restore();
-      expect(intercept.stdout.join()).include("execution failed, errors:");
+      expect(intercept.stdout.join()).include("Execution Failed - Errors:");
       expect(testStatus).to.equal(1);
       done();
     }, 10);
@@ -687,7 +689,7 @@ describe("xclap", function() {
     setTimeout(() => {
       process.exit = ox;
       intercept.restore();
-      expect(intercept.stdout.join()).include("execution failed, errors:");
+      expect(intercept.stdout.join()).include("Execution Failed - Errors:");
       expect(testStatus).to.equal("test");
       done();
     }, 10);
@@ -791,6 +793,67 @@ describe("xclap", function() {
     xclap.run(":bar", err => {
       expect(err[0].message).to.equal("Task bar in namespace : not found");
       done();
+    });
+  });
+
+  describe("_exitOnError", function() {
+    let intercept;
+    const xclap = new XClap();
+    xclap.stopOnError = false;
+    beforeEach(() => {
+      chalk.enabled = false;
+      intercept = xstdout.intercept(true);
+    });
+    afterEach(() => {
+      chalk.enabled = true;
+      intercept.restore();
+    });
+
+    it("should log err if it has no stack", () => {
+      xclap._exitOnError("blah test");
+      intercept.restore();
+      expect(intercept.stdout.length).to.equal(2);
+      expect(intercept.stdout[1]).to.equal(" 1  blah test\n");
+    });
+
+    it("should not log stack for AssertionError", () => {
+      let err;
+      try {
+        assert(false, "blah test");
+      } catch (e) {
+        err = e;
+      }
+      xclap._exitOnError([err]);
+      intercept.restore();
+      expect(intercept.stdout.length).to.equal(2);
+    });
+
+    it("should not log stack if it's empty", () => {
+      const err = {
+        stack: "hello",
+        message: "hello"
+      };
+      xclap._exitOnError([err]);
+      intercept.restore();
+      expect(intercept.stdout.length).to.equal(2);
+    });
+
+    it("should not log stack if it's shell exec failed", () => {
+      const err = {
+        stack: "hello\n  at ..../xsh/lib/exec.js:9:9",
+        message: "hello"
+      };
+      xclap._exitOnError([err]);
+      intercept.restore();
+      expect(intercept.stdout.length).to.equal(2);
+    });
+
+    it("should handle err as non-array", () => {
+      xclap._exitOnError(new Error("test 1"));
+      intercept.restore();
+      expect(intercept.stdout.length).to.be.above(2);
+      expect(intercept.stdout[1]).include("1  test 1");
+      expect(intercept.stdout[2]).include(" at ");
     });
   });
 });

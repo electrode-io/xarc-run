@@ -97,8 +97,8 @@ function clap(argv, offset) {
     const nmBin = Path.resolve("node_modules", ".bin");
     if (Fs.existsSync(nmBin)) {
       const x = chalk.magenta(`${xsh.pathCwdNm.replace(nmBin)}`);
-      logger.log(`Adding ${x} to PATH`);
       envPath.addToFront(nmBin);
+      logger.log(`Added ${x} to PATH`);
     }
   }
 
