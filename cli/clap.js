@@ -74,17 +74,23 @@ function clap(argv, offset) {
 
   if (numTasks === 0) {
     logger.log(chalk.red("No tasks found - please load some."));
-  } else if (claps.opts.list) {
-    console.log(xclap._tasks.names().join("\n"));
+  } else if (claps.opts.list !== undefined) {
+    const ns = claps.opts.list && claps.opts.list.split(",").map(x => x.trim());
+    if (claps.opts.full) {
+      console.log(xclap._tasks.fullNames(ns).join("\n"));
+    } else {
+      console.log(xclap._tasks.names(ns).join("\n"));
+    }
     return process.exit(0);
-  } else if (claps.opts.listFull) {
-    console.log(xclap._tasks.fullNames().join("\n"));
+  } else if (claps.opts.ns) {
+    console.log(xclap._tasks._namespaces.join("\n"));
     return process.exit(0);
   }
 
   if (claps.tasks.length === 0 || numTasks === 0) {
     xclap.printTasks();
-    console.log(`${usage}\n`);
+    console.log(`${usage}`);
+    console.log(chalk.bold(" Help:"), "clap -h\n");
     return process.exit(1);
   }
 

@@ -38,16 +38,20 @@ module.exports = {
     default: true
   },
   list: {
-    type: "boolean",
+    type: "string",
     alias: "l",
-    desc: "List all tasks names w/o namespace",
-    default: false
+    desc: "List tasks names from list of comma separated namespaces (default is all namespaces)"
   },
-  "list-full": {
+  full: {
     type: "boolean",
     alias: "f",
-    desc: "List all tasks names with namespace",
+    desc: "--list show tasks names with namespace",
     default: false
+  },
+  ns: {
+    type: "boolean",
+    alias: "m",
+    desc: "List all namespaces"
   },
   quiet: {
     type: "boolean",
