@@ -61,10 +61,14 @@ function clap(argv, offset) {
     logger.log(chalk.red("No tasks found - please load some."));
   } else if (opts.list !== undefined) {
     const ns = opts.list && opts.list.split(",").map(x => x.trim());
-    if (opts.full) {
-      console.log(xclap._tasks.fullNames(ns).join("\n"));
-    } else {
-      console.log(xclap._tasks.names(ns).join("\n"));
+    try {
+      if (opts.full) {
+        console.log(xclap._tasks.fullNames(ns).join("\n"));
+      } else {
+        console.log(xclap._tasks.names(ns).join("\n"));
+      }
+    } catch (err) {
+      console.log(err.message);
     }
     return process.exit(0);
   } else if (opts.ns) {
