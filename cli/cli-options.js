@@ -28,8 +28,12 @@ module.exports = {
   dir: {
     type: "string",
     alias: "d",
-    desc: `Set dir to look for ${chalk.green("clap.js")} (default is ${chalk.magenta("CWD")})`,
-    default: process.cwd()
+    desc: `Set dir to look for ${chalk.green("clap.js")} (default is ${chalk.magenta("CWD")})`
+  },
+  cwd: {
+    type: "string",
+    alias: "w",
+    desc: `Set xclap's CWD`
   },
   soe: {
     type: "boolean",

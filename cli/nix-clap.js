@@ -5,9 +5,9 @@ const cliOptions = require("./cli-options");
 const Yargs = require("yargs");
 const usage = require("./usage");
 const optionalRequire = require("optional-require")(require);
-const Pkg = optionalRequire(Path.resolve("package.json"));
 const logger = require("../lib/logger");
 const chalk = require("chalk");
+const xclapPkg = require("../package.json");
 
 function nixClap(argv, start) {
   const parser = Yargs.usage(usage, cliOptions).strict();
@@ -62,14 +62,42 @@ function nixClap(argv, start) {
   const cutOff = findCutOff();
   const cliArgs = argv.slice(start, cutOff);
   const taskArgs = argv.slice(cutOff);
+  const tasks = taskArgs.map(x => (x.startsWith("-") ? null : x)).filter(x => !!x);
 
   const opts = parser.parse(cliArgs);
 
-  let pkgOptions;
+  if (opts.version) {
+    console.log(Pkg.version);
+    return process.exit(0);
+  }
+
+  if (opts.help && tasks.length === 0) {
+    parser.showHelp();
+    return process.exit(0);
+  }
+
+  logger.quiet(opts.quiet);
+
+  logger.log(`${chalk.green("xclap")} version ${xclapPkg.version}`);
+
+  let cwd;
+  if (opts.cwd) {
+    cwd = Path.resolve(opts.cwd);
+    try {
+      process.chdir(cwd);
+      logger.log(`CWD changed to ${chalk.magenta(cwd)}`);
+    } catch (err) {
+      logger.log(`chdir ${chalk.magenta(cwd)} ${chalk.red("failed")}`);
+      cwd = undefined;
+    }
+  }
+
+  const Pkg = optionalRequire(Path.resolve("package.json"));
 
   if (Pkg && Pkg.xclap && Pkg.xclap.__options) {
-    pkgOptions = Pkg.xclap.__options;
-    parser.config(pkgOptions);
+    parser.config(Pkg.xclap.__options);
+    const pkgName = chalk.magenta("CWD/package.json");
+    logger.log(`Applied ${chalk.green("xclap __options")} from ${pkgName}`);
   }
 
   return {
@@ -77,15 +105,9 @@ function nixClap(argv, start) {
     cliArgs: cliArgs,
     taskArgs: taskArgs,
     parser: parser,
-    pkgOptions,
+    cwd,
     opts,
-    tasks: taskArgs
-      .map(function(x) {
-        return x.startsWith("-") ? null : x;
-      })
-      .filter(function(x) {
-        return x;
-      })
+    tasks
   };
 }
 

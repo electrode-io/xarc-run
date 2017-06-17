@@ -2,14 +2,16 @@
 
 const Path = require("path");
 const optionalRequire = require("optional-require")(require);
-const Pkg = optionalRequire(Path.resolve("package.json"));
 const logger = require("../lib/logger");
 const chalk = require("chalk");
 
 module.exports = (xclap, options) => {
+  const Pkg = optionalRequire(Path.resolve("package.json"));
+
   if (!Pkg) {
     return;
   }
+
   const pkgName = chalk.magenta("CWD/package.json");
 
   if (Pkg.scripts && options.npm !== false) {

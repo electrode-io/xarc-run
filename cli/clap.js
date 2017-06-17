@@ -9,7 +9,6 @@ const logger = require("../lib/logger");
 const usage = require("./usage");
 const envPath = require("xsh").envPath;
 const Fs = require("fs");
-const Pkg = require("../package.json");
 const npmLoader = require("./npm-loader");
 const xsh = require("xsh");
 
@@ -21,28 +20,9 @@ function clap(argv, offset) {
 
   const claps = nixClap(argv, offset);
 
-  logger.quiet(claps.opts.quiet);
-
-  if (claps.opts.version) {
-    console.log(Pkg.version);
-    return process.exit(0);
-  }
-
-  if (claps.opts.help && claps.tasks.length === 0) {
-    claps.parser.showHelp();
-    return process.exit(0);
-  }
-
-  logger.log(`${chalk.green("xclap")} version ${Pkg.version}`);
-
-  if (claps.pkgOptions) {
-    const pkgName = chalk.magenta("CWD/package.json");
-    logger.log(`Applied ${chalk.green("xclap __options")} from ${pkgName}`);
-  }
-
   npmLoader(xclap, claps.opts);
 
-  const clapDir = Path.resolve(claps.opts.dir);
+  const clapDir = Path.resolve(claps.opts.dir || "");
 
   let notFound;
   let clapFile;
