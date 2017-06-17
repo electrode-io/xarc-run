@@ -57,4 +57,52 @@ describe("xtasks", function() {
       item: "sample1-foo1"
     });
   });
+
+  it("should return names", () => {
+    const xtasks = makeIt();
+    expect(xtasks.names()).to.deep.equal([
+      "def1",
+      "foo1",
+      "def1",
+      "xfoo1",
+      "xfoo2",
+      "xfoo3",
+      "xfoo4",
+      "a",
+      "b",
+      "c",
+      "foo2a",
+      "xerr",
+      "foo2ba",
+      "foo1",
+      "foo2",
+      "foo2b",
+      "foo3Dep",
+      "foo3"
+    ]);
+  });
+
+  it("should return full names", () => {
+    const xtasks = makeIt();
+    expect(xtasks.fullNames()).to.deep.equal([
+      ":def1",
+      ":1:foo1",
+      ":1:def1",
+      ":sample1:xfoo1",
+      ":sample1:xfoo2",
+      ":sample1:xfoo3",
+      ":sample1:xfoo4",
+      ":sample1:a",
+      ":sample1:b",
+      ":sample1:c",
+      ":sample1:foo2a",
+      ":sample1:xerr",
+      ":sample1:foo2ba",
+      ":sample1:foo1",
+      ":sample1:foo2",
+      ":sample1:foo2b",
+      ":sample1:foo3Dep",
+      ":sample1:foo3"
+    ]);
+  });
 });

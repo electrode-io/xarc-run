@@ -10,7 +10,7 @@ const logger = require("../lib/logger");
 const chalk = require("chalk");
 
 function nixClap(argv, start) {
-  const parser = Yargs.usage(usage, cliOptions);
+  const parser = Yargs.usage(usage, cliOptions).strict();
 
   function getOpt(name) {
     if (cliOptions.hasOwnProperty(name)) {
@@ -70,8 +70,6 @@ function nixClap(argv, start) {
     pkgOptions = Pkg.xclap.__options;
     parser.config(pkgOptions);
   }
-
-  parser.strict();
 
   return {
     cutOff: cutOff,

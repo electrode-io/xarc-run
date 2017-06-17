@@ -34,4 +34,14 @@ describe("logger", function() {
     expect(logger.formatElapse(999)).to.equal("999 ms");
     expect(logger.formatElapse(163)).to.equal("163 ms");
   });
+
+  it("should log nothing in quiet mode", () => {
+    logger.quiet(true);
+    const intercept = xstdout.intercept(true);
+    logger.log("test");
+    intercept.restore();
+    expect(intercept.stdout).to.be.empty;
+    expect(intercept.stderr).to.be.empty;
+    logger.quiet(false);
+  });
 });

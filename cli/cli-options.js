@@ -30,5 +30,29 @@ module.exports = {
     alias: "d",
     desc: `Set dir to look for ${chalk.green("clap.js")} (default is ${chalk.magenta("CWD")})`,
     default: process.cwd()
+  },
+  soe: {
+    type: "boolean",
+    alias: "s",
+    desc: "Stop on errors",
+    default: true
+  },
+  list: {
+    type: "boolean",
+    alias: "l",
+    desc: "List all tasks names w/o namespace",
+    default: false
+  },
+  "list-full": {
+    type: "boolean",
+    alias: "f",
+    desc: "List all tasks names with namespace",
+    default: false
+  },
+  quiet: {
+    type: "boolean",
+    alias: "q",
+    desc: "Do not output any logs",
+    default: false
   }
 };

@@ -21,9 +21,16 @@ function clap(argv, offset) {
 
   const claps = nixClap(argv, offset);
 
+  logger.quiet(claps.opts.quiet);
+
   if (claps.opts.version) {
     console.log(Pkg.version);
-    process.exit(0);
+    return process.exit(0);
+  }
+
+  if (claps.opts.help && claps.tasks.length === 0) {
+    claps.parser.showHelp();
+    return process.exit(0);
   }
 
   logger.log(`${chalk.green("xclap")} version ${Pkg.version}`);
@@ -31,11 +38,6 @@ function clap(argv, offset) {
   if (claps.pkgOptions) {
     const pkgName = chalk.magenta("CWD/package.json");
     logger.log(`Applied ${chalk.green("xclap __options")} from ${pkgName}`);
-  }
-
-  if (claps.opts.help && claps.tasks.length === 0) {
-    claps.parser.showHelp();
-    process.exit(0);
   }
 
   npmLoader(xclap, claps.opts);
@@ -66,17 +68,23 @@ function clap(argv, offset) {
 
   if (numTasks === 0) {
     logger.log(chalk.red("No tasks found - please load some."));
+  } else if (claps.opts.list) {
+    console.log(xclap._tasks.names().join("\n"));
+    return process.exit(0);
+  } else if (claps.opts.listFull) {
+    console.log(xclap._tasks.fullNames().join("\n"));
+    return process.exit(0);
   }
 
   if (claps.tasks.length === 0 || numTasks === 0) {
     xclap.printTasks();
     console.log(`${usage}\n`);
-    process.exit(1);
+    return process.exit(1);
   }
 
   if (claps.opts.help) {
     console.log("help for tasks:", claps.tasks);
-    process.exit(0);
+    return process.exit(0);
   }
 
   if (claps.opts.nmbin) {
@@ -90,7 +98,9 @@ function clap(argv, offset) {
 
   process.env.FORCE_COLOR = "true";
 
-  xclap.run(claps.tasks.length === 1 ? claps.tasks[0] : claps.tasks);
+  xclap.stopOnError = claps.opts.soe;
+
+  return xclap.run(claps.tasks.length === 1 ? claps.tasks[0] : claps.tasks);
 }
 
 module.exports = clap;
