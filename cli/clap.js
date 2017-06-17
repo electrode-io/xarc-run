@@ -73,8 +73,10 @@ function clap(argv, offset) {
 
   if (claps.tasks.length === 0 || numTasks === 0) {
     xclap.printTasks();
-    console.log(`${usage}`);
-    console.log(chalk.bold(" Help:"), "clap -h", chalk.bold(" Example:"), "clap build\n");
+    if (!claps.opts.quiet) {
+      console.log(`${usage}`);
+      console.log(chalk.bold(" Help:"), "clap -h", chalk.bold(" Example:"), "clap build\n");
+    }
     return process.exit(1);
   }
 
