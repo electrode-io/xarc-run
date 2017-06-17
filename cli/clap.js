@@ -44,24 +44,30 @@ function clap(argv, offset) {
 
   const clapDir = Path.resolve(claps.opts.dir);
 
+  let notFound;
   let clapFile;
   let clapTasks;
-  const file = ["clap.js", "xclap.js", "gulpfile.js"].find(
-    f => (clapTasks = optionalRequire((clapFile = Path.join(clapDir, f))))
-  );
+  const file = ["clap.js", "xclap.js", "gulpfile.js"].find(f => {
+    notFound = false;
+    clapFile = Path.join(clapDir, f);
+    clapTasks = optionalRequire(clapFile, { notFound: () => (notFound = true) });
+    return !notFound;
+  });
 
-  if (!clapTasks) {
+  if (notFound) {
     const x = chalk.magenta(xsh.pathCwd.replace(clapDir));
     logger.log(`No ${chalk.green("clap.js")} found in ${x}`);
   } else {
+    const loaded = chalk.green(`${xsh.pathCwd.replace(clapFile)}`);
     if (typeof clapTasks === "function") {
       clapTasks(xclap);
+      logger.log(`Called export function from ${loaded}`);
     } else if (typeof clapTasks === "object") {
       xclap.load("clap", clapTasks);
+      logger.log(`Loaded tasks from ${loaded}`);
+    } else {
+      logger.log(`Unknown export type ${chalk.yellow(typeof clapTasks)} from ${loaded}`);
     }
-
-    const loaded = chalk.green(`${xsh.pathCwd.replace(clapFile)}`);
-    logger.log(`Loaded tasks from ${loaded}`);
   }
 
   const numTasks = xclap.countTasks();
