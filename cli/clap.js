@@ -19,9 +19,19 @@ function clap(argv, offset) {
     offset = 2;
   }
 
+  const claps = nixClap(argv, offset);
+
+  if (claps.opts.version) {
+    console.log(Pkg.version);
+    process.exit(0);
+  }
+
   logger.log(`${chalk.green("xclap")} version ${Pkg.version}`);
 
-  const claps = nixClap(argv, offset);
+  if (claps.pkgOptions) {
+    const pkgName = chalk.magenta("CWD/package.json");
+    logger.log(`Applied ${chalk.green("xclap __options")} from ${pkgName}`);
+  }
 
   if (claps.opts.help && claps.tasks.length === 0) {
     claps.parser.showHelp();

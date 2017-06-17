@@ -8,6 +8,11 @@ module.exports = {
     alias: "h",
     desc: "Show Options or help for tasks"
   },
+  version: {
+    alias: "v",
+    type: "boolean",
+    desc: "show xclap version and exits"
+  },
   nmbin: {
     type: "boolean",
     alias: "b",
