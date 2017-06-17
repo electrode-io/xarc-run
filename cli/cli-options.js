@@ -11,19 +11,19 @@ module.exports = {
   nmbin: {
     type: "boolean",
     alias: "b",
-    desc: `add ${chalk.magenta("CWD/node_modules/.bin")} to PATH`,
+    desc: `add ${chalk.magenta("CWD/node_modules/.bin")} to ${chalk.blue("PATH")}`,
     default: true
   },
   npm: {
     type: "boolean",
     alias: "n",
-    desc: `load npm scripts into namespace npm`,
+    desc: `load npm scripts into namespace ${chalk.magenta("npm")}`,
     default: true
   },
   dir: {
     type: "string",
     alias: "d",
-    desc: `Set dir to look for ${chalk.green("clap.js")}`,
+    desc: `Set dir to look for ${chalk.green("clap.js")} (default is ${chalk.magenta("CWD")})`,
     default: process.cwd()
   }
 };
