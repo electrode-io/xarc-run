@@ -19,10 +19,11 @@ function clap(argv, offset) {
   }
 
   const claps = nixClap(argv, offset);
+  const opts = claps.opts;
 
-  npmLoader(xclap, claps.opts);
+  npmLoader(xclap, opts);
 
-  const clapDir = Path.resolve(claps.opts.dir || "");
+  const clapDir = Path.join(opts.cwd, opts.dir || "");
 
   let notFound;
   let clapFile;
@@ -58,35 +59,35 @@ function clap(argv, offset) {
 
   if (numTasks === 0) {
     logger.log(chalk.red("No tasks found - please load some."));
-  } else if (claps.opts.list !== undefined) {
-    const ns = claps.opts.list && claps.opts.list.split(",").map(x => x.trim());
-    if (claps.opts.full) {
+  } else if (opts.list !== undefined) {
+    const ns = opts.list && opts.list.split(",").map(x => x.trim());
+    if (opts.full) {
       console.log(xclap._tasks.fullNames(ns).join("\n"));
     } else {
       console.log(xclap._tasks.names(ns).join("\n"));
     }
     return process.exit(0);
-  } else if (claps.opts.ns) {
+  } else if (opts.ns) {
     console.log(xclap._tasks._namespaces.join("\n"));
     return process.exit(0);
   }
 
   if (claps.tasks.length === 0 || numTasks === 0) {
     xclap.printTasks();
-    if (!claps.opts.quiet) {
+    if (!opts.quiet) {
       console.log(`${usage}`);
       console.log(chalk.bold(" Help:"), "clap -h", chalk.bold(" Example:"), "clap build\n");
     }
     return process.exit(1);
   }
 
-  if (claps.opts.help) {
+  if (opts.help) {
     console.log("help for tasks:", claps.tasks);
     return process.exit(0);
   }
 
-  if (claps.opts.nmbin) {
-    const nmBin = Path.resolve("node_modules", ".bin");
+  if (opts.nmbin) {
+    const nmBin = Path.join(opts.cwd, "node_modules", ".bin");
     if (Fs.existsSync(nmBin)) {
       const x = chalk.magenta(`${xsh.pathCwdNm.replace(nmBin)}`);
       envPath.addToFront(nmBin);
@@ -96,7 +97,7 @@ function clap(argv, offset) {
 
   process.env.FORCE_COLOR = "true";
 
-  xclap.stopOnError = claps.opts.soe;
+  xclap.stopOnError = opts.soe;
 
   return xclap.run(claps.tasks.length === 1 ? claps.tasks[0] : claps.tasks);
 }

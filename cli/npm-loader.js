@@ -6,7 +6,7 @@ const logger = require("../lib/logger");
 const chalk = require("chalk");
 
 module.exports = (xclap, options) => {
-  const Pkg = optionalRequire(Path.resolve("package.json"));
+  const Pkg = optionalRequire(Path.join(options.cwd, "package.json"));
 
   if (!Pkg) {
     return;

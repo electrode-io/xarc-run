@@ -79,19 +79,19 @@ function nixClap(argv, start) {
 
   logger.log(`${chalk.green("xclap")} version ${xclapPkg.version}`);
 
-  let cwd;
+  let cwd = process.cwd();
   if (opts.cwd) {
-    cwd = Path.resolve(opts.cwd);
+    const newCwd = Path.join(cwd, opts.cwd);
     try {
-      process.chdir(cwd);
-      logger.log(`CWD changed to ${chalk.magenta(cwd)}`);
+      process.chdir(newCwd);
+      logger.log(`CWD changed to ${chalk.magenta(newCwd)}`);
+      cwd = newCwd;
     } catch (err) {
-      logger.log(`chdir ${chalk.magenta(cwd)} ${chalk.red("failed")}`);
-      cwd = undefined;
+      logger.log(`chdir ${chalk.magenta(newCwd)} ${chalk.red("failed")}`);
     }
   }
 
-  const Pkg = optionalRequire(Path.resolve("package.json"));
+  const Pkg = optionalRequire(Path.join(cwd, "package.json"));
 
   if (Pkg && Pkg.xclap && Pkg.xclap.__options) {
     parser.config(Pkg.xclap.__options);
@@ -100,13 +100,13 @@ function nixClap(argv, start) {
   }
 
   opts = parser.parse(cliArgs);
+  opts.cwd = cwd;
 
   return {
     cutOff: cutOff,
     cliArgs: cliArgs,
     taskArgs: taskArgs,
     parser: parser,
-    cwd,
     opts,
     tasks
   };
