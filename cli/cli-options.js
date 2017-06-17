@@ -29,7 +29,7 @@ module.exports = {
     type: "boolean",
     alias: "n",
     desc: `load npm scripts into namespace ${chalk.magenta("npm")}`,
-    default: true
+    default: false
   },
   nmbin: {
     type: "boolean",
