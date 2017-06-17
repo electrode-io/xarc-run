@@ -61,6 +61,7 @@
   },
   "xclap": {
     "__options": {
+      "npm": true
     },
     "test": "echo pkg test"
   }

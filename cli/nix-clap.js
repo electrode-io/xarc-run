@@ -10,8 +10,6 @@ const chalk = require("chalk");
 const xclapPkg = require("../package.json");
 
 function nixClap(argv, start) {
-  const parser = Yargs.usage(usage, cliOptions).strict();
-
   function getOpt(name) {
     if (cliOptions.hasOwnProperty(name)) {
       return cliOptions[name];
@@ -64,7 +62,8 @@ function nixClap(argv, start) {
   const taskArgs = argv.slice(cutOff);
   const tasks = taskArgs.map(x => (x.startsWith("-") ? null : x)).filter(x => !!x);
 
-  const opts = parser.parse(cliArgs);
+  const parser = Yargs.usage(usage, cliOptions).strict();
+  let opts = parser.parse(cliArgs);
 
   if (opts.version) {
     console.log(xclapPkg.version);
@@ -99,6 +98,8 @@ function nixClap(argv, start) {
     const pkgName = chalk.magenta("CWD/package.json");
     logger.log(`Applied ${chalk.green("xclap __options")} from ${pkgName}`);
   }
+
+  opts = parser.parse(cliArgs);
 
   return {
     cutOff: cutOff,
