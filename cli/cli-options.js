@@ -10,7 +10,7 @@ module.exports = {
   },
   nmbin: {
     type: "boolean",
-    alias: ["nb"],
+    alias: "b",
     desc: `add ${chalk.magenta("CWD/node_modules/.bin")} to PATH`,
     default: true
   },
@@ -23,7 +23,7 @@ module.exports = {
   dir: {
     type: "string",
     alias: "d",
-    desc: `Set dir to look for clap.js`,
+    desc: `Set dir to look for ${chalk.green("clap.js")}`,
     default: process.cwd()
   }
 };
