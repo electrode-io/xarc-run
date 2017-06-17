@@ -13,11 +13,15 @@ module.exports = {
     type: "boolean",
     desc: "show xclap version and exits"
   },
-  nmbin: {
-    type: "boolean",
-    alias: "b",
-    desc: `add ${chalk.magenta("CWD/node_modules/.bin")} to ${chalk.blue("PATH")}`,
-    default: true
+  cwd: {
+    type: "string",
+    alias: "w",
+    desc: `Set xclap's ${chalk.magenta("CWD")}`
+  },
+  dir: {
+    type: "string",
+    alias: "d",
+    desc: `Set dir to look for ${chalk.green("clap.js")} (default is ${chalk.magenta("CWD")})`
   },
   npm: {
     type: "boolean",
@@ -25,20 +29,10 @@ module.exports = {
     desc: `load npm scripts into namespace ${chalk.magenta("npm")}`,
     default: true
   },
-  dir: {
-    type: "string",
-    alias: "d",
-    desc: `Set dir to look for ${chalk.green("clap.js")} (default is ${chalk.magenta("CWD")})`
-  },
-  cwd: {
-    type: "string",
-    alias: "w",
-    desc: `Set xclap's CWD`
-  },
-  soe: {
+  nmbin: {
     type: "boolean",
-    alias: "s",
-    desc: "Stop on errors",
+    alias: "b",
+    desc: `add ${chalk.magenta("CWD/node_modules/.bin")} to ${chalk.blue("PATH")}`,
     default: true
   },
   list: {
@@ -56,6 +50,12 @@ module.exports = {
     type: "boolean",
     alias: "m",
     desc: "List all namespaces"
+  },
+  soe: {
+    type: "boolean",
+    alias: "s",
+    desc: "Stop on errors",
+    default: true
   },
   quiet: {
     type: "boolean",
