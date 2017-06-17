@@ -16,12 +16,14 @@ module.exports = {
   cwd: {
     type: "string",
     alias: "w",
-    desc: `Set xclap's ${chalk.magenta("CWD")}`
+    desc: `Set xclap's ${chalk.magenta("CWD")}`,
+    requiresArg: true
   },
   dir: {
     type: "string",
     alias: "d",
-    desc: `Set dir to look for ${chalk.green("clap.js")} (default is ${chalk.magenta("CWD")})`
+    desc: `Set dir to look for ${chalk.green("clap.js")} (default is ${chalk.magenta("CWD")})`,
+    requiresArg: true
   },
   npm: {
     type: "boolean",

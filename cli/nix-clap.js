@@ -67,7 +67,7 @@ function nixClap(argv, start) {
   const opts = parser.parse(cliArgs);
 
   if (opts.version) {
-    console.log(Pkg.version);
+    console.log(xclapPkg.version);
     return process.exit(0);
   }
 
