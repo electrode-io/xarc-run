@@ -59,7 +59,7 @@ $ clap -h
 
 ### Simple Task Definitions
 
-Save this to `clap.js`
+Save this to `xclap.js`
 
 ```js
 const xclap = require("xclap");
@@ -84,7 +84,7 @@ hello world
 JS hello world
 ```
 
-> You can call the file `xclap.js` if you prefer, but `clap.js` is used if it exists.
+> You can call the file `clapfile.js` or `clap.js` if you prefer, but `xclap.js` is used if it exists.
 
 ### Async Tasks
 

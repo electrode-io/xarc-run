@@ -28,7 +28,7 @@ function clap(argv, offset) {
   let notFound;
   let clapFile;
   let clapTasks;
-  const file = ["clap.js", "xclap.js", "gulpfile.js"].find(f => {
+  const file = ["xclap.js", "clapfile.js", "clap.js", "gulpfile.js"].find(f => {
     notFound = false;
     clapFile = Path.join(clapDir, f);
     clapTasks = optionalRequire(clapFile, { notFound: () => (notFound = true) });
