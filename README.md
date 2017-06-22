@@ -10,7 +10,7 @@ An advanced and flexible JavaScript task executor.
 -   **_Support [namespaces](#namespace) for tasks!!!_**
 -   Serial tasks execution
 -   Concurrent tasks execution
--   Proper nesting hierarchy
+-   Proper tasks nesting hierarchy
 -   Promise or callback support
 -   Load and execute npm scripts from `package.json`
 -   Support custom task execution reporter
@@ -25,6 +25,18 @@ The namespace feature allows you to have tasks with the same name so you can mod
 $ npm install xclap --save-dev
 ```
 
+### The CLI command
+
+Note that you need another small npm module [xclap-cli] to get the command `clap` for invoking tasks.
+
+The expectation is that you install that globally:
+
+```bash
+$ npm install -g xclap-cli
+```
+
+If you need it for CI/build, or just want to run it locally in your module, then you need to specify [xclap-cli] in your `devDependencies`.
+
 ### Usage
 
 Any task can be invoked with the command `clap`:
@@ -33,18 +45,16 @@ Any task can be invoked with the command `clap`:
 $ clap task1 [task1 options] [<task2> ... <taskN>]
 ```
 
+ie:
+
+```bash
+$ clap build
+```
+
 For help on usage:
 
 ```bash
 $ clap -h
-```
-
-### Global CLI command
-
-To have the `clap` command available globally, please install the small invoker [xclap-cli]
-
-```bash
-$ npm install -g xclap-cli
 ```
 
 ### Simple Task Definitions
