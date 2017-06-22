@@ -93,10 +93,12 @@ function nixClap(argv, start) {
 
   const Pkg = optionalRequire(Path.join(cwd, "package.json"));
 
-  if (Pkg && Pkg.xclap && Pkg.xclap.__options) {
-    parser.config(Pkg.xclap.__options);
+  if (Pkg && Pkg.xclap) {
+    const pkgOptions = Object.assign({}, Pkg.xclap);
+    delete pkgOptions.tasks;
+    parser.config(pkgOptions);
     const pkgName = chalk.magenta("CWD/package.json");
-    logger.log(`Applied ${chalk.green("xclap __options")} from ${pkgName}`);
+    logger.log(`Applied ${chalk.green("xclap options")} from ${pkgName}`);
   }
 
   opts = parser.parse(cliArgs);

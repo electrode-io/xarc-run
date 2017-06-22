@@ -20,8 +20,7 @@ module.exports = (xclap, options) => {
   }
 
   if (Pkg.xclap) {
-    const tasks = Object.assign({}, Pkg.xclap);
-    delete tasks.__options;
+    const tasks = Object.assign({}, Pkg.xclap.tasks);
     if (Object.keys(tasks).length > 0) {
       xclap.load("pkg", tasks);
       logger.log(`Loaded xclap tasks from ${pkgName} into namespace ${chalk.magenta("pkg")}`);

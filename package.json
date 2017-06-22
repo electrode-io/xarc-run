@@ -60,9 +60,9 @@
     ]
   },
   "xclap": {
-    "__options": {
-      "npm": true
-    },
-    "test": "echo pkg test"
+    "npm": true,
+    "tasks": {
+      "test": "echo pkg test"
+    }
   }
 }
