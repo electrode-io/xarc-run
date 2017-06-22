@@ -1,6 +1,6 @@
 {
   "name": "xclap",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Advanced and flexible Javascript task executor",
   "main": "lib/index.js",
   "scripts": {
