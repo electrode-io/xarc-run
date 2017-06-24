@@ -58,6 +58,7 @@
     "all": true,
     "exclude": [
       "cli",
+      "bin",
       "xclap.js",
       "test",
       "coverage"
