@@ -9,6 +9,10 @@
     "format": "prettier --write --print-width 100 lib/*.js test/**/*.js",
     "xfoo2": "echo xfoo2 from npm scripts"
   },
+  "bin": {
+    "clap": "bin/clap.js",
+    "xclap": "bin/clap.js"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/jchip/xclap.git"

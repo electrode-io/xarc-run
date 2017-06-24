@@ -25,17 +25,11 @@ The namespace feature allows you to have tasks with the same name so you can mod
 $ npm install xclap --save-dev
 ```
 
-### The CLI command
-
-Note that you need another small npm module [xclap-cli] to get the command `clap` for invoking tasks.
-
-The expectation is that you install that globally:
+If you'd like to get the command `clap` globally, you can install another small npm module [xclap-cli] globally.
 
 ```bash
 $ npm install -g xclap-cli
 ```
-
-If you need it for CI/build, or just want to run it locally in your module, then you need to specify [xclap-cli] in your `devDependencies`.
 
 ### Usage
 
