@@ -63,7 +63,9 @@ function clap(argv, offset) {
     const ns = opts.list && opts.list.split(",").map(x => x.trim());
     try {
       if (opts.full) {
-        console.log(xclap._tasks.fullNames(ns).join("\n"));
+        let fn = xclap._tasks.fullNames(ns);
+        if (opts.full > 1) fn = fn.map(x => (x.startsWith("/") ? x : `/${x}`));
+        console.log(fn.join("\n"));
       } else {
         console.log(xclap._tasks.names(ns).join("\n"));
       }
@@ -103,7 +105,15 @@ function clap(argv, offset) {
 
   xclap.stopOnError = opts.soe;
 
-  return xclap.run(claps.tasks.length === 1 ? claps.tasks[0] : claps.tasks);
+  const tasks = claps.tasks.map(x => {
+    if (x.startsWith("/") && x.indexOf("/", 1) > 1) {
+      return x.substr(1);
+    }
+    return x;
+  });
+
+  console.log("tasks", tasks);
+  return xclap.run(tasks.length === 1 ? tasks[0] : tasks);
 }
 
 module.exports = clap;

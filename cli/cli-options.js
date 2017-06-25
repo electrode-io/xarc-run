@@ -42,7 +42,7 @@ module.exports = {
     desc: "List tasks names from list of comma separated namespaces (default is all namespaces)"
   },
   full: {
-    type: "boolean",
+    type: "count",
     alias: "f",
     desc: "--list show tasks names with namespace",
     default: false

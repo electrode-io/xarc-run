@@ -115,6 +115,18 @@ If you run a task without specifying the namespace, then it's searched through a
 
 > For obvious reasons, this means task names cannot contain `/`.
 
+#### Auto Complete with namespace
+
+To assist auto completion when using [xclap-cli], you may specify all namespaces with a leading `/` when invoking from the command line.  It will be stripped before xclap run them.
+
+ie:
+
+```bash
+$ clap /foo/bar
+```
+
+That way, you can press `tab` after the first `/` to get auto completion with namespaces.
+
 ### Detailed Reference
 
 See [reference](./REFERENCE.md) for more detailed information.
