@@ -11,11 +11,21 @@ const envPath = require("xsh").envPath;
 const Fs = require("fs");
 const npmLoader = require("./npm-loader");
 const xsh = require("xsh");
+const cliOptions = require("./cli-options");
 
 function clap(argv, offset) {
   if (!argv) {
     argv = process.argv;
     offset = 2;
+  }
+
+  if (argv.length === 3 && argv[offset] === "--options") {
+    Object.keys(cliOptions).forEach(k => {
+      const x = cliOptions[k];
+      console.log(`--${k}`);
+      console.log(`-${x.alias}`);
+    });
+    return process.exit(0);
   }
 
   const claps = nixClap(argv, offset);
