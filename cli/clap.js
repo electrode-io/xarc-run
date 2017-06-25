@@ -122,7 +122,6 @@ function clap(argv, offset) {
     return x;
   });
 
-  console.log("tasks", tasks);
   return xclap.run(tasks.length === 1 ? tasks[0] : tasks);
 }
 
