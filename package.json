@@ -1,7 +1,7 @@
 {
   "name": "xclap",
-  "version": "0.2.5",
-  "description": "Advanced and flexible Javascript task executor",
+  "version": "0.2.6",
+  "description": "npm scripts on steroid - an advanced and flexible Javascript task executor and build tool",
   "main": "lib/index.js",
   "scripts": {
     "test": "mocha --recursive test/spec",
@@ -18,12 +18,18 @@
     "url": "https://github.com/jchip/xclap.git"
   },
   "keywords": [
+    "npm",
+    "scripts",
     "clap",
     "build",
     "make",
     "xclap",
     "javascript",
     "task",
+    "concurrent",
+    "serial",
+    "tasks",
+    "execution",
     "executor",
     "tool",
     "system"

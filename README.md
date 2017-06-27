@@ -3,19 +3,21 @@
 
 # xclap
 
-An advanced and flexible JavaScript task executor.
+[npm scripts] on steroid - an advanced and flexible JavaScript task executor and build tool.
+
+**xclap** can load and execute your [npm scripts] with auto completion for [bash] and [zsh].  It also allows you to define tasks in a JavaScript file, with support for advanced features such as namespace, serial and concurrent tasks execution, and proper nesting task execution hierarchy.
 
 ## Features
 
--   **_Support [namespaces](#namespace) for tasks!!!_**
--   Serial tasks execution
--   Concurrent tasks execution
--   Proper tasks nesting hierarchy
--   Promise or callback support
--   Load and execute npm scripts from `package.json`
--   Support custom task execution reporter
-
-The namespace feature allows you to have tasks with the same name so you can modify certain tasks without replacing them.
+-   **_Support [namespaces](#namespace) for tasks!!!_**.
+-   Load and execute npm scripts from `package.json`.
+-   Auto completion for [bash] and [zsh].
+-   Define tasks in a JavaScript file.
+-   Serial tasks execution.
+-   Concurrent tasks execution.
+-   Proper nesting task execution hierarchy.
+-   Promise or callback support for tasks written in JavaScript.
+-   Support custom task execution reporter.
 
 ## Getting Started
 
@@ -51,9 +53,19 @@ For help on usage:
 $ clap -h
 ```
 
-### Simple Task Definitions
+To load [npm scripts] into the `npm` namespace, use the `-n` option:
 
-Save this to `xclap.js`
+```bash
+$ clap -n test
+```
+
+You can also specify command line options under `xclap` in your `package.json`.
+
+### Simple JavaScript Task Definitions
+
+You can define your tasks in a JavaScript file, allowing you do anything that's possible with JS.
+
+Here is a simple sample.  Save it to `xclap.js` and xclap will automatically load it.
 
 ```js
 const xclap = require("xclap");
@@ -79,6 +91,8 @@ JS hello world
 ```
 
 > You can call the file `clapfile.js` or `clap.js` if you prefer, but `xclap.js` is used if it exists.
+>
+> You can also define **xclap** tasks without JavaScript capability in an object `xclap.tasks` in your `package.json`.
 
 ### Async Tasks
 
@@ -101,7 +115,9 @@ const tasks = {
 
 ### Namespace
 
-A group of tasks can be assigned a namespace.
+A group of tasks can be assigned a namespace and allows you to have tasks with the same name so you can modify certain tasks without replacing them.
+
+For example:
 
 ```js
 xclap.load([namepsace], tasks)
@@ -147,4 +163,10 @@ See [reference](./REFERENCE.md) for more detailed information.
 
 [daviddm-dev-url]: https://david-dm.org/jchip/xclap?type=dev
 
+[npm scripts]: https://docs.npmjs.com/misc/scripts
+
 [xclap-cli]: https://github.com/jchip/xclap-cli
+
+[bash]: https://www.gnu.org/software/bash/
+
+[zsh]: http://www.zsh.org/
