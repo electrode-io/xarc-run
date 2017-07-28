@@ -76,8 +76,9 @@ function nixClap(argv, start) {
   }
 
   logger.quiet(opts.quiet);
+  const xclapLoc = Path.dirname(__dirname);
 
-  logger.log(`${chalk.green("xclap")} version ${xclapPkg.version}`);
+  logger.log(`${chalk.green("xclap")} version ${xclapPkg.version} at ${chalk.magenta(xclapLoc)}`);
 
   let cwd = process.cwd();
   if (opts.cwd) {
@@ -89,6 +90,8 @@ function nixClap(argv, start) {
     } catch (err) {
       logger.log(`chdir ${chalk.magenta(newCwd)} ${chalk.red("failed")}`);
     }
+  } else {
+    logger.log(`CWD is ${chalk.magenta(cwd)}`);
   }
 
   const Pkg = optionalRequire(Path.join(cwd, "package.json"));

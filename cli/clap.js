@@ -47,7 +47,7 @@ function clap(argv, offset) {
 
   if (notFound) {
     const x = chalk.magenta(xsh.pathCwd.replace(clapDir));
-    logger.log(`No ${chalk.green("clap.js")} found in ${x}`);
+    logger.log(`No ${chalk.green("xclap.js")} found in ${x}`);
   } else {
     const loaded = chalk.green(`${xsh.pathCwd.replace(clapFile)}`);
     if (typeof clapTasks === "function") {
