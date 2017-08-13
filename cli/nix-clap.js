@@ -79,6 +79,9 @@ function nixClap(argv, start) {
   const xclapLoc = Path.dirname(__dirname);
 
   logger.log(`${chalk.green("xclap")} version ${xclapPkg.version} at ${chalk.magenta(xclapLoc)}`);
+  logger.log(
+    `${chalk.green("NodeJS")} version ${process.version} at ${chalk.magenta(process.execPath)}`
+  );
 
   let cwd = process.cwd();
   if (opts.cwd) {
