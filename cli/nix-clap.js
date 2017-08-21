@@ -8,6 +8,7 @@ const optionalRequire = require("optional-require")(require);
 const logger = require("../lib/logger");
 const chalk = require("chalk");
 const xclapPkg = require("../package.json");
+const xsh = require("xsh");
 
 function nixClap(argv, start) {
   function getOpt(name) {
@@ -76,7 +77,7 @@ function nixClap(argv, start) {
   }
 
   logger.quiet(opts.quiet);
-  const xclapLoc = Path.dirname(__dirname);
+  const xclapLoc = xsh.pathCwd.replace(Path.dirname(__dirname));
 
   logger.log(`${chalk.green("xclap")} version ${xclapPkg.version} at ${chalk.magenta(xclapLoc)}`);
   logger.log(
