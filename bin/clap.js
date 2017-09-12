@@ -22,8 +22,9 @@ function warn() {
   } else if (!pathIsInside(__dirname, cwd)) {
     // On windows, global modules are installed to AppData\Roaming\npm\node_modules
     if (
-      process.platform === "win32" &&
-      __dirname.indexOf("AppData\\Roaming\\npm\\node_modules") >= 0
+      (process.platform === "win32" &&
+        __dirname.indexOf("AppData\\Roaming\\npm\\node_modules") >= 0) ||
+      Path.dirname(__dirname).endsWith("/lib/node_modules/xclap")
     ) {
       return warnGlobal();
     }
