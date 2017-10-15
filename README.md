@@ -18,6 +18,7 @@
 -   Proper nesting task execution hierarchy.
 -   Promise or callback support for tasks written in JavaScript.
 -   Support custom task execution reporter.
+-   Specify complex tasks execution pattern from command line.
 
 ## Getting Started
 

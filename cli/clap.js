@@ -12,6 +12,7 @@ const Fs = require("fs");
 const npmLoader = require("./npm-loader");
 const xsh = require("xsh");
 const cliOptions = require("./cli-options");
+const parseArray = require("../lib/util/parse-array");
 
 function clap(argv, offset) {
   if (!argv) {
@@ -122,7 +123,22 @@ function clap(argv, offset) {
     return x;
   });
 
-  if (tasks.length > 1 && opts.serial) {
+  if (tasks[0].startsWith("[")) {
+    let arrayStr;
+    try {
+      arrayStr = tasks.join(" ");
+      tasks = parseArray(arrayStr);
+    } catch (e) {
+      console.log(
+        "Parsing array of tasks failed:",
+        chalk.red(`${e.message}:`),
+        chalk.cyan(arrayStr)
+      );
+      return process.exit(1);
+    }
+  }
+
+  if (tasks.length > 1 && tasks[0] !== "." && opts.serial) {
     tasks = ["."].concat(tasks);
   }
 
