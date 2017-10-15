@@ -63,5 +63,11 @@ module.exports = {
     alias: "q",
     desc: "Do not output any logs",
     default: false
+  },
+  serial: {
+    type: "boolean",
+    alias: "x",
+    desc: "Execute tasks from command line serially",
+    default: false
   }
 };

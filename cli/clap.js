@@ -115,12 +115,16 @@ function clap(argv, offset) {
 
   xclap.stopOnError = opts.soe;
 
-  const tasks = claps.tasks.map(x => {
+  let tasks = claps.tasks.map(x => {
     if (x.startsWith("/") && x.indexOf("/", 1) > 1) {
       return x.substr(1);
     }
     return x;
   });
+
+  if (tasks.length > 1 && opts.serial) {
+    tasks = ["."].concat(tasks);
+  }
 
   return xclap.run(tasks.length === 1 ? tasks[0] : tasks);
 }
