@@ -826,4 +826,15 @@ describe("xclap", function() {
       expect(intercept.stdout[2]).include(" at ");
     });
   });
+
+  it("getNamespaces should return namespaces in order of overrides", () => {
+    const xclap = new XClap("test", {
+      foo: () => undefined
+    });
+    xclap.load("blah", {});
+    xclap.load({ namespace: "foo", overrides: "blah" }, {});
+    xclap.load({ namespace: "blah", overrides: "hello" }, {});
+    xclap.load("hello", {});
+    expect(xclap.getNamespaces()).to.deep.equal(["/", "foo", "blah", "test", "hello"]);
+  });
 });

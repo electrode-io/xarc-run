@@ -62,6 +62,36 @@ $ clap -n test
 
 You can also specify command line options under `xclap` in your `package.json`.
 
+#### Specifying Complex Tasks from command line
+
+You can specify your tasks as an array from the command line.
+
+For example, to have `xclap` execute the tasks `[ task_a, task_b ]` concurrently:
+
+```bash
+$ clap [ task_a, task_b ]
+```
+
+You can also execute them serially with:
+
+```bash
+$ clap -x [ task_a, task_b ]
+```
+
+You can pass the whole array in as a single string:
+
+```bash
+$ clap "[task_a, task_b]"
+```
+
+You can execute tasks serially, and then some tasks concurrently:
+
+```bash
+$ clap -x [task_a, task_b, [task_c1, task_c2]]
+```
+
+> will execute `task_a`, then `task_b`, and finally `task_c1` and `task_c2` concurrently.
+
 ### Simple JavaScript Task Definitions
 
 You can define your tasks in a JavaScript file, allowing you do anything that's possible with JS.
