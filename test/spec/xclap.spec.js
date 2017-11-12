@@ -485,6 +485,61 @@ describe("xclap", function() {
     });
   });
 
+  it("should parse and execute array in a string", done => {
+    let foo2 = 0,
+      foo3 = 0;
+    const xclap = new XClap({
+      foo: {
+        dep: "~[foo2]",
+        task: "~[fooX, [foo2, fooX]]"
+      },
+      fooX: "~[fooY]",
+      fooY: () => "~[foo2, foo3]",
+      foo2: () => foo2++,
+      foo3: () => foo3++
+    });
+    const exeEvents = [];
+
+    xclap.on("execute", data => exeEvents.push(data.type));
+
+    xclap.run("foo", err => {
+      if (err) {
+        return done(err);
+      }
+      expect(foo2).to.equal(4);
+      expect(foo3).to.equal(2);
+      expect(exeEvents).to.deep.equal([
+        "lookup",
+        "serial-arr",
+        "lookup",
+        "function",
+        "serial-arr",
+        "lookup",
+        "serial-arr",
+        "lookup",
+        "function",
+        "concurrent-arr",
+        "lookup",
+        "lookup",
+        "function",
+        "function",
+        "concurrent-arr",
+        "lookup",
+        "lookup",
+        "function",
+        "serial-arr",
+        "lookup",
+        "function",
+        "concurrent-arr",
+        "lookup",
+        "lookup",
+        "function",
+        "function"
+      ]);
+      done(err);
+    });
+  });
+
   it("should execute a dep as serial and then concurrent array", done => {
     let foo = 0,
       foo2 = 0;
