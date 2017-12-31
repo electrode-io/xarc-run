@@ -2,7 +2,7 @@
 
 const Path = require("path");
 const cliOptions = require("./cli-options");
-const Yargs = require("yargs");
+const NixClap = require("nix-clap");
 const usage = require("./usage");
 const optionalRequire = require("optional-require")(require);
 const logger = require("../lib/logger");
@@ -63,18 +63,25 @@ function nixClap(argv, start) {
   const taskArgs = argv.slice(cutOff);
   const tasks = taskArgs.map(x => (x.startsWith("-") ? null : x)).filter(x => !!x);
 
-  const parser = Yargs.usage(usage, cliOptions).strict();
-  let opts = parser.parse(cliArgs);
+  const nc = new NixClap({
+    name: xclapPkg.name,
+    version: xclapPkg.version,
+    usage,
+    handlers: {
+      "unknown-command": false,
+      help: p => {
+        if (tasks.length > 0) {
+          p.opts.help = true;
+        } else {
+          nc.showHelp(null, p.opts.help);
+        }
+      }
+    }
+  }).init(cliOptions);
 
-  if (opts.version) {
-    console.log(xclapPkg.version);
-    return process.exit(0);
-  }
+  const parsed = nc.parse(cliArgs);
 
-  if (opts.help && tasks.length === 0) {
-    parser.showHelp();
-    return process.exit(0);
-  }
+  const opts = parsed.opts;
 
   logger.quiet(opts.quiet);
   const xclapLoc = xsh.pathCwd.replace(Path.dirname(__dirname));
@@ -98,24 +105,23 @@ function nixClap(argv, start) {
     logger.log(`CWD is ${chalk.magenta(cwd)}`);
   }
 
+  opts.cwd = cwd;
+
   const Pkg = optionalRequire(Path.join(cwd, "package.json"));
 
   if (Pkg && Pkg.xclap) {
-    const pkgOptions = Object.assign({}, Pkg.xclap);
-    delete pkgOptions.tasks;
-    parser.config(pkgOptions);
+    const pkgConfig = Object.assign({}, Pkg.xclap);
+    delete pkgConfig.cwd; // not allow pkg config to override cwd
+    delete pkgConfig.tasks;
+    nc.applyConfig(pkgConfig, parsed);
     const pkgName = chalk.magenta("CWD/package.json");
     logger.log(`Applied ${chalk.green("xclap options")} from ${pkgName}`);
   }
-
-  opts = parser.parse(cliArgs);
-  opts.cwd = cwd;
 
   return {
     cutOff: cutOff,
     cliArgs: cliArgs,
     taskArgs: taskArgs,
-    parser: parser,
     opts,
     tasks
   };

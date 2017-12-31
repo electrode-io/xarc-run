@@ -3,31 +3,22 @@
 const chalk = require("chalk");
 
 module.exports = {
-  help: {
-    type: "boolean",
-    alias: "h",
-    desc: "Show Options or help for tasks"
-  },
-  version: {
-    alias: "v",
-    type: "boolean",
-    desc: "show xclap version and exits"
-  },
   cwd: {
     type: "string",
     alias: "w",
     desc: `Set xclap's ${chalk.magenta("CWD")}`,
-    requiresArg: true
+    requireArg: true
   },
   dir: {
     type: "string",
     alias: "d",
     desc: `Set dir to look for ${chalk.green("clap.js")} (default is ${chalk.magenta("CWD")})`,
-    requiresArg: true
+    requireArg: true
   },
   npm: {
     type: "boolean",
     alias: "n",
+    default: false,
     desc: `load npm scripts into namespace ${chalk.magenta("npm")}`
   },
   nmbin: {
