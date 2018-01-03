@@ -777,6 +777,14 @@ describe("xclap", function() {
     });
   });
 
+  it("should not fail if optional task name is not found", done => {
+    const xclap = new XClap({});
+    xclap.run("?foo", err => {
+      expect(err).to.not.exist;
+      done();
+    });
+  });
+
   it("should fail if task name is not found", done => {
     const xclap = new XClap({});
     xclap.run("foo", err => {

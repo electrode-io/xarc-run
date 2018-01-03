@@ -62,6 +62,13 @@ $ clap -n test
 
 You can also specify command line options under `xclap` in your `package.json`.
 
+### Task Name
+
+Task name is any alphanumeric string. `xclap` uses `/` as namespace separator and a prefix `?` to let you indicate that the execution of a task is optional so it won't fail if the task is not found.
+
+* `xclap foo/task1` indicates to execute `task1` in namespace `foo`
+* `xclap ?task1` indicates that executing `task1` is optional.
+
 #### Specifying Complex Tasks from command line
 
 You can specify your tasks as an array from the command line.

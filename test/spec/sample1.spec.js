@@ -52,7 +52,7 @@ describe("sample1", function() {
     });
   });
 
-  it("should run sample1:foo2b tasks", done => {
+  it("should run sample1:foo2b tasks with failure", done => {
     let intercept = xstdout.intercept(true);
     const expectOutput = [
       "hello, this is xfoo1\n",

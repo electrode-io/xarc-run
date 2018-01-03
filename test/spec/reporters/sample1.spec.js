@@ -11,7 +11,8 @@ describe("sample1 console report", function() {
   after(() => (chalk.enabled = true));
 
   it("should log report to console", done => {
-    const expectOutput = `Process x1/x1foo serial array ["foo2"]
+    const expectOutput = `Process x1/x1foo serial array ["?woofoo","foo2"]
+Optional Task woofoo not found
 -Process /foo2 serial array ["foo2a"]
 ..Process /foo2a serial array ["xfoo1","xfoo2","~$echo test anon shell",[".","a","b"],"func","foo3",["a","b",["a","c"],"xfoo4","b","xfoo4","func"],"xfoo4"]
 ---Execute /xfoo1 as function
@@ -58,12 +59,12 @@ describe("sample1 console report", function() {
 >>>Done Execute /xfoo4 as function
 >>Done Process /foo2a serial array ["xfoo1","xfoo2","~$echo test anon shell",[".","a","b"],"func","foo3",["a","b",["a","c"],"xfoo4","b","xfoo4","func"],"xfoo4"]
 >Done Process /foo2 serial array ["foo2a"]
-Done Process x1/x1foo serial array ["foo2"]
+Done Process x1/x1foo serial array ["?woofoo","foo2"]
 `;
     const intercept = xstdout.intercept(true);
     xclap.load(sample1);
     xclap.load("x1", {
-      x1foo: ["foo2"]
+      x1foo: ["?woofoo", "foo2"]
     });
     xclap.run("x1foo", err => {
       intercept.restore();
