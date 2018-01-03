@@ -9,3 +9,5 @@ test
 .travis.yml
 /xclap.js
 /clap
+*.log
+fyn-lock.yaml
