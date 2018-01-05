@@ -5,20 +5,20 @@
 
 [npm scripts] on steroid - an advanced and flexible JavaScript task executor and build tool.
 
-**xclap** can load and execute your [npm scripts] with auto completion for [bash] and [zsh].  It also allows you to define tasks in a JavaScript file, with support for advanced features such as namespace, serial and concurrent tasks execution, and proper nesting task execution hierarchy.
+**xclap** can load and execute your [npm scripts] with auto completion for [bash] and [zsh]. It also allows you to define tasks in a JavaScript file, with support for advanced features such as namespace, serial and concurrent tasks execution, and proper nesting task execution hierarchy.
 
 ## Features
 
--   **_Support [namespaces](#namespace) for tasks!!!_**.
--   Load and execute npm scripts from `package.json`.
--   Auto completion for [bash] and [zsh].
--   Define tasks in a JavaScript file.
--   Serial tasks execution.
--   Concurrent tasks execution.
--   Proper nesting task execution hierarchy.
--   Promise or callback support for tasks written in JavaScript.
--   Support custom task execution reporter.
--   Specify complex tasks execution pattern from command line.
+* **_Support [namespaces](#namespace) for tasks!!!_**.
+* Load and execute npm scripts from `package.json`.
+* Auto completion for [bash] and [zsh].
+* Define tasks in a JavaScript file.
+* Serial tasks execution.
+* Concurrent tasks execution.
+* Proper nesting task execution hierarchy.
+* Promise or callback support for tasks written in JavaScript.
+* Support custom task execution reporter.
+* Specify complex tasks execution pattern from command line.
 
 ## Getting Started
 
@@ -103,7 +103,7 @@ $ clap -x [task_a, task_b, [task_c1, task_c2]]
 
 You can define your tasks in a JavaScript file, allowing you do anything that's possible with JS.
 
-Here is a simple sample.  Save it to `xclap.js` and xclap will automatically load it.
+Here is a simple sample. Save it to `xclap.js` and xclap will automatically load it.
 
 ```js
 const xclap = require("xclap");
@@ -134,7 +134,7 @@ JS hello world
 
 ### Async Tasks
 
-You can provide a JS function for a task that executes asynchrounously.  Your function just need to take a callback or return a Promise.
+You can provide a JS function for a task that executes asynchrounously. Your function just need to take a callback or return a Promise.
 
 ie:
 
@@ -158,20 +158,20 @@ A group of tasks can be assigned a namespace and allows you to have tasks with t
 For example:
 
 ```js
-xclap.load([namepsace], tasks)
+xclap.load([namepsace], tasks);
 ```
 
 You refer to the namespaces with `/`, ie: `ns/foo`.
 
 Anything that was loaded without a namespace is assigned to the default namespace `/`, which can be accessed with a simple leading `/`, ie: `/foo`.
 
-If you run a task without specifying the namespace, then it's searched through all namespaces until it's found.  The default namespace is the first one to search.  The search is done in the order the namespaces were loaded.
+If you run a task without specifying the namespace, then it's searched through all namespaces until it's found. The default namespace is the first one to search. The search is done in the order the namespaces were loaded.
 
 > For obvious reasons, this means task names cannot contain `/`.
 
 #### Auto Complete with namespace
 
-To assist auto completion when using [xclap-cli], you may specify all namespaces with a leading `/` when invoking from the command line.  It will be stripped before xclap run them.
+To assist auto completion when using [xclap-cli], you may specify all namespaces with a leading `/` when invoking from the command line. It will be stripped before xclap run them.
 
 ie:
 
@@ -186,25 +186,14 @@ That way, you can press `tab` after the first `/` to get auto completion with na
 See [reference](./REFERENCE.md) for more detailed information.
 
 [travis-image]: https://travis-ci.org/jchip/xclap.svg?branch=master
-
 [travis-url]: https://travis-ci.org/jchip/xclap
-
 [npm-image]: https://badge.fury.io/js/xclap.svg
-
 [npm-url]: https://npmjs.org/package/xclap
-
 [daviddm-image]: https://david-dm.org/jchip/xclap/status.svg
-
 [daviddm-url]: https://david-dm.org/jchip/xclap
-
 [daviddm-dev-image]: https://david-dm.org/jchip/xclap/dev-status.svg
-
 [daviddm-dev-url]: https://david-dm.org/jchip/xclap?type=dev
-
 [npm scripts]: https://docs.npmjs.com/misc/scripts
-
 [xclap-cli]: https://github.com/jchip/xclap-cli
-
 [bash]: https://www.gnu.org/software/bash/
-
 [zsh]: http://www.zsh.org/
