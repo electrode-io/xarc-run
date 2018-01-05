@@ -1,4 +1,6 @@
-# Advanced Details
+# Detail Reference
+
+## Tasks
 
 Tasks is defined in an object, for example:
 
@@ -18,18 +20,30 @@ const tasks = {
 };
 ```
 
-## Task
+## Loading Task
+
+Tasks can be loaded with `xclap.load`. You can specify a namespace for the tasks.
+
+```js
+const xclap = require("xclap");
+xclap.load(tasks);
+// or load into a namespace
+xclap.load("myapp", tasks);
+```
+
+## Task Definition
 
 A task can be:
 
-* A string - as a shell command to be spawned
-* An array - list of names of tasks to be executed
-* A function - to be called
-* An object - with a `task` field that's one of the above and allows other supplemental fields.
+* [A string](#string) - as a shell command to be spawned, or as a [string that contains an array](#string-array)
+* [An array](#array) - list of tasks to be processed.
+* [A function](#function) - to be called
+* [An object](#object) - with a `task` field that's one of the above and allows other supplemental fields.
 
 ### String
 
-A task that is just a string is treated as a shell command to be executed.
+* A string primarily is executed as a shell command.
+* A string [started with `"~["`](#string-array) is parsed into an [array task](#array).
 
 ```js
 {
@@ -39,7 +53,29 @@ A task that is just a string is treated as a shell command to be executed.
 
 `clap foo` will cause the shell command `echo hello` to be spawned.
 
+#### String Array
+
+If a string task starts with `"~["` then it's parsed as an array with string elements and executed as [array task](#array).
+
+For example:
+
+```js
+{
+  foo: "~[ foo1, foo2, foo3 ]";
+}
+```
+
+Will be the same as specifying `foo: [ "foo1", "foo2", "foo3" ]` and processed as [array task](#array).
+
 ### Array
+
+If the task is an array, then it can contain elements that are strings or functions.
+
+* Functions are treat as a [task function](#function) to be called.
+* Strings in an task array are primarily treated as name of another task to look up and execute.
+* String started with `"~$"` are treated as [anonymous shell commands](#task-name-as-anonymous-shell-command) to be executed.
+
+The [array serial/concurrent rules](#array-serialconcurrent-rules) will be applied.
 
 ```js
 {
@@ -48,6 +84,20 @@ A task that is just a string is treated as a shell command to be executed.
 ```
 
 `clap foo` will cause the three tasks `foo1`, `foo2`, `foo3` to be executed **_serially_**.
+
+#### Task Name As Anonymous Shell Command
+
+If the task name in a task array starts with `"~$"` then the rest of it is executed as an anonymous shell command directly.
+
+For example:
+
+```js
+{
+  foo: ["foo1", "~$echo hello"];
+}
+```
+
+Will cause the task `foo1` to be executed and then the shell command `echo hello` to be executed.
 
 ### Function
 
@@ -61,34 +111,53 @@ A task that is just a string is treated as a shell command to be executed.
 
 The `this` context for the function will the clap [Execution Context](#execution-context). If you don't want to use `this`, then you can use fat arrow function for your task.
 
-Then function can return:
+The function can return:
 
 * `Promise` - `clap` will await for the promise.
-* `array` - `clap` will treat the array as a list of tasks to be executed, with the [array serial/concurrent rules](#array-serialconcurrent-rules) applied.
-* `string` - `clap` will treat the string as a shell command to be spawned.
+* `array` - `clap` will treat the array as a list of tasks to be executed
+  * The [array serial/concurrent rules](#array-serialconcurrent-rules) applied to the array.
+  * The [anonymous shell command](#task-name-as-anonymous-shell-command) rule applied to each string element.
+* `string` - `clap` will treat the string as a task name or an [anonymous shell command to executed](#task-name-as-anonymous-shell-command).
 * `function` - `clap` will call the function as another task function.
 * `stream` - [TBD]
 * `undefined` or anything else - `clap` will wait for the `callback` to be called.
 
 ### Object
 
-### Array serial/concurrent rules
+You can define your task as an object in order to specify more information.
+
+For example:
+
+```js
+{
+  task1: {
+    desc: "description",
+    task: <task-definition>,
+    dep: <task-definition>
+  }
+}
+```
+
+Where:
+
+* `desc` - Description for the task.
+* `task` - [Task definition](#task-definition).
+* `dep` - Dependency tasks to be executed first.
+
+## Array serial/concurrent rules
 
 When you definte a task as an array, it should contain a list of task names to be executed serially or concurrently.
 
-#### Serially
+Generally, the array of tasks is executed concurrently, and only serially when [certain conditions](#serially) are true.
+
+### Serially
 
 Each task in the array is executed serially if:
 
-* The array is defined at the [top level](#toplevel).
-* The first element of the array is `"."`.
+* The array is defined at the [top level](#top-level).
+* The first element of the array is [`"."`](#first-element-dot).
 
-> NOTE: The only time the tasks in an array is automatically executed serially is when the array is defined at the top level.
-> All other times it's always executed concurrently unless the [first element is `"."`](#firstelementdot).
-
-ie:
-
-##### top level
+#### top level
 
 At top level, an array of task names will be executed serially.
 
@@ -98,9 +167,9 @@ At top level, an array of task names will be executed serially.
 }
 ```
 
-##### First element dot
+#### First element dot
 
-If the first element of the array is `"."` then the rest of the elements in the array are assumed to be task names to be executed serially.
+If the first element of the array is `"."` then the rest of tasks in the array will be executed serially.
 
 ```js
 {
@@ -110,14 +179,11 @@ If the first element of the array is `"."` then the rest of the elements in the 
 
 #### Concurrently
 
-Each task in the array is executed concurrently if:
+An array of tasks is executed concurrently, and only serially when [certain conditions](#serially) are true.
 
-* The array is NOT defined at the [top level](#toplevel).
-* Its first element is NOT `"."`.
+For example, at the top level, to execute some tasks concurrently, specify them in a subarray.
 
-ie:
-
-`foo1`, `foo2`, and `foo3` are executed **_concurrently_** because they are in a subarray and the first element is NOT `"."`.
+`foo1`, `foo2`, and `foo3` are executed **_concurrently_**.
 
 ```js
 {
@@ -125,13 +191,11 @@ ie:
 }
 ```
 
-## Loading Task
-
-Tasks can be loaded with `xclap.load`. You can specify a namespace for the tasks.
-
 ### Namespace
 
-A group of tasks can be assigned a namespace.
+A group of tasks can be assigned a namespace and allows you to have tasks with the same name so you can modify certain tasks without replacing them.
+
+For example:
 
 ```js
 xclap.load([namepsace], tasks);
@@ -145,9 +209,21 @@ If you run a task without specifying the namespace, then it's searched through a
 
 > For obvious reasons, this means task names cannot contain `/`.
 
+#### Auto Complete with namespace
+
+To assist auto completion when using [xclap-cli], you may specify all namespaces with a leading `/` when invoking from the command line. It will be stripped before xclap run them.
+
+ie:
+
+```bash
+$ clap /foo/bar
+```
+
+That way, you can press `tab` after the first `/` to get auto completion with namespaces.
+
 ## Execution Context
 
-A continuous execution context is maintain from the top whenever you invoke a task with `clap <name>`.
+A continuous execution context is maintained from the top whenever you invoke a task with `clap <name>`.
 
 The execution context is passed to any task function as `this`.
 
@@ -158,3 +234,20 @@ You can run more tasks under the same context with `this.run`
 * `this.run([ ".", "name1", "name2", "name3"])` will execute them serially.
 
 * `this.run(["name1", "name2", "name3"])` will execute them concurrently.
+
+For example:
+
+```js
+const tasks = {
+  bar: {},
+  foo: function() {
+    console.log("hello from foo");
+    this.run("bar");
+  }
+};
+```
+
+[npm scripts]: https://docs.npmjs.com/misc/scripts
+[xclap-cli]: https://github.com/jchip/xclap-cli
+[bash]: https://www.gnu.org/software/bash/
+[zsh]: http://www.zsh.org/
