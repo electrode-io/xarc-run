@@ -61,7 +61,21 @@ function nixClap(argv, start) {
   const cutOff = findCutOff();
   const cliArgs = argv.slice(start, cutOff);
   const taskArgs = argv.slice(cutOff);
-  const tasks = taskArgs.map(x => (x.startsWith("-") ? null : x)).filter(x => !!x);
+  const extractTask = (startIx, endIx) => taskArgs.slice(startIx, endIx).join(" ");
+
+  const taskXt = taskArgs.reduce(
+    (acc, v, ix) => {
+      if (!v.startsWith("-")) {
+        if (ix > 0) acc.tasks.push(extractTask(acc.k, ix));
+        acc.k = ix;
+      }
+      return acc;
+    },
+    { tasks: [], k: 0 }
+  );
+
+  const tasks = taskXt.tasks;
+  if (taskArgs.length > 0) tasks.push(extractTask(taskXt.k, taskArgs.length));
 
   const nc = new NixClap({
     name: xclapPkg.name,

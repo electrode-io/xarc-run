@@ -119,6 +119,24 @@ describe("xclap", function() {
     });
   });
 
+  it("should pass task options as argv", done => {
+    const xclap = new XClap({
+      foo: function() {
+        expect(this.argv).to.deep.equal(["foo"]);
+      },
+      foo1: function() {
+        expect(this.argv).to.deep.equal(["foo1", "--test"]);
+      },
+      foo2: function() {
+        expect(this.argv).to.deep.equal(["foo2", "--a", "--b"]);
+      }
+    });
+
+    xclap.run(["foo", "foo1 --test", "foo2 --a --b"], err => {
+      done(err);
+    });
+  });
+
   it("should execute a dep string as shell directly", done => {
     let foo = 0;
     const xclap = new XClap({

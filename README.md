@@ -130,7 +130,7 @@ Task name is any alphanumeric string that does not contain `/`, or starts with `
 Tasks can be invoked from command line:
 
 * `xclap foo/task1` indicates to execute `task1` in namespace `foo`
-* `xclap ?task1` indicates that executing `task1` is optional.
+* `xclap ?task1` or `xclap ?foo/task1` indicates that executing `task1` is optional.
 
 `xclap` treats these characters as special:
 
@@ -144,7 +144,7 @@ By prefixing the task name with `?` when invoking, you can indicate the executio
 
 For example:
 
-* `xclap foo/?task1` or `xclap ?task1` won't fail if `task1` is not found.
+* `xclap ?foo/task1` or `xclap ?task1` won't fail if `task1` is not found.
 
 #### Task Definition
 

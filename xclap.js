@@ -87,6 +87,9 @@ const tasks = {
     task: () => {
       console.log("function task for foo3");
     }
+  },
+  foo4: function() {
+    console.log("foo4 task argv", this.argv);
   }
 };
 const xclap = require(".");

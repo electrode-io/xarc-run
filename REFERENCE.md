@@ -247,6 +247,47 @@ const tasks = {
 };
 ```
 
+### Task Options
+
+The execution context also has `argv` which is an array of the task options. The first one is the name as used to invoke the task.
+
+Examples:
+
+* `xclap foo` - argv: `["foo"]`
+* `xclap foo --bar` - argv: `["foo", "--bar"]`
+* `xclap ?foo --bar --woo` - argv: `["?foo", "--bar", "--woo"]`
+* `xclap ?ns/foo --bar` - argv: `["?ns/foo", "--bar"]`
+
+The argv is only applicable if the task is a JavaScript `function`.
+
+For example:
+
+```js
+const tasks = {
+  foo: function() {
+    console.log(this.argv);
+  }
+};
+```
+
+#### Inline Task Options
+
+Task options can be specified inline in the task definition also, not just in command line.
+
+Only the first part separated by space `" "` is used as the task name.
+
+For example,
+
+```js
+const tasks = {
+  foo: function() {
+    console.log(argv);
+  },
+  zoo: "foo --bar --woo",
+  moo: ["?bad", "foo --bar --woo"]
+};
+```
+
 [npm scripts]: https://docs.npmjs.com/misc/scripts
 [xclap-cli]: https://github.com/jchip/xclap-cli
 [bash]: https://www.gnu.org/software/bash/
