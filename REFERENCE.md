@@ -266,6 +266,12 @@ For example:
 const tasks = {
   foo: function() {
     console.log(this.argv);
+  },
+  boo: {
+    desc: "show argv from task options",
+    task: function() {
+      console.log(this.argv);
+    }
   }
 };
 ```
