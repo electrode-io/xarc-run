@@ -847,6 +847,19 @@ describe("xclap", function() {
     });
   });
 
+  describe("stopOnError", function() {
+    it("should throw if value is invalid", () => {
+      const xclap = new XClap();
+      expect(() => (xclap.stopOnError = "blah")).to.throw("stopOnError must be");
+    });
+
+    it("should allow to set one of the string values", () => {
+      const xclap = new XClap();
+      xclap.stopOnError = "full";
+      expect(xclap.stopOnError).to.equal("full");
+    });
+  });
+
   describe("_exitOnError", function() {
     let intercept;
     const xclap = new XClap();
