@@ -33,12 +33,19 @@ xclap.load("myapp", tasks);
 
 ## Task Definition
 
-A task can be:
+### Direct Action Task
+
+Ultimately, a task would eventually resolve to some kind of runnable action that's either a function, a shell string, or a list of other tasks to run.
+
+A task can define its direct action as one of:
 
 * [A string](#string) - as a shell command to be spawned, or as a [string that contains an array](#string-array)
 * [An array](#array) - list of tasks to be processed.
 * [A function](#function) - to be called
-* [An object](#object) - with a `task` field that's one of the above and allows other supplemental fields.
+
+### A Task Object
+
+To allow decorating a task with more information such as name and description, the task definition can be an [An object](#object), which should contain a `task` field that defines a [direct action task](#direct-action-task).
 
 ### String
 
@@ -141,7 +148,7 @@ For example:
 Where:
 
 * `desc` - Description for the task.
-* `task` - [Task definition](#task-definition).
+* `task` - Defines a [direct action task](#direct-action-task).
 * `dep` - Dependency tasks to be executed first.
 
 ## Array serial/concurrent rules
