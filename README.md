@@ -19,6 +19,8 @@
 * Promise or callback support for tasks written in JavaScript.
 * Support custom task execution reporter.
 * Specify complex tasks execution pattern from command line.
+* Tasks can have a [_finally_](./REFERENCE.md#finally-hook) hook that always runs after task finish or fail.
+* Support [flexible function task](./REFERENCE.md#function) that can return more tasks to run.
 
 ## Getting Started
 
@@ -140,7 +142,7 @@ Tasks can be invoked from command line:
 
 #### Optional Task Execution
 
-By prefixing the task name with `?` when invoking, you can indicate the execution of an task as optional so it won't fail in case the task is not found.
+By prefixing the task name with `?` when invoking, you can indicate the execution of a task as optional so it won't fail in case the task is not found.
 
 For example:
 

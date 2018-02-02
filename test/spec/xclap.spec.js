@@ -436,7 +436,7 @@ describe("xclap", function() {
       expect(err.length).to.equal(2);
       expect(err[0].message).to.equal("a failed");
       expect(err[1].message).to.equal("c failed");
-      expect(doneItem).to.equal(6);
+      expect(doneItem).to.equal(7);
       expect(foo).to.equal(1);
       expect(foo2).to.equal(1);
       xclap.waitAllPending(() => {
@@ -930,5 +930,24 @@ describe("xclap", function() {
     xclap.load({ namespace: "blah", overrides: "hello" }, {});
     xclap.load("hello", {});
     expect(xclap.getNamespaces()).to.deep.equal(["/", "foo", "blah", "test", "hello"]);
+  });
+
+  it("should cancel and kill a shell exec on error", done => {
+    const tasks = {
+      sh: "sleep 1; echo sh output",
+      fnErr: () => {
+        throw new Error("error");
+      }
+    };
+
+    const xclap = new XClap(tasks);
+    const intercept = xstdout.intercept(true);
+    xclap.run(["sh", "fnErr"], err => {
+      setTimeout(() => {
+        intercept.restore();
+        expect(intercept.stdout).to.deep.equal([]);
+        done();
+      }, 1100);
+    });
   });
 });

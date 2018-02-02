@@ -1,5 +1,6 @@
 "use strict";
 
+const assert = require("assert");
 const chalk = require("chalk");
 
 module.exports = {
@@ -44,10 +45,16 @@ module.exports = {
     desc: "List all namespaces"
   },
   soe: {
-    type: "boolean",
+    type: "enum",
+    enum: v => {
+      if (v === undefined) return "full";
+      if (!v || v === "no") return "";
+      assert(v === "soft" || v === "full", `option soe value must be one of: no, soft, full`);
+      return v;
+    },
     alias: "s",
-    desc: "Stop on errors",
-    default: true
+    desc: `Stop on errors - one of: no, soft, full`,
+    default: "full"
   },
   quiet: {
     type: "boolean",

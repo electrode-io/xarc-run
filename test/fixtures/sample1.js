@@ -5,7 +5,7 @@ const tasks = {
     setTimeout(() => {
       console.log("hello, this is xfoo1");
       cb();
-    }, 100);
+    }, 200);
   },
   xfoo2: `echo "a direct shell command xfoo2"`,
   xfoo3: `echo "a direct shell command xfoo3"`,
@@ -13,7 +13,7 @@ const tasks = {
     setTimeout(() => {
       console.log("hello, this is xfoo4");
       cb();
-    }, 20);
+    }, 80);
   },
   a: cb => {
     let i,
@@ -25,7 +25,7 @@ const tasks = {
       } else {
         console.log("aaaaa");
       }
-    }, 10);
+    }, 40);
   },
   b: cb => {
     let i,
@@ -37,7 +37,7 @@ const tasks = {
       } else {
         console.log("bbbb");
       }
-    }, 10);
+    }, 40);
   },
   c: cb => {
     let i,
@@ -49,7 +49,7 @@ const tasks = {
       } else {
         console.log("cccc");
       }
-    }, 10);
+    }, 40);
   },
   foo2a: [
     "xfoo1",
@@ -87,6 +87,18 @@ const tasks = {
     task: () => {
       console.log("function task for foo3");
     }
+  },
+  foo4Dep: cb => {
+    console.log("this is foo4Dep");
+    cb();
+  },
+  foo4: {
+    desc: "description for task foo4",
+    dep: ["foo4Dep"],
+    task: () => {
+      console.log("function task for foo4");
+    },
+    finally: () => console.log("foo4 finally")
   }
 };
 

@@ -78,7 +78,9 @@ describe("xtasks", function() {
       "foo2",
       "foo2b",
       "foo3Dep",
-      "foo3"
+      "foo3",
+      "foo4Dep",
+      "foo4"
     ]);
   });
 
@@ -102,7 +104,9 @@ describe("xtasks", function() {
       "sample1/foo2",
       "sample1/foo2b",
       "sample1/foo3Dep",
-      "sample1/foo3"
+      "sample1/foo3",
+      "sample1/foo4Dep",
+      "sample1/foo4"
     ]);
   });
 });

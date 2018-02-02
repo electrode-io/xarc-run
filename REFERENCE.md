@@ -60,6 +60,11 @@ To allow decorating a task with more information such as name and description, t
 
 `clap foo` will cause the shell command `echo hello` to be spawned.
 
+This two environment variables are defined, mainly for the [`finally`](#finally-hook) hook.
+
+* `XCLAP_ERR` - If task failed, this would contain the error message.
+* `XCLAP_FAILED` - If any task failed, this would be `true`.
+
 #### String Array
 
 If a string task starts with `"~["` then it's parsed as an array with string elements and executed as [array task](#array).
@@ -79,7 +84,7 @@ Will be the same as specifying `foo: [ "foo1", "foo2", "foo3" ]` and processed a
 If the task is an array, then it can contain elements that are strings or functions.
 
 * Functions are treat as a [task function](#function) to be called.
-* Strings in an task array are primarily treated as name of another task to look up and execute.
+* Strings in a task array are primarily treated as name of another task to look up and execute.
 * String started with `"~$"` are treated as [anonymous shell commands](#task-name-as-anonymous-shell-command) to be executed.
 
 The [array serial/concurrent rules](#array-serialconcurrent-rules) will be applied.
@@ -140,7 +145,8 @@ For example:
   task1: {
     desc: "description",
     task: <task-definition>,
-    dep: <task-definition>
+    dep: <task-definition>,
+    finally: <finally-hook-definition>
   }
 }
 ```
@@ -150,6 +156,17 @@ Where:
 * `desc` - Description for the task.
 * `task` - Defines a [direct action task](#direct-action-task).
 * `dep` - Dependency tasks to be executed first.
+* `finally` - Defines a [direct action task](#direct-action-task) that's always run after task finish or fail.
+
+#### finally hook
+
+When defining task as an object, you can have a `finally` property that defines [direct action task](#direct-action-task) which is always executed after the task completes or fails. Generally for doing clean up chores.
+
+Note that the finally hook is processed the same way as a task. Other tasks that are referenced by the `finally` hook will not have their `finally` hook invoked.
+
+If you set `stopOnError` to `full`, then be careful if you have concurrent running tasks, because `full` stop immediately abandon all pending async sub tasks, but since xclap can't reliably cancel them, they could be continuing to run, and therefore could cause concurrent conflict with your finally hook.
+
+If you have async task, it's best you set [`stopOnError`](#stoponerror) to `soft`.
 
 ## Array serial/concurrent rules
 
@@ -232,7 +249,12 @@ That way, you can press `tab` after the first `/` to get auto completion with na
 
 A continuous execution context is maintained from the top whenever you invoke a task with `clap <name>`.
 
-The execution context is passed to any task function as `this`.
+The execution context is passed to any task function as `this`. It has the following properties:
+
+* `run` - a function to run another task
+* `argv` - arguments to the task
+* `err` - For the [`finally`](#finally-hook) hook, if task failed, this would be the error.
+* `failed` - The array of all task failure errors.
 
 You can run more tasks under the same context with `this.run`
 
@@ -300,6 +322,46 @@ const tasks = {
   moo: ["?bad", "foo --bar --woo"]
 };
 ```
+
+# APIs
+
+`xclap` supports the following methods:
+
+## `stopOnError`
+
+Configure `xclap`'s behavior if any task execution failed.
+
+Accepted values are:
+
+* `false`, `""` - completely turn off, march on if any tasks failed.
+* `"soft"` - Allow existing async tasks to run to completion and invoke `finally` hooks, but no new tasks will be executed.
+* `true`, `"full"` - Stop and exit immediately, don't wait for any pending async tasks, `finally` hooks invocation is unreliable.
+
+> XClap defaults this to `"full"`
+
+Example:
+
+```js
+const xclap = new XClap();
+xclap.stopOnError = "full";
+```
+
+## `load([namespace], tasks)`
+
+Load `tasks` into `[namespace]` (optional).
+
+If no `namespace`, then tasks are loaded into the root namespace.
+
+## `run(name, [done])`
+
+Run the task specified by `name`.
+
+* `name` - Either a string or an array of names.
+* `done` - Optional callback. If it's not given, then an internal handler is invoked to do `console.log` of the execution result.
+
+# `waitAllPending(done)`
+
+Wait for all pending tasks to complete and then call `done`.
 
 [npm scripts]: https://docs.npmjs.com/misc/scripts
 [xclap-cli]: https://github.com/jchip/xclap-cli

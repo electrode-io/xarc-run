@@ -9,37 +9,47 @@ describe("sample1", function() {
   it("should run sample1:foo2 tasks", done => {
     const intercept = xstdout.intercept(true);
     const expectOutput = [
-      "hello, this is xfoo1\n",
-      "a direct shell command xfoo2\n",
-      "test anon shell\n",
-      "aaaaa\n",
-      "aaaaa\n",
-      "aaaaa\n",
-      "bbbb\n",
-      "bbbb\n",
-      "bbbb\n",
-      "anonymous\n",
-      "this is foo3Dep\n",
-      "function task for foo3\n",
-      "concurrent anon\n",
-      "aaaaa\n",
-      "bbbb\n",
-      "bbbb\n",
-      "aaaaa\n",
-      "cccc\n",
-      "hello, this is xfoo4\n",
-      "hello, this is xfoo4\n",
-      "aaaaa\n",
-      "bbbb\n",
-      "bbbb\n",
-      "aaaaa\n",
-      "cccc\n",
-      "aaaaa\n",
-      "bbbb\n",
-      "bbbb\n",
-      "aaaaa\n",
-      "cccc\n",
-      "hello, this is xfoo4\n"
+      "a direct shell command xfoo2",
+      "aaaaa",
+      "aaaaa",
+      "aaaaa",
+      "aaaaa",
+      "aaaaa",
+      "aaaaa",
+      "aaaaa",
+      "aaaaa",
+      "aaaaa",
+      "aaaaa",
+      "aaaaa",
+      "aaaaa",
+      "aaaaa",
+      "anonymous",
+      "bbbb",
+      "bbbb",
+      "bbbb",
+      "bbbb",
+      "bbbb",
+      "bbbb",
+      "bbbb",
+      "bbbb",
+      "bbbb",
+      "bbbb",
+      "bbbb",
+      "bbbb",
+      "bbbb",
+      "cccc",
+      "cccc",
+      "cccc",
+      "cccc",
+      "cccc",
+      "concurrent anon",
+      "function task for foo3",
+      "hello, this is xfoo1",
+      "hello, this is xfoo4",
+      "hello, this is xfoo4",
+      "hello, this is xfoo4",
+      "test anon shell",
+      "this is foo3Dep"
     ];
     const xclap = new XClap(sample1);
     xclap.run("foo2", err => {
@@ -47,7 +57,8 @@ describe("sample1", function() {
       if (err) {
         return done(err);
       }
-      expect(intercept.stdout.sort()).to.deep.equal(expectOutput.sort());
+      const output = intercept.stdout.sort().map(x => x.trim());
+      expect(output).to.deep.equal(expectOutput.sort());
       done();
     });
   });
@@ -55,25 +66,31 @@ describe("sample1", function() {
   it("should run sample1:foo2b tasks with failure", done => {
     let intercept = xstdout.intercept(true);
     const expectOutput = [
-      "hello, this is xfoo1\n",
-      "a direct shell command xfoo2\n",
-      "test anon shell\n",
-      "aaaaa\n",
-      "aaaaa\n",
-      "aaaaa\n",
-      "bbbb\n",
-      "bbbb\n",
-      "bbbb\n",
-      "anonymous\n",
-      "this is foo3Dep\n",
-      "function task for foo3\n",
-      "concurrent anon\n"
+      "a direct shell command xfoo2",
+      "aaaaa",
+      "aaaaa",
+      "aaaaa",
+      "aaaaa",
+      "aaaaa",
+      "anonymous",
+      "bbbb",
+      "bbbb",
+      "bbbb",
+      "bbbb",
+      "bbbb",
+      "cccc",
+      "concurrent anon",
+      "function task for foo3",
+      "hello, this is xfoo1",
+      "test anon shell",
+      "this is foo3Dep"
     ];
     const xclap = new XClap(sample1);
     xclap.run("foo2ba", err => {
       intercept.restore();
       expect(err).to.exist;
-      expect(intercept.stdout.sort()).to.deep.equal(expectOutput.sort());
+      const output = intercept.stdout.sort().map(x => x.trim());
+      expect(output).to.deep.equal(expectOutput.sort());
       intercept = xstdout.intercept(true);
       xclap.waitAllPending(() => {
         intercept.restore();
