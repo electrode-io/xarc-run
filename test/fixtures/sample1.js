@@ -71,7 +71,7 @@ const tasks = {
     [".", "a", "b"],
     () => console.log("anonymous"),
     "foo3",
-    ["a", "b", ["a", "c"], "xerr", "b", "xerr", () => console.log("concurrent anon")],
+    ["a", "b", ["/a", "c"], "xerr", "b", "xerr", () => console.log("concurrent anon")],
     "xfoo4"
   ],
   foo1: "sample1-foo1",

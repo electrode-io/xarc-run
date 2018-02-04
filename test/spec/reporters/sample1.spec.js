@@ -93,7 +93,7 @@ Done Process x1/x1foo serial array ["?woofoo",["foo2","foo4"]]
   });
 
   it("should log failure report to console", done => {
-    const expectOutput = `Process /foo2ba serial array ["xfoo1","xfoo2","~$echo test anon shell",[".","a","b"],"func","foo3",["a","b",["a","c"],"xerr","b","xerr","func"],"xfoo4"]
+    const expectOutput = `Process /foo2ba serial array ["xfoo1","xfoo2","~$echo test anon shell",[".","a","b"],"func","foo3",["a","b",["/a","c"],"xerr","b","xerr","func"],"xfoo4"]
 -Execute /xfoo1 as function
 >Done Execute /xfoo1 as function
 .Execute /xfoo2 echo "a direct shell command xfoo2"
@@ -114,10 +114,10 @@ Done Process x1/x1foo serial array ["?woofoo",["foo2","foo4"]]
 >Done Process foo3's dependency serial array ["foo3Dep"]
 .Execute /foo3 as function
 >Done Execute /foo3 as function
--Process /foo2ba.S concurrent array ["a","b",["a","c"],"xerr","b","xerr","func"]
+-Process /foo2ba.S concurrent array ["a","b",["/a","c"],"xerr","b","xerr","func"]
 ..Execute /a as function
 --Execute /b as function
-..Process /foo2ba.S.C concurrent array ["a","c"]
+..Process /foo2ba.S.C concurrent array ["/a","c"]
 --Execute /xerr as function
 ..Execute /b as function
 --Execute /xerr as function
@@ -132,9 +132,9 @@ Done Process x1/x1foo serial array ["?woofoo",["foo2","foo4"]]
 >>Done Execute /b as function
 >>>Done Execute /a as function
 >>>Done Execute /c as function
->>Done Process /foo2ba.S.C concurrent array ["a","c"]
->Done Process /foo2ba.S concurrent array ["a","b",["a","c"],"xerr","b","xerr","func"]
-Done Process /foo2ba serial array ["xfoo1","xfoo2","~$echo test anon shell",[".","a","b"],"func","foo3",["a","b",["a","c"],"xerr","b","xerr","func"],"xfoo4"]
+>>Done Process /foo2ba.S.C concurrent array ["/a","c"]
+>Done Process /foo2ba.S concurrent array ["a","b",["/a","c"],"xerr","b","xerr","func"]
+Done Process /foo2ba serial array ["xfoo1","xfoo2","~$echo test anon shell",[".","a","b"],"func","foo3",["a","b",["/a","c"],"xerr","b","xerr","func"],"xfoo4"]
 `;
     let error;
     let intercept = xstdout.intercept(true);
