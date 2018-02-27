@@ -1,6 +1,5 @@
 "use strict";
 
-const optionalRequire = require("optional-require")(require);
 const Path = require("path");
 const nixClap = require("./nix-clap");
 const xclap = require("..");
@@ -9,7 +8,6 @@ const logger = require("../lib/logger");
 const usage = require("./usage");
 const envPath = require("xsh").envPath;
 const Fs = require("fs");
-const npmLoader = require("./npm-loader");
 const xsh = require("xsh");
 const cliOptions = require("./cli-options");
 const parseArray = require("../lib/util/parse-array");
@@ -31,40 +29,6 @@ function clap(argv, offset) {
 
   const claps = nixClap(argv, offset);
   const opts = claps.opts;
-
-  npmLoader(xclap, opts);
-
-  const clapDir = Path.join(opts.cwd, opts.dir || "");
-
-  let notFound;
-  let clapFile;
-  let clapTasks;
-  const file = ["xclap.js", "clapfile.js", "clap.js", "gulpfile.js"].find(f => {
-    notFound = false;
-    clapFile = Path.join(clapDir, f);
-    clapTasks = optionalRequire(clapFile, { notFound: () => (notFound = true) });
-    return !notFound;
-  });
-
-  if (notFound) {
-    const x = chalk.magenta(xsh.pathCwd.replace(clapDir));
-    logger.log(`No ${chalk.green("xclap.js")} found in ${x}`);
-  } else {
-    const loaded = chalk.green(`${xsh.pathCwd.replace(clapFile)}`);
-    if (typeof clapTasks === "function") {
-      clapTasks(xclap);
-      logger.log(`Called export function from ${loaded}`);
-    } else if (typeof clapTasks === "object") {
-      if (Object.keys(clapTasks).length > 0) {
-        xclap.load("clap", clapTasks);
-        logger.log(`Loaded tasks from ${loaded} into namespace ${chalk.magenta("clap")}`);
-      } else {
-        logger.log(`Loaded ${loaded}`);
-      }
-    } else {
-      logger.log(`Unknown export type ${chalk.yellow(typeof clapTasks)} from ${loaded}`);
-    }
-  }
 
   const numTasks = xclap.countTasks();
 
