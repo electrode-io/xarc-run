@@ -49,7 +49,6 @@ function searchClap(search, opts) {
 }
 
 function loadTasks(opts, searchResult) {
-  npmLoader(xclap, opts);
   const loadMsg = chalk.green(`${xsh.pathCwd.replace(searchResult.file)}`);
   if (typeof searchResult.tasks === "function") {
     searchResult.tasks(xclap);
@@ -170,8 +169,6 @@ function nixClap(argv, start) {
     opts.cwd = process.cwd();
   }
 
-  const searchResult = searchClap(search, opts);
-
   const Pkg = optionalRequire(Path.join(opts.cwd, "package.json"));
 
   if (Pkg && Pkg.xclap) {
@@ -182,6 +179,9 @@ function nixClap(argv, start) {
     const pkgName = chalk.magenta("CWD/package.json");
     logger.log(`Applied ${chalk.green("xclap options")} from ${pkgName}`);
   }
+
+  npmLoader(xclap, opts);
+  const searchResult = searchClap(search, opts);
 
   loadTasks(opts, searchResult);
 
