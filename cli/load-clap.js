@@ -15,7 +15,7 @@ function loadClap(clapDir, search) {
 
   let dir = clapDir;
   do {
-    result = searchClap(dir);
+    result = findClapFile(dir);
     if (result.found || result.foundPkg) {
       break;
     }
@@ -33,16 +33,15 @@ function loadClap(clapDir, search) {
 
 module.exports = loadClap;
 
-function searchClap(clapDir) {
+function findClapFile(clapDir) {
   let found = false;
   let foundPkg = false;
   let clapFile;
   let clapTasks;
 
   const file = ["xclap.js", "clapfile.js", "clap.js", "gulpfile.js"].find(f => {
-    found = true;
     clapFile = Path.join(clapDir, f);
-    clapTasks = optionalRequire(clapFile, { notFound: () => (found = false) });
+    found = Fs.existsSync(clapFile);
     return found;
   });
 
@@ -56,8 +55,7 @@ function searchClap(clapDir) {
   return {
     found,
     foundPkg,
-    file: clapFile,
-    tasks: clapTasks,
+    clapFile,
     dir: clapDir
   };
 }

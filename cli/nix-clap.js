@@ -39,7 +39,6 @@ function searchClap(search, opts) {
   if (!loadResult.found) {
     const x = chalk.magenta(xsh.pathCwd.replace(clapDir));
     logger.log(`No ${chalk.green("xclap.js")} found in ${x}`);
-    process.exit(1);
   } else if (search) {
     // force CWD to where clap file was found
     updateCwd(loadResult.dir, opts);
@@ -50,19 +49,31 @@ function searchClap(search, opts) {
 
 function loadTasks(opts, searchResult) {
   npmLoader(xclap, opts);
-  const loadMsg = chalk.green(`${xsh.pathCwd.replace(searchResult.file)}`);
-  if (typeof searchResult.tasks === "function") {
-    searchResult.tasks(xclap);
+  const loadMsg = chalk.green(`${xsh.pathCwd.replace(searchResult.clapFile)}`);
+
+  const tasks =
+    searchResult.clapFile &&
+    optionalRequire(searchResult.clapFile, {
+      fail: e => {
+        const errMsg = chalk.red(`Unable to load ${searchResult.clapFile}`);
+        logger.log(`${errMsg}: ${e.stack}`);
+      }
+    });
+
+  if (!tasks) return;
+
+  if (typeof tasks === "function") {
+    tasks(xclap);
     logger.log(`Called export function from ${loadMsg}`);
-  } else if (typeof searchResult.tasks === "object") {
-    if (Object.keys(searchResult.tasks).length > 0) {
-      xclap.load("clap", searchResult.tasks);
+  } else if (typeof tasks === "object") {
+    if (Object.keys(tasks).length > 0) {
+      xclap.load("clap", tasks);
       logger.log(`Loaded tasks from ${loadMsg} into namespace ${chalk.magenta("clap")}`);
     } else {
       logger.log(`Loaded ${loadMsg}`);
     }
   } else {
-    logger.log(`Unknown export type ${chalk.yellow(typeof searchResult.tasks)} from ${loadMsg}`);
+    logger.log(`Unknown export type ${chalk.yellow(typeof tasks)} from ${loadMsg}`);
   }
 }
 
