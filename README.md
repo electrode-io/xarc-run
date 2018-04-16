@@ -221,6 +221,22 @@ const tasks = {
 }
 ```
 
+### Debugging an app with Node Inspector from xclap
+
+Chrome has an [Node Inspector extension](https://chrome.google.com/webstore/detail/nodejs-v8-inspector-manag/gnhhdgbaldcilmgcpfddgdbkhjohddkj) that will integrate
+with the `node --inspect` and `node --inspect-brk` flags for debugging with Chrome Dev tools for NodeJS processes.
+
+To debug an app with xclap simply modify the first line in your `node_modules/.bin/xclap` file
+
+from
+```
+#!/usr/bin/env node
+```
+to
+```
+#!/usr/bin/env node --inspect  (or --inspect-brk)
+```
+
 ### Detailed Reference
 
 See [reference](./REFERENCE.md) for more detailed information on features such as [load tasks into namespace], and setup [auto complete with namespace] for your shell.
