@@ -17,6 +17,11 @@
     "type": "git",
     "url": "https://github.com/jchip/xclap.git"
   },
+  "files": [
+    "lib",
+    "cli",
+    "bin"
+  ],
   "keywords": [
     "npm",
     "scripts",
