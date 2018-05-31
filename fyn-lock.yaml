@@ -459,6 +459,13 @@ shcmd:
   _: 'https://registry.npmjs.org/shcmd/-/shcmd-0.7.9.tgz'
   dependencies:
    glob: ^7.0.0
+string-array:
+ _:
+  ^1.0.0: 1.0.0
+ 1.0.0:
+  top: 1
+  $: 4a5d54a7a6c893dfd984145d08c35a1e60dc2a37
+  _: 'https://registry.npmjs.org/string-array/-/string-array-1.0.0.tgz'
 strip-ansi:
  _:
   ^4.0.0: 4.0.0
