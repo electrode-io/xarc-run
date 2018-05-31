@@ -225,6 +225,10 @@ const tasks = {
 
 See [reference](./REFERENCE.md) for more detailed information on features such as [load tasks into namespace], and setup [auto complete with namespace] for your shell.
 
+# License
+
+Licensed under the [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0)
+
 [travis-image]: https://travis-ci.org/jchip/xclap.svg?branch=master
 [travis-url]: https://travis-ci.org/jchip/xclap
 [npm-image]: https://badge.fury.io/js/xclap.svg
