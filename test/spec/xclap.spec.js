@@ -234,6 +234,28 @@ describe("xclap", function() {
     });
   });
 
+  it("should handle shell with unknown flag", done => {
+    const xclap = new XClap({
+      foo: `~(spawn,foo,sync)$echo hello`
+    });
+    const exeEvents = ["lookup", "shell"];
+
+    xclap.on("execute", data => {
+      expect(data.type).to.equal(exeEvents[0]);
+      exeEvents.shift();
+    });
+
+    let doneItem = 0;
+    xclap.on("done-item", data => doneItem++);
+
+    xclap.run("foo", err => {
+      expect(err).to.exist;
+      expect(doneItem).to.equal(0);
+      expect(err[0].message).contains("Unknown flag foo in shell task");
+      done();
+    });
+  });
+
   it("should handle fail status of shell with spawn", done => {
     const xclap = new XClap({ foo: `~(spawn)$node -e "process.exit(1)"` });
     const exeEvents = ["lookup", "shell"];
