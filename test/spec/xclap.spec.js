@@ -1082,4 +1082,61 @@ describe("xclap", function() {
       }, 1100);
     });
   });
+
+  const timeoutFoo = x => {
+    return new Promise(resolve => {
+      setTimeout(resolve, x);
+    });
+  };
+
+  const testAsync = (tasks, done) => {
+    const xclap = new XClap(tasks);
+
+    const exeEvents = ["lookup", "function", "lookup", "function"];
+    xclap.on("execute", data => {
+      expect(data.type).to.equal(exeEvents[0]);
+      exeEvents.shift();
+    });
+
+    let cfoo2 = -1;
+    setTimeout(() => (cfoo2 = tasks.foo2Value), 10);
+
+    const start = Date.now();
+    xclap.run("foo", err => {
+      if (err) {
+        return done(err);
+      }
+      const end = Date.now();
+      expect(end - start).to.be.above(29);
+      expect(cfoo2).to.equal(0);
+      expect(tasks.foo2Value).to.equal(1);
+      done(err);
+    });
+  };
+
+  it("should handle async function", done => {
+    const tasks = {
+      foo2Value: 0,
+      foo: async () => {
+        await timeoutFoo(30);
+        return "foo2";
+      },
+      foo2: () => tasks.foo2Value++
+    };
+    testAsync(tasks, done);
+  });
+
+  it("should handle async task function", done => {
+    const tasks = {
+      foo2Value: 0,
+      foo: {
+        task: async () => {
+          await timeoutFoo(30);
+          return "foo2";
+        }
+      },
+      foo2: () => tasks.foo2Value++
+    };
+    testAsync(tasks, done);
+  });
 });
