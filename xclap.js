@@ -90,7 +90,8 @@ const tasks = {
   },
   foo4: function() {
     console.log("foo4 task argv", this.argv);
-  }
+  },
+  tty: `~(tty)$node -e "console.log('blah', process.stdout.isTTY, process.env.TERM); process.exit(0);"`
 };
 const xclap = require(".");
 xclap.load("1", tasks);

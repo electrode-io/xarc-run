@@ -111,6 +111,25 @@ For example:
 
 Will cause the task `foo1` to be executed and then the shell command `echo hello` to be executed.
 
+##### Shell Task Flags
+
+Any string that's to be a shell command can have flags like this:
+
+```js
+{
+  foo: `~(tty)$node -e "console.log('isTTY', process.stdout.isTTY)"`;
+}
+```
+
+* The leading of the value of task `foo`: `~(tty)$` is specifying the string to be a shell command with flags `(tty)`.
+* Multiple flags can be specified like this: `~(tty,sync)$`.
+
+These are supported flags:
+
+* `tty` - Use [child_process.spawn] to launch the shell command with TTY control. **WARNING** Only one task at a time can take over the TTY.
+* `spawn` - Use [child_process.spawn] API instead of [child_process.exec] to launch the shell process. TTY control is not given.
+* `sync` - If either `tty` or `spawn` flag exist, then use [child_process.spawnSync] API. This will cause concurrent tasks to wait.
+
 ### Function
 
 ```js
@@ -367,3 +386,6 @@ Wait for all pending tasks to complete and then call `done`.
 [xclap-cli]: https://github.com/jchip/xclap-cli
 [bash]: https://www.gnu.org/software/bash/
 [zsh]: http://www.zsh.org/
+[child_process.spawn]: https://nodejs.org/api/child_process.html#child_process_child_process_spawn_command_args_options
+[child_process.spawnsync]: https://nodejs.org/api/child_process.html#child_process_child_process_spawnsync_command_args_options
+[child_process.exec]: https://nodejs.org/api/child_process.html#child_process_child_process_exec_command_options_callback

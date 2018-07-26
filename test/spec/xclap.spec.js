@@ -192,6 +192,138 @@ describe("xclap", function() {
     });
   });
 
+  it("should execute shell with tty", done => {
+    const xclap = new XClap({
+      foo: `~(tty)$node -e "process.exit(process.stdout.isTTY ? 0 : 1)"`
+    });
+    const exeEvents = ["lookup", "shell"];
+
+    xclap.on("execute", data => {
+      expect(data.type).to.equal(exeEvents[0]);
+      exeEvents.shift();
+    });
+
+    let doneItem = 0;
+    xclap.on("done-item", data => doneItem++);
+
+    xclap.run("foo", err => {
+      expect(err).to.not.exist;
+      expect(doneItem).to.equal(1);
+      done();
+    });
+  });
+
+  it("should execute shell with spawn sync", done => {
+    const xclap = new XClap({
+      foo: `~(spawn,sync)$echo hello`
+    });
+    const exeEvents = ["lookup", "shell"];
+
+    xclap.on("execute", data => {
+      expect(data.type).to.equal(exeEvents[0]);
+      exeEvents.shift();
+    });
+
+    let doneItem = 0;
+    xclap.on("done-item", data => doneItem++);
+
+    xclap.run("foo", err => {
+      expect(err).to.not.exist;
+      expect(doneItem).to.equal(1);
+      done();
+    });
+  });
+
+  it("should handle fail status of shell with spawn", done => {
+    const xclap = new XClap({ foo: `~(spawn)$node -e "process.exit(1)"` });
+    const exeEvents = ["lookup", "shell"];
+
+    xclap.on("execute", data => {
+      expect(data.type).to.equal(exeEvents[0]);
+      exeEvents.shift();
+    });
+
+    let doneItem = 0;
+    xclap.on("done-item", data => doneItem++);
+
+    xclap.run("foo", err => {
+      expect(err).to.exist;
+      expect(err[0].message).to.equal(`cmd "node -e "process.exit(1)"" exit code 1`);
+      expect(doneItem).to.equal(1);
+      done();
+    });
+  });
+
+  it("should handle fail status of shell with spawn sync", done => {
+    const xclap = new XClap({ foo: `~(spawn,sync)$node -e "process.exit(1)"` });
+    const exeEvents = ["lookup", "shell"];
+
+    xclap.on("execute", data => {
+      expect(data.type).to.equal(exeEvents[0]);
+      exeEvents.shift();
+    });
+
+    let doneItem = 0;
+    xclap.on("done-item", data => doneItem++);
+
+    xclap.run("foo", err => {
+      expect(err).to.exist;
+      expect(err[0].message).to.equal(`cmd "node -e "process.exit(1)"" exit code 1`);
+      expect(doneItem).to.equal(1);
+      done();
+    });
+  });
+
+  it("should handle error of shell with spawn sync", done => {
+    const xclap = new XClap({
+      foo: {
+        options: { timeout: 10 },
+        task: `~(spawn,sync)$sleep 1`
+      }
+    });
+    const exeEvents = ["lookup", "shell"];
+
+    xclap.on("execute", data => {
+      expect(data.type).to.equal(exeEvents[0]);
+      exeEvents.shift();
+    });
+
+    let doneItem = 0;
+    xclap.on("done-item", data => doneItem++);
+
+    xclap.run("foo", err => {
+      expect(err).to.exist;
+      expect(err[0].message).contains(`ETIMEDOUT`);
+      expect(doneItem).to.equal(1);
+      done();
+    });
+  });
+
+  it("should handle error of shell command malformed", done => {
+    const xclap = new XClap({
+      foo: {
+        options: { timeout: 10 },
+        task: `~(spawn,syncsleep 1`
+      }
+    });
+    const exeEvents = ["lookup", "shell"];
+
+    xclap.on("execute", data => {
+      expect(data.type).to.equal(exeEvents[0]);
+      exeEvents.shift();
+    });
+
+    let doneItem = 0;
+    xclap.on("done-item", data => doneItem++);
+
+    xclap.run("foo", err => {
+      expect(err).to.exist;
+      expect(err[0].message).contains(`Missing )$ in shell task: ~(spawn,syncsleep 1`);
+      expect(doneItem).to.equal(0);
+      done();
+    });
+  });
+
   it("should handle error from task shell", done => {
     const xclap = new XClap({
       foo: {
