@@ -71,8 +71,12 @@ function clap(argv, offset) {
     const nmBin = Path.join(opts.cwd, "node_modules", ".bin");
     if (Fs.existsSync(nmBin)) {
       const x = chalk.magenta(`${xsh.pathCwdNm.replace(nmBin)}`);
-      envPath.addToFront(nmBin);
-      logger.log(`Added ${x} to PATH`);
+      if (!process.env.PATH.match(new RegExp(`${nmBin}(${Path.delimiter}|$)`))) {
+        envPath.addToFront(nmBin);
+        logger.log(`Added ${x} to PATH`);
+      } else {
+        logger.log(`PATH already contains ${x}`);
+      }
     }
   }
 
