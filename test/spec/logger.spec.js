@@ -4,12 +4,56 @@ const logger = require("../../lib/logger");
 const xstdout = require("xstdout");
 const expect = require("chai").expect;
 
-describe("logger", function() {
-  it("should log to stdout", () => {
+describe.only("logger", function() {
+  beforeEach(() => {
+    logger.resetBuffer();
+    logger.coloring(false);
+    logger.buffering(false);
+    logger.quiet(false);
+  });
+
+  it("should log to stdout in coloring off", () => {
     const intercept = xstdout.intercept(true);
-    logger.log("test");
-    intercept.restore();
-    expect(intercept.stdout.join("")).include("test");
+
+    try {
+      logger.coloring(false);
+      logger.log("test", "hello", 1, "world");
+    } finally {
+      intercept.restore();
+    }
+
+    expect(intercept.stdout.join("")).includes("test hello 1 world");
+  });
+
+  it("should log to stdout and buffer in coloring off", () => {
+    const intercept = xstdout.intercept(true);
+
+    try {
+      logger.coloring(false);
+      logger.buffering(true);
+      logger.log("test", "hello", 1, "world");
+    } finally {
+      intercept.restore();
+    }
+
+    expect(intercept.stdout.join("")).includes("test hello 1 world");
+    expect(logger.buffer.join("")).includes("test hello 1 world");
+  });
+
+  it("should log to stdout in coloring on", () => {
+    const intercept = xstdout.intercept(true);
+
+    try {
+      logger.coloring(true);
+      logger.log("test", "hello", 1, "world");
+      // second call to coloring with same value should have no effect
+      logger.coloring(true);
+    } finally {
+      intercept.restore();
+    }
+
+    expect(intercept.stdout.join("")).includes("test hello 1 world");
+    expect(intercept.stdout.join("")).includes("test hello 1 world");
   });
 
   it("should pad2 1 to 01", () => {
@@ -38,10 +82,87 @@ describe("logger", function() {
   it("should log nothing in quiet mode", () => {
     logger.quiet(true);
     const intercept = xstdout.intercept(true);
-    logger.log("test");
-    intercept.restore();
+
+    try {
+      logger.log("test");
+    } finally {
+      intercept.restore();
+    }
+
+    expect(logger.buffer).to.deep.equal([]);
     expect(intercept.stdout).to.be.empty;
     expect(intercept.stderr).to.be.empty;
+    logger.quiet(false);
+  });
+
+  it("should save to buffer in quiet mode", () => {
+    logger.quiet(true);
+    logger.buffering(true);
+
+    const intercept = xstdout.intercept(true);
+
+    try {
+      logger.log("test", 1, "hello", "world");
+      logger.log("test", 2, "hello", "world");
+      logger.log("test", 3, "hello", "world");
+      logger.log("test", 4, "hello", "world");
+
+      // test second calls
+      logger.buffering(true);
+    } finally {
+      intercept.restore();
+    }
+
+    expect(intercept.stdout).to.be.empty;
+    expect(intercept.stderr).to.be.empty;
+
+    const buf = logger.buffer;
+    for (let i = 1; i <= 4; i++) {
+      expect(buf[i - 1]).includes(`test ${i} hello world`);
+    }
+
+    logger.resetBuffer();
+    expect(logger.buffer).to.deep.equal([]);
+
+    logger.quiet(false);
+  });
+
+  it("should flush buffer when reset", () => {
+    logger.quiet(true);
+    logger.buffering(true);
+
+    let intercept = xstdout.intercept(true);
+
+    try {
+      logger.log("test", 1, "hello", "world");
+      logger.log("test", 2, "hello", "world");
+      logger.log("test", 3, "hello", "world");
+      logger.log("test", 4, "hello", "world");
+    } finally {
+      intercept.restore();
+    }
+
+    expect(intercept.stdout).to.be.empty;
+    expect(intercept.stderr).to.be.empty;
+
+    const verify = buf => {
+      for (let i = 1; i <= 4; i++) {
+        expect(buf[i - 1]).includes(`test ${i} hello world`);
+      }
+    };
+    verify(logger.buffer);
+
+    intercept = xstdout.intercept(true);
+    try {
+      logger.quiet(false);
+      logger.resetBuffer(true);
+    } finally {
+      intercept.restore();
+    }
+
+    expect(logger.buffer).to.deep.equal([]);
+    verify(intercept.stdout);
+
     logger.quiet(false);
   });
 });
