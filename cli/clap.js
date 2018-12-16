@@ -12,6 +12,15 @@ const xsh = require("xsh");
 const cliOptions = require("./cli-options");
 const parseArray = require("../lib/util/parse-array");
 
+function flushLogger(opts) {
+  logger.quiet(opts && opts.quiet);
+  logger.resetBuffer(true, false);
+}
+
+function exit(code) {
+  process.exit(code);
+}
+
 function clap(argv, offset) {
   if (!argv) {
     argv = process.argv;
@@ -24,7 +33,7 @@ function clap(argv, offset) {
       console.log(`--${k}`);
       console.log(`-${x.alias}`);
     });
-    return process.exit(0);
+    return exit(0);
   }
 
   const claps = nixClap(argv, offset);
@@ -35,6 +44,7 @@ function clap(argv, offset) {
   if (numTasks === 0) {
     logger.log(chalk.red("No tasks found - please load some."));
   } else if (opts.list !== undefined) {
+    flushLogger(opts);
     const ns = opts.list && opts.list.split(",").map(x => x.trim());
     try {
       if (opts.full) {
@@ -47,25 +57,29 @@ function clap(argv, offset) {
     } catch (err) {
       console.log(err.message);
     }
-    return process.exit(0);
+    return exit(0);
   } else if (opts.ns) {
+    flushLogger(opts);
     console.log(xclap._tasks._namespaces.join("\n"));
-    return process.exit(0);
+    return exit(0);
   }
 
   if (claps.tasks.length === 0 || numTasks === 0) {
+    flushLogger(opts);
     xclap.printTasks();
     if (!opts.quiet) {
       console.log(`${usage}`);
       console.log(chalk.bold(" Help:"), "clap -h", chalk.bold(" Example:"), "clap build\n");
     }
-    return process.exit(1);
+    return exit(1);
   }
 
   if (opts.help) {
     console.log("help for tasks:", claps.tasks);
-    return process.exit(0);
+    return exit(0);
   }
+
+  flushLogger(opts);
 
   if (opts.nmbin) {
     const nmBin = Path.join(opts.cwd, "node_modules", ".bin");
@@ -102,7 +116,7 @@ function clap(argv, offset) {
         chalk.red(`${e.message}:`),
         chalk.cyan(arrayStr)
       );
-      return process.exit(1);
+      return exit(1);
     }
   }
 

@@ -13,6 +13,10 @@ const xclap = require("..");
 const loadClap = require("./load-clap");
 const npmLoader = require("./npm-loader");
 
+function exit(code) {
+  process.exit(code);
+}
+
 function updateCwd(dir, opts) {
   const newCwd = Path.isAbsolute(dir) ? dir : Path.resolve(dir);
 
@@ -27,7 +31,7 @@ function updateCwd(dir, opts) {
     opts.cwd = newCwd;
   } catch (err) {
     logger.log(`chdir ${chalk.magenta(newCwd)} ${chalk.red("failed")}`);
-    process.exit(1);
+    exit(1);
   }
 }
 
@@ -164,7 +168,6 @@ function nixClap(argv, start) {
 
   const opts = parsed.opts;
 
-  logger.quiet(opts.quiet);
   const xclapLoc = xsh.pathCwd.replace(Path.dirname(__dirname));
 
   logger.log(`${chalk.green("xclap")} version ${xclapPkg.version} at ${chalk.magenta(xclapLoc)}`);

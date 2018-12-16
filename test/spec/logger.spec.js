@@ -4,7 +4,7 @@ const logger = require("../../lib/logger");
 const xstdout = require("xstdout");
 const expect = require("chai").expect;
 
-describe.only("logger", function() {
+describe("logger", function() {
   beforeEach(() => {
     logger.resetBuffer();
     logger.coloring(false);

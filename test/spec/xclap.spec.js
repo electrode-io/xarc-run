@@ -5,6 +5,8 @@ const expect = require("chai").expect;
 const xstdout = require("xstdout");
 const chalk = require("chalk");
 const assert = require("assert");
+const logger = require("../../lib/logger");
+const stripAnsi = require("strip-ansi");
 
 describe("xclap", function() {
   it("should lookup and exe a task as a function once", done => {
@@ -963,6 +965,34 @@ describe("xclap", function() {
       expect(err[0].message).to.equal("Task foo not found");
       done();
     });
+  });
+
+  it("should show similar tasks if not found", done => {
+    const xclap = new XClap({
+      ".foo": "",
+      foo1: "",
+      foo2: "",
+      blah: "",
+      test1: "",
+      test2: "",
+      test3: "",
+      hello: "",
+      moo: "",
+      foo3: "",
+      xoo: ""
+    });
+    const intercept = xstdout.intercept(true);
+    try {
+      xclap.exit = code => {
+        intercept.restore();
+        const stdout = intercept.stdout.map(l => stripAnsi(l));
+        expect(stdout[2].trim()).to.equal("Maybe try: foo1, foo2, foo3, moo, xoo");
+        done();
+      };
+      xclap.run("foox");
+    } catch (e) {
+      intercept.restore();
+    }
   });
 
   it("should fail if namespace is not found", done => {

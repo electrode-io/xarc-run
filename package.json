@@ -48,6 +48,7 @@
   "dependencies": {
     "chalk": "^2.0.1",
     "insync": "^2.1.1",
+    "jaro-winkler": "^0.2.8",
     "lodash.foreach": "^4.5.0",
     "nix-clap": "^1.0.8",
     "optional-require": "^1.0.0",
@@ -60,6 +61,7 @@
     "mocha": "^3.4.2",
     "nyc": "^11.0.2",
     "prettier": "^1.2.2",
+    "strip-ansi": "^5.0.0",
     "xstdout": "^0.1.0"
   },
   "nyc": {
