@@ -1,6 +1,6 @@
 {
   "name": "xclap",
-  "version": "0.2.26",
+  "version": "0.2.27",
   "description": "npm scripts on steroid - an advanced and flexible Javascript task executor and build tool",
   "main": "lib/index.js",
   "scripts": {
