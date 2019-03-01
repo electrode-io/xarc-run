@@ -39,9 +39,9 @@ Ultimately, a task would eventually resolve to some kind of runnable action that
 
 A task can define its direct action as one of:
 
-* [A string](#string) - as a shell command to be spawned, or as a [string that contains an array](#string-array)
-* [An array](#array) - list of tasks to be processed.
-* [A function](#function) - to be called
+- [A string](#string) - as a shell command to be spawned, or as a [string that contains an array](#string-array)
+- [An array](#array) - list of tasks to be processed.
+- [A function](#function) - to be called
 
 ### A Task Object
 
@@ -49,8 +49,8 @@ To allow decorating a task with more information such as name and description, t
 
 ### String
 
-* A string primarily is executed as a shell command.
-* A string [started with `"~["`](#string-array) is parsed into an [array task](#array).
+- A string primarily is executed as a shell command.
+- A string [started with `"~["`](#string-array) is parsed into an [array task](#array).
 
 ```js
 {
@@ -62,8 +62,8 @@ To allow decorating a task with more information such as name and description, t
 
 This two environment variables are defined, mainly for the [`finally`](#finally-hook) hook.
 
-* `XCLAP_ERR` - If task failed, this would contain the error message.
-* `XCLAP_FAILED` - If any task failed, this would be `true`.
+- `XCLAP_ERR` - If task failed, this would contain the error message.
+- `XCLAP_FAILED` - If any task failed, this would be `true`.
 
 #### String Array
 
@@ -83,9 +83,9 @@ Will be the same as specifying `foo: [ "foo1", "foo2", "foo3" ]` and processed a
 
 If the task is an array, then it can contain elements that are strings or functions.
 
-* Functions are treat as a [task function](#function) to be called.
-* Strings in a task array are primarily treated as name of another task to look up and execute.
-* String started with `"~$"` are treated as [anonymous shell commands](#task-name-as-anonymous-shell-command) to be executed.
+- Functions are treat as a [task function](#function) to be called.
+- Strings in a task array are primarily treated as name of another task to look up and execute.
+- String started with `"~$"` are treated as [anonymous shell commands](#task-name-as-anonymous-shell-command) to be executed.
 
 The [array serial/concurrent rules](#array-serialconcurrent-rules) will be applied.
 
@@ -121,14 +121,15 @@ Any string that's to be a shell command can have flags like this:
 }
 ```
 
-* The leading of the value of task `foo`: `~(tty)$` is specifying the string to be a shell command with flags `(tty)`.
-* Multiple flags can be specified like this: `~(tty,sync)$`.
+- The leading of the value of task `foo`: `~(tty)$` is specifying the string to be a shell command with flags `(tty)`.
+- Multiple flags can be specified like this: `~(tty,sync)$`.
 
 These are supported flags:
 
-* `tty` - Use [child_process.spawn] to launch the shell command with TTY control. **WARNING** Only one task at a time can take over the TTY.
-* `spawn` - Use [child_process.spawn] API instead of [child_process.exec] to launch the shell process. TTY control is not given.
-* `sync` - If either `tty` or `spawn` flag exist, then use [child_process.spawnSync] API. This will cause concurrent tasks to wait.
+- `tty` - Use [child_process.spawn] to launch the shell command with TTY control. **WARNING** Only one task at a time can take over the TTY.
+- `spawn` - Use [child_process.spawn] API instead of [child_process.exec] to launch the shell process. TTY control is not given.
+- `sync` - If either `tty` or `spawn` flag exist, then use [child_process.spawnSync] API. This will cause concurrent tasks to wait.
+- `noenv` - Do not child env from `process.env`
 
 ### Function
 
@@ -144,14 +145,14 @@ The `this` context for the function will the clap [Execution Context](#execution
 
 The function can return:
 
-* `Promise` - `clap` will await for the promise.
-* `array` - `clap` will treat the array as a list of tasks to be executed
-  * The [array serial/concurrent rules](#array-serialconcurrent-rules) applied to the array.
-  * The [anonymous shell command](#task-name-as-anonymous-shell-command) rule applied to each string element.
-* `string` - `clap` will treat the string as a task name or an [anonymous shell command to executed](#task-name-as-anonymous-shell-command).
-* `function` - `clap` will call the function as another task function.
-* `stream` - [TBD]
-* `undefined` or anything else - `clap` will wait for the `callback` to be called.
+- `Promise` - `clap` will await for the promise.
+- `array` - `clap` will treat the array as a list of tasks to be executed
+  - The [array serial/concurrent rules](#array-serialconcurrent-rules) applied to the array.
+  - The [anonymous shell command](#task-name-as-anonymous-shell-command) rule applied to each string element.
+- `string` - `clap` will treat the string as a task name or an [anonymous shell command to executed](#task-name-as-anonymous-shell-command).
+- `function` - `clap` will call the function as another task function.
+- `stream` - [TBD]
+- `undefined` or anything else - `clap` will wait for the `callback` to be called.
 
 ### Object
 
@@ -172,10 +173,10 @@ For example:
 
 Where:
 
-* `desc` - Description for the task.
-* `task` - Defines a [direct action task](#direct-action-task).
-* `dep` - Dependency tasks to be executed first.
-* `finally` - Defines a [direct action task](#direct-action-task) that's always run after task finish or fail.
+- `desc` - Description for the task.
+- `task` - Defines a [direct action task](#direct-action-task).
+- `dep` - Dependency tasks to be executed first.
+- `finally` - Defines a [direct action task](#direct-action-task) that's always run after task finish or fail.
 
 #### finally hook
 
@@ -197,8 +198,8 @@ Generally, the array of tasks is executed concurrently, and only serially when [
 
 Each task in the array is executed serially if:
 
-* The array is defined at the [top level](#top-level).
-* The first element of the array is [`"."`](#first-element-dot).
+- The array is defined at the [top level](#top-level).
+- The first element of the array is [`"."`](#first-element-dot).
 
 #### top level
 
@@ -270,18 +271,18 @@ A continuous execution context is maintained from the top whenever you invoke a 
 
 The execution context is passed to any task function as `this`. It has the following properties:
 
-* `run` - a function to run another task
-* `argv` - arguments to the task
-* `err` - For the [`finally`](#finally-hook) hook, if task failed, this would be the error.
-* `failed` - The array of all task failure errors.
+- `run` - a function to run another task
+- `argv` - arguments to the task
+- `err` - For the [`finally`](#finally-hook) hook, if task failed, this would be the error.
+- `failed` - The array of all task failure errors.
 
 You can run more tasks under the same context with `this.run`
 
-* `this.run("task_name")` will run a single task
+- `this.run("task_name")` will run a single task
 
-* `this.run([ ".", "name1", "name2", "name3"])` will execute them serially.
+- `this.run([ ".", "name1", "name2", "name3"])` will execute them serially.
 
-* `this.run(["name1", "name2", "name3"])` will execute them concurrently.
+- `this.run(["name1", "name2", "name3"])` will execute them concurrently.
 
 For example:
 
@@ -301,10 +302,10 @@ The execution context also has `argv` which is an array of the task options. The
 
 Examples:
 
-* `xclap foo` - argv: `["foo"]`
-* `xclap foo --bar` - argv: `["foo", "--bar"]`
-* `xclap ?foo --bar --woo` - argv: `["?foo", "--bar", "--woo"]`
-* `xclap ?ns/foo --bar` - argv: `["?ns/foo", "--bar"]`
+- `xclap foo` - argv: `["foo"]`
+- `xclap foo --bar` - argv: `["foo", "--bar"]`
+- `xclap ?foo --bar --woo` - argv: `["?foo", "--bar", "--woo"]`
+- `xclap ?ns/foo --bar` - argv: `["?ns/foo", "--bar"]`
 
 The argv is only applicable if the task is a JavaScript `function`.
 
@@ -352,9 +353,9 @@ Configure `xclap`'s behavior if any task execution failed.
 
 Accepted values are:
 
-* `false`, `""` - completely turn off, march on if any tasks failed.
-* `"soft"` - Allow existing async tasks to run to completion and invoke `finally` hooks, but no new tasks will be executed.
-* `true`, `"full"` - Stop and exit immediately, don't wait for any pending async tasks, `finally` hooks invocation is unreliable.
+- `false`, `""` - completely turn off, march on if any tasks failed.
+- `"soft"` - Allow existing async tasks to run to completion and invoke `finally` hooks, but no new tasks will be executed.
+- `true`, `"full"` - Stop and exit immediately, don't wait for any pending async tasks, `finally` hooks invocation is unreliable.
 
 > XClap defaults this to `"full"`
 
@@ -375,12 +376,35 @@ If no `namespace`, then tasks are loaded into the root namespace.
 
 Run the task specified by `name`.
 
-* `name` - Either a string or an array of names.
-* `done` - Optional callback. If it's not given, then an internal handler is invoked to do `console.log` of the execution result.
+- `name` - Either a string or an array of names.
+- `done` - Optional callback. If it's not given, then an internal handler is invoked to do `console.log` of the execution result.
 
-# `waitAllPending(done)`
+## `waitAllPending(done)`
 
 Wait for all pending tasks to complete and then call `done`.
+
+## `exec(spec|cmd, [flags, options])`
+
+Create a shell command with _optional_ [`flags`](#shell-task-flags) and `options`.
+
+- `spec` - an object that specifies the fields `cmd`, `flags`, & `options` directly.
+- `cmd` - A string, or an array of strings to be joined, to use as the shell command
+- `flags` - [Shell Task Flags](#shell-task-flags), can be specified as:
+  - string: ie: `"tty,sync"`
+  - array: ie: `["tty", "sync"]`
+  - object: ie: `{ tty: true, sync: true }`
+- `options` - `options` to pass to [child_process.spawn] or [child_process.exec]
+
+Examples:
+
+```js
+const xclap = require("xclap");
+const tasks = {
+  cmd1: xclap.exec("echo hello", "tty"),
+  cmd2: [xclap.exec("echo foo", "", { env: { FOO: "bar" } })]
+};
+xclap.load(tasks);
+```
 
 [npm scripts]: https://docs.npmjs.com/misc/scripts
 [xclap-cli]: https://github.com/jchip/xclap-cli

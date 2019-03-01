@@ -9,18 +9,18 @@
 
 ## Features
 
-* **_Support [namespaces](./REFERENCE.md#namespace) for tasks._**
-* Load and execute npm scripts from `package.json`.
-* Auto completion for [bash] and [zsh].
-* Define tasks in a JavaScript file.
-* Serial tasks execution.
-* Concurrent tasks execution.
-* Proper nesting task execution hierarchy.
-* Promise or callback support for tasks written in JavaScript.
-* Support custom task execution reporter.
-* Specify complex tasks execution pattern from command line.
-* Tasks can have a [_finally_](./REFERENCE.md#finally-hook) hook that always runs after task finish or fail.
-* Support [flexible function task](./REFERENCE.md#function) that can return more tasks to run.
+- **_Support [namespaces](./REFERENCE.md#namespace) for tasks._**
+- Load and execute npm scripts from `package.json`.
+- Auto completion for [bash] and [zsh].
+- Define tasks in a JavaScript file.
+- Serial tasks execution.
+- Concurrent tasks execution.
+- Proper nesting task execution hierarchy.
+- Promise or callback support for tasks written in JavaScript.
+- Support custom task execution reporter.
+- Specify complex tasks execution pattern from command line.
+- Tasks can have a [_finally_](./REFERENCE.md#finally-hook) hook that always runs after task finish or fail.
+- Support [flexible function task](./REFERENCE.md#function) that can return more tasks to run.
 
 ## Getting Started
 
@@ -131,14 +131,14 @@ Task name is any alphanumeric string that does not contain `/`, or starts with `
 
 Tasks can be invoked from command line:
 
-* `xclap foo/task1` indicates to execute `task1` in namespace `foo`
-* `xclap ?task1` or `xclap ?foo/task1` indicates that executing `task1` is optional.
+- `xclap foo/task1` indicates to execute `task1` in namespace `foo`
+- `xclap ?task1` or `xclap ?foo/task1` indicates that executing `task1` is optional.
 
 `xclap` treats these characters as special:
 
-* `/` as namespace separator
-* prefix `?` to let you indicate that the execution of a task is optional so it won't fail if the task is not found.
-* prefix `~$` to indicate the task to be a string as a shell command
+- `/` as namespace separator
+- prefix `?` to let you indicate that the execution of a task is optional so it won't fail if the task is not found.
+- prefix `~$` to indicate the task to be a string as a shell command
 
 #### Optional Task Execution
 
@@ -146,7 +146,7 @@ By prefixing the task name with `?` when invoking, you can indicate the executio
 
 For example:
 
-* `xclap ?foo/task1` or `xclap ?task1` won't fail if `task1` is not found.
+- `xclap ?foo/task1` or `xclap ?task1` won't fail if `task1` is not found.
 
 #### Task Definition
 
@@ -241,3 +241,5 @@ Licensed under the [Apache License, Version 2.0](https://www.apache.org/licenses
 [xclap-cli]: https://github.com/jchip/xclap-cli
 [bash]: https://www.gnu.org/software/bash/
 [zsh]: http://www.zsh.org/
+[load tasks into namespace]: REFERENCE.md#loading-task
+[auto complete with namespace]: REFERENCE.md#auto-complete-with-namespace

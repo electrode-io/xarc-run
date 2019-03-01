@@ -15,10 +15,8 @@ describe("print tasks", function() {
     xclap.load("ns2", {});
     xclap.printTasks();
     intercept.restore();
-    const outFile = process.version.startsWith("v4.")
-      ? "test/fixtures/print1.out.node4.txt"
-      : "test/fixtures/print1.out.txt";
+    const outFile = "test/fixtures/print1.out.txt";
     const out = Fs.readFileSync(Path.resolve(outFile)).toString();
-    expect(intercept.stdout.join("")).to.equal(out);
+    expect(intercept.stdout.join("").trim()).to.equal(out.trim());
   });
 });

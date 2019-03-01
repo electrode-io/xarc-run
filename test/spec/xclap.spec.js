@@ -1,5 +1,6 @@
 "use strict";
 
+const gxclap = require("../..");
 const XClap = require("../../lib/xclap");
 const expect = require("chai").expect;
 const xstdout = require("xstdout");
@@ -215,9 +216,85 @@ describe("xclap", function() {
     });
   });
 
+  const execXTaskSpec = (flags, done) => {
+    const xclap = new XClap({
+      foo: gxclap.exec(`node -e "process.exit(process.stdout.isTTY ? 0 : 1)"`, flags)
+    });
+    const exeEvents = ["lookup", "shell"];
+
+    xclap.on("execute", data => {
+      expect(data.type).to.equal(exeEvents[0]);
+      exeEvents.shift();
+    });
+
+    let doneItem = 0;
+    xclap.on("done-item", data => doneItem++);
+
+    xclap.run("foo", err => {
+      expect(err).to.not.exist;
+      expect(doneItem).to.equal(1);
+      done();
+    });
+  };
+
+  it("should execute XTaskSpec shell with string tty flag", done => {
+    execXTaskSpec("tty", done);
+  });
+
+  it("should execute XTaskSpec shell with array tty flag", done => {
+    execXTaskSpec(["tty"], done);
+  });
+
+  it("should execute XTaskSpec shell with object tty flag", done => {
+    execXTaskSpec({ tty: true }, done);
+  });
+
+  it("should execute anonymous XTaskSpec shell task", done => {
+    const xclap = new XClap({
+      foo: [gxclap.exec(`node -e "process.exit(process.stdout.isTTY ? 0 : 1)"`, "tty")]
+    });
+    const exeEvents = ["lookup", "serial-arr", "shell"];
+
+    xclap.on("execute", data => {
+      expect(data.type).to.equal(exeEvents[0]);
+      exeEvents.shift();
+    });
+
+    let doneItem = 0;
+    xclap.on("done-item", data => doneItem++);
+
+    xclap.run("foo", err => {
+      expect(err).to.not.exist;
+      expect(doneItem).to.equal(2);
+      done();
+    });
+  });
+
   it("should execute shell with spawn sync", done => {
     const xclap = new XClap({
       foo: `~(spawn,sync)$echo hello`
+    });
+    const exeEvents = ["lookup", "shell"];
+
+    xclap.on("execute", data => {
+      expect(data.type).to.equal(exeEvents[0]);
+      exeEvents.shift();
+    });
+
+    let doneItem = 0;
+    xclap.on("done-item", data => doneItem++);
+
+    xclap.run("foo", err => {
+      expect(err).to.not.exist;
+      expect(doneItem).to.equal(1);
+      done();
+    });
+  });
+
+  it("should execute shell with spawn sync noenv", done => {
+    process.env.FOO_NOENV = 1;
+    const xclap = new XClap({
+      foo: `~(spawn,sync,noenv)$exit $FOO_NOENV`
     });
     const exeEvents = ["lookup", "shell"];
 
@@ -254,6 +331,30 @@ describe("xclap", function() {
       expect(err).to.exist;
       expect(doneItem).to.equal(0);
       expect(err[0].message).contains("Unknown flag foo in shell task");
+      done();
+    });
+  });
+
+  it("should handle XTaskSpec with unknown type", done => {
+    const xclap = new XClap({
+      foo: new gxclap.XTaskSpec({ type: "blah" })
+    });
+
+    xclap.run("foo", errors => {
+      expect(errors).to.exist;
+      expect(errors[0].message).include("Unable to process XTaskSpec type blah");
+      done();
+    });
+  });
+
+  it("should handle anonymous XTaskSpec with unknown type", done => {
+    const xclap = new XClap({
+      foo: [new gxclap.XTaskSpec({ type: "blah" })]
+    });
+
+    xclap.run("foo", errors => {
+      expect(errors).to.exist;
+      expect(errors[0].message).include("Unable to process XTaskSpec type blah");
       done();
     });
   });

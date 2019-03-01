@@ -1,4 +1,5 @@
 "use strict";
+const xclap = require(".");
 
 const tasks = {
   xfoo1: cb => {
@@ -15,6 +16,7 @@ const tasks = {
       cb();
     }, 20);
   },
+
   a: cb => {
     let i,
       n = 0;
@@ -27,6 +29,7 @@ const tasks = {
       }
     }, 10);
   },
+
   b: cb => {
     let i,
       n = 0;
@@ -39,6 +42,7 @@ const tasks = {
       }
     }, 10);
   },
+
   c: cb => {
     let i,
       n = 0;
@@ -51,6 +55,7 @@ const tasks = {
       }
     }, 10);
   },
+
   foo2a: [
     "xfoo1",
     "xfoo2",
@@ -74,13 +79,16 @@ const tasks = {
     ["a", "b", ["a", "c"], "xerr", "b", "xerr", () => console.log("concurrent anon")],
     "xfoo4"
   ],
+
   foo1: "sample1-foo1",
   foo2: ["foo2a"],
   foo2b: ["foo2ba"],
+
   foo3Dep: cb => {
     console.log("this is foo3Dep");
     cb();
   },
+
   foo3: {
     desc: "description for task foo3",
     dep: ["foo3Dep"],
@@ -88,13 +96,19 @@ const tasks = {
       console.log("function task for foo3");
     }
   },
+
+  foo5a: xclap.exec(["env | grep foo"], {}, { env: { foo: "bar" } }),
+  foo5b: [xclap.exec("echo abc"), xclap.exec("echo 123", { tty: true })],
+  foo5c: `~(noenv)$env`,
+  foo5d: xclap.exec("env", { noenv: true }),
   foo4: function() {
     console.log("foo4 task argv", this.argv);
   },
   tty: `~(tty)$node -e "console.log('blah', process.stdout.isTTY, process.env.TERM); process.exit(0);"`
 };
-const xclap = require(".");
+
 xclap.load("1", tasks);
+
 xclap.load({
   hello: "echo hello world"
 });

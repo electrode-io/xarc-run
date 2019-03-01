@@ -17,15 +17,16 @@
 [2m[32m                   tasks: "test dir CWD/~/test"[39m[22m
 [34m  foo5 ---------[39m [33mtask as an array with dir[39m
 [2m[32m                   tasks: ["a","~$test dir CWD/~/test"][39m[22m
-[36m  missing_task .[39m [33mmissing task[39m
-[34m  no_dep -------[39m [33mtask has no dep[39m
+[36m  foo6 .........[39m [35mexec(tty) 'echo xclap.exec task'[39m
+[34m  missing_task -[39m [33mmissing task[39m
+[36m  no_dep .......[39m [33mtask has no dep[39m
 [2m[32m                   tasks: ["test"][39m[22m
-[36m  unknown_type .[39m [31mUnknown task type Number[39m
-[34m  xerr ---------[39m function xerr
-[36m  xfoo1 ........[39m function xfoo1
-[34m  xfoo2 --------[39m [35mecho "a direct CWD/~/test shell command xfoo2"[39m
-[36m  xfoo3 ........[39m [35mecho "a direct shell command xfoo3"[39m
-[34m  xfoo4 --------[39m function xfoo4
+[34m  unknown_type -[39m [31mUnknown task type Number[39m
+[36m  xerr .........[39m function xerr
+[34m  xfoo1 --------[39m function xfoo1
+[36m  xfoo2 ........[39m [35mecho "a direct CWD/~/test shell command xfoo2"[39m
+[34m  xfoo3 --------[39m [35mecho "a direct shell command xfoo3"[39m
+[36m  xfoo4 ........[39m function xfoo4
 
 [4m[1mOther Tasks[22m[24m
 
@@ -52,19 +53,19 @@
 [2m[32m                   tasks: "test dir CWD/~/test"[39m[22m
 [34m  foo5 ---------[39m [33mtask as an array with dir[39m
 [2m[32m                   tasks: ["a","~$test dir CWD/~/test"][39m[22m
-[36m  missing_task .[39m [33mmissing task[39m
-[34m  no_dep -------[39m [33mtask has no dep[39m
+[36m  foo6 .........[39m [35mexec(tty) 'echo xclap.exec task'[39m
+[34m  missing_task -[39m [33mmissing task[39m
+[36m  no_dep .......[39m [33mtask has no dep[39m
 [2m[32m                   tasks: ["test"][39m[22m
-[36m  unknown_type .[39m [31mUnknown task type Number[39m
-[34m  xerr ---------[39m function xerr
-[36m  xfoo1 ........[39m function xfoo1
-[34m  xfoo2 --------[39m [35mecho "a direct CWD/~/test shell command xfoo2"[39m
-[36m  xfoo3 ........[39m [35mecho "a direct shell command xfoo3"[39m
-[34m  xfoo4 --------[39m function xfoo4
+[34m  unknown_type -[39m [31mUnknown task type Number[39m
+[36m  xerr .........[39m function xerr
+[34m  xfoo1 --------[39m function xfoo1
+[36m  xfoo2 ........[39m [35mecho "a direct CWD/~/test shell command xfoo2"[39m
+[34m  xfoo3 --------[39m [35mecho "a direct shell command xfoo3"[39m
+[36m  xfoo4 ........[39m function xfoo4
 
 [4m[1mOther Tasks[22m[24m
 
 [36m  other-name1 .[39m [32m["other"][39m
 [34m  other-obj ---[39m [33mtask name with - should be other[39m
 [2m[32m                  tasks: ["other"][39m[22m
-
