@@ -388,11 +388,11 @@ Wait for all pending tasks to complete and then call `done`.
 Create a shell command with _optional_ [`flags`](#shell-task-flags) and `options`.
 
 - `spec` - an object that specifies the fields `cmd`, `flags`, & `options` directly.
-- `cmd` - A string, or an array of strings to be joined, to use as the shell command
+- `cmd` - A string, or an array of strings to be `join(" ")`, to use as the shell command
 - `flags` - [Shell Task Flags](#shell-task-flags), can be specified as:
-  - string: ie: `"tty,sync"`
-  - array: ie: `["tty", "sync"]`
-  - object: ie: `{ tty: true, sync: true }`
+  - **string** - ie: `"tty,sync"`
+  - **array** - ie: `["tty", "sync"]`
+  - **object** - ie: `{ tty: true, sync: true }`
 - `options` - `options` to pass to [child_process.spawn] or [child_process.exec]
 
 Examples:
@@ -401,7 +401,10 @@ Examples:
 const xclap = require("xclap");
 const tasks = {
   cmd1: xclap.exec("echo hello", "tty"),
-  cmd2: [xclap.exec("echo foo", "", { env: { FOO: "bar" } })]
+  cmd2: [
+    xclap.exec("echo foo", "", { env: { FOO: "bar" } }),
+    xclap.exec(["echo", "hello", "world"], "tty")
+  ]
 };
 xclap.load(tasks);
 ```
