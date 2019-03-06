@@ -5,14 +5,22 @@ const sample1 = require("../../fixtures/sample1");
 const expect = require("chai").expect;
 const xstdout = require("xstdout");
 const chalk = require("chalk");
+const logger = require("../../../lib/logger");
 
 describe("sample1 console report", function() {
-  before(() => (chalk.enabled = false));
-  after(() => (chalk.enabled = true));
+  before(() => {
+    chalk.enabled = false;
+    logger.quiet(false);
+    logger.coloring(false);
+  });
+
+  after(() => {
+    chalk.enabled = true;
+  });
 
   it("should log report to console", done => {
     const expectOutput = `NOTE: finally hook is unreliable when stopOnError is set to full
-Process x1/x1foo serial array ["?woofoo",["foo2","foo4"]]
+Process x1/x1foo serial array ["?woofoo",["foo2","foo4"],"foo5a"]
 Optional Task woofoo not found
 -Process x1/x1foo.S concurrent array ["foo2","foo4"]
 ..Process /foo2 serial array ["foo2a"]
@@ -31,12 +39,12 @@ Optional Task woofoo not found
 >>>>Done Execute /xfoo2 echo "a direct shell command xfoo2"
 ....Execute echo test anon shell
 >>>>Done Execute echo test anon shell
-----Process /foo2a.S serial array [".","a","b"]
+----Process /foo2a.S serial array ["a","b"]
 .....Execute /a as function
 >>>>>Done Execute /a as function
 -----Execute /b as function
 >>>>>Done Execute /b as function
->>>>Done Process /foo2a.S serial array [".","a","b"]
+>>>>Done Process /foo2a.S serial array ["a","b"]
 ....Execute /foo2a.S anonymous function
 >>>>Done Execute /foo2a.S anonymous function
 ----Process foo3's dependency serial array ["foo3Dep"]
@@ -70,18 +78,25 @@ Optional Task woofoo not found
 >>>Done Process /foo2a serial array ["xfoo1","xfoo2","~$echo test anon shell",[".","a","b"],"func","foo3",["a","b",["a","c"],"xfoo4","b","xfoo4","func"],"xfoo4"]
 >>Done Process /foo2 serial array ["foo2a"]
 >Done Process x1/x1foo.S concurrent array ["foo2","foo4"]
-Done Process x1/x1foo serial array ["?woofoo",["foo2","foo4"]]
+-Process /foo5a concurrent array ["~$echo foo5a 1","exec {a=b} 'echo foo5a 2'"]
+..Execute echo foo5a 1
+--Execute exec {a=b} 'echo foo5a 2'
+>>Done Execute echo foo5a 1
+>>Done Execute exec {a=b} 'echo foo5a 2'
+>Done Process /foo5a concurrent array ["~$echo foo5a 1","exec {a=b} 'echo foo5a 2'"]
+Done Process x1/x1foo serial array ["?woofoo",["foo2","foo4"],"foo5a"]
 `;
     const intercept = xstdout.intercept(true);
     xclap.load(sample1);
     xclap.load("x1", {
-      x1foo: ["?woofoo", ["foo2", "foo4"]]
+      x1foo: ["?woofoo", ["foo2", "foo4"], "foo5a"]
     });
     xclap.run("x1foo", err => {
       intercept.restore();
       if (err) {
         return done(err);
       }
+      // drop tasks output and keep reporter activities only
       const output = intercept.stdout
         .filter(x => x.match(/^\[/))
         .map(x => x.replace(/ \([0-9\.]+ ms\)/, ""))
@@ -100,12 +115,12 @@ Done Process x1/x1foo serial array ["?woofoo",["foo2","foo4"]]
 >Done Execute /xfoo2 echo "a direct shell command xfoo2"
 -Execute echo test anon shell
 >Done Execute echo test anon shell
-.Process /foo2ba.S serial array [".","a","b"]
+.Process /foo2ba.S serial array ["a","b"]
 --Execute /a as function
 >>Done Execute /a as function
 ..Execute /b as function
 >>Done Execute /b as function
->Done Process /foo2ba.S serial array [".","a","b"]
+>Done Process /foo2ba.S serial array ["a","b"]
 -Execute /foo2ba.S anonymous function
 >Done Execute /foo2ba.S anonymous function
 .Process foo3's dependency serial array ["foo3Dep"]

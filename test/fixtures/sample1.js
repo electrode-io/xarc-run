@@ -1,5 +1,7 @@
 "use strict";
 
+const xclap = require("../..");
+
 const tasks = {
   xfoo1: cb => {
     setTimeout(() => {
@@ -99,7 +101,11 @@ const tasks = {
       console.log("function task for foo4");
     },
     finally: () => console.log("foo4 finally")
-  }
+  },
+  foo5a: xclap.concurrent(
+    "~$echo foo5a 1",
+    xclap.exec("echo foo5a 2", { execOptions: { env: { a: "b" } } })
+  )
 };
 
 module.exports = tasks;

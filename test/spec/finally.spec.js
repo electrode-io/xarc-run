@@ -119,9 +119,9 @@ describe("xclap finally", function() {
         "concurrent-arr",
         "lookup",
         "lookup",
-        "shell",
         "function",
         "fnFoo",
+        "shell",
         "fnFoo async",
         "lookup",
         "shell",
@@ -149,8 +149,8 @@ describe("xclap finally", function() {
         "concurrent-arr",
         "lookup",
         "lookup",
-        "shell",
         "function",
+        "shell",
         "shell X",
         "shell X"
       ]);

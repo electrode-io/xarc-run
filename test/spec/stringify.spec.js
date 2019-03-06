@@ -6,7 +6,9 @@ const xclap = require("../..");
 
 describe("stringify", function() {
   it("should stringify an array", () => {
-    expect(stringify([1, 2, "abc", () => 1, "999"])).to.equal(`[1,2,"abc","func","999"]`);
+    expect(stringify([Symbol("concurrent"), 1, 2, "abc", () => 1, "999"])).to.equal(
+      `["<concurrent>",1,2,"abc","func","999"]`
+    );
   });
 
   it("should stringify XTaskSpec", () => {

@@ -98,12 +98,14 @@ const tasks = {
   },
 
   foo5a: xclap.exec(["env | grep foo"], {}, { env: { foo: "bar" } }),
-  foo5b: [xclap.exec("echo abc"), xclap.exec("echo 123", { tty: true })],
+  foo5b: [xclap.exec(`echo abc "${process.cwd()}/blah"`), xclap.exec("echo 123", { tty: true })],
   foo5c: `~(noenv)$env`,
   foo5d: xclap.exec("env", { noenv: true }),
   foo4: function() {
     console.log("foo4 task argv", this.argv);
   },
+  foo6: xclap.concurrent(["foo", "bar"]),
+  foo7: xclap.serial(["foo", "bar"]),
   tty: `~(tty)$node -e "console.log('blah', process.stdout.isTTY, process.env.TERM); process.exit(0);"`
 };
 

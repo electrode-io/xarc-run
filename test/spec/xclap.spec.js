@@ -218,7 +218,7 @@ describe("xclap", function() {
 
   const execXTaskSpec = (flags, done) => {
     const xclap = new XClap({
-      foo: gxclap.exec(`node -e "process.exit(process.stdout.isTTY ? 0 : 1)"`, flags)
+      foo: gxclap.exec(`node -e "process.exit(process.stdout.isTTY ? 0 : 1)"`, { flags })
     });
     const exeEvents = ["lookup", "shell"];
 

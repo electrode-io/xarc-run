@@ -22,6 +22,25 @@
 - Tasks can have a [_finally_](./REFERENCE.md#finally-hook) hook that always runs after task finish or fail.
 - Support [flexible function task](./REFERENCE.md#function) that can return more tasks to run.
 
+## Usage
+
+[npm scripts] is a quick and convenient place for simple build scripts but it's so simple there are some limitations:
+
+- You have to be careful to write scripts that work cross platforms
+- A single string in a JSON file may not be enough sometimes to fit a build script
+- Your only option is JS to do some of your bidding sometimes
+- No flow control, extending, or customizing
+
+xclap picks up where [npm scripts] left off.
+
+It's most useful if you need to write reusable build scripts, and that's the primary purpose it was created for.
+
+Some typical use cases:
+
+- [namespaces](./REFERENCE.md#namespace) lets your users overload some of your tasks but still able to reference them.
+- Write complex build steps with comprehensive and powerful flow control like `dependent` and `finally` hooks, and serial and concurrent executions.
+- Advanced handling of JavaScript as part of the build steps allow integrating them directly with shell commands.
+
 ## Getting Started
 
 ### Install
@@ -44,14 +63,26 @@ Here is a simple sample. Save it to `xclap.js` and xclap will automatically load
 
 ```js
 const xclap = require("xclap");
+
 const tasks = {
   hello: "echo hello world",
   js: () => console.log("JS hello world"),
   both: {
     desc: "invoke tasks hello and js in serial order",
+    // only array at top level like this is default to serial, other times
+    // they are default to concurrent.
     task: ["hello", "js"]
+  },
+  both2: {
+    desc: "invoke tasks hello and js concurrently",
+    task: xclap.concurrent("hello", "js")
+  },
+  shell: {
+    desc: "Run a shell command with TTY control and set an env",
+    task: xclap.exec("echo test", { flags: "tty", execOptions: { env: { foo: "bar" } } })
   }
 };
+
 xclap.load(tasks);
 ```
 

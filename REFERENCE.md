@@ -1,6 +1,40 @@
 # Detail Reference
 
-## Tasks
+- [Creating Tasks](#creating-tasks)
+- [Loading Task](#loading-task)
+- [Task Definition](#task-definition)
+  - [Direct Action Task](#direct-action-task)
+  - [A Task Object](#a-task-object)
+  - [String](#string)
+    - [String Array](#string-array)
+  - [Array](#array)
+    - [Anonymous String Shell Command](#anonymous-string-shell-command)
+      - [Shell Task Flags](#shell-task-flags)
+  - [Function](#function)
+  - [Task Spec](#task-spec)
+  - [Object](#object)
+    - [finally hook](#finally-hook)
+- [Array serial/concurrent rules](#array-serialconcurrent-rules)
+  - [Serially](#serially)
+    - [Using serial API](#using-serial-api)
+    - [top level](#top-level)
+    - [First element dot](#first-element-dot)
+    - [Concurrently](#concurrently)
+  - [Namespace](#namespace)
+    - [Auto Complete with namespace](#auto-complete-with-namespace)
+- [Execution Context](#execution-context)
+  - [Task Options](#task-options)
+    - [Inline Task Options](#inline-task-options)
+- [APIs](#apis)
+  - [`stopOnError`](#stoponerror)
+  - [`load([namespace], tasks)`](#loadnamespace-tasks)
+  - [`run(name, [done])`](#runname-done)
+  - [`waitAllPending(done)`](#waitallpendingdone)
+  - [`concurrent([tasks]|task1, task2, taskN)`](#concurrenttaskstask1-task2-taskn)
+  - [`serial([tasks]|task1, task2, taskN)`](#serialtaskstask1-task2-taskn)
+  - [`exec(spec|cmd, [flags|options])`](#execspeccmd-flagsoptions)
+
+## Creating Tasks
 
 Tasks is defined in an object, for example:
 
@@ -40,8 +74,9 @@ Ultimately, a task would eventually resolve to some kind of runnable action that
 A task can define its direct action as one of:
 
 - [A string](#string) - as a shell command to be spawned, or as a [string that contains an array](#string-array)
-- [An array](#array) - list of tasks to be processed.
-- [A function](#function) - to be called
+- [An array](#array) - list of tasks to be processed and execute [serially](#serially) or [concurrently](#concurrently).
+- [A function](#function) - to be called, which can return more tasks to execute.
+- [Task Spec](#task-spec) - created using the [exec API](#execspeccmd-flagsoptions), as a shell command to run.
 
 ### A Task Object
 
@@ -97,7 +132,7 @@ The [array serial/concurrent rules](#array-serialconcurrent-rules) will be appli
 
 `clap foo` will cause the three tasks `foo1`, `foo2`, `foo3` to be executed **_serially_**.
 
-#### Task Name As Anonymous Shell Command
+#### Anonymous String Shell Command
 
 If the task name in a task array starts with `"~$"` then the rest of it is executed as an anonymous shell command directly.
 
@@ -121,7 +156,7 @@ Any string that's to be a shell command can have flags like this:
 }
 ```
 
-- The leading of the value of task `foo`: `~(tty)$` is specifying the string to be a shell command with flags `(tty)`.
+- The leading part `~(tty)$` is specifying a shell command with flags `(tty)`.
 - Multiple flags can be specified like this: `~(tty,sync)$`.
 
 These are supported flags:
@@ -129,7 +164,7 @@ These are supported flags:
 - `tty` - Use [child_process.spawn] to launch the shell command with TTY control. **WARNING** Only one task at a time can take over the TTY.
 - `spawn` - Use [child_process.spawn] API instead of [child_process.exec] to launch the shell process. TTY control is not given.
 - `sync` - If either `tty` or `spawn` flag exist, then use [child_process.spawnSync] API. This will cause concurrent tasks to wait.
-- `noenv` - Do not child env from `process.env`
+- `noenv` - Do pass `process.env` to child process.
 
 ### Function
 
@@ -153,6 +188,27 @@ The function can return:
 - `function` - `clap` will call the function as another task function.
 - `stream` - [TBD]
 - `undefined` or anything else - `clap` will wait for the `callback` to be called.
+
+### Task Spec
+
+A direct action task can also be defined as a task spec.
+
+Right now the support spec type is for running a shell command, created using the [exec API](#execspeccmd-flagsoptions)
+
+This is a more systematic approach to declare an [anonymous string shell command](#anonymous-string-shell-command).
+
+A task spec shell command can be declared as the task or a task in the array:
+
+```js
+const xclap = require("xclap");
+
+const tasks = {
+  hello: xclap.exec("echo hello"),
+  foo: [xclap.exec("echo foo"), xclap.exec("echo bar")]
+};
+
+xclap.load(tasks);
+```
 
 ### Object
 
@@ -190,28 +246,49 @@ If you have async task, it's best you set [`stopOnError`](#stoponerror) to `soft
 
 ## Array serial/concurrent rules
 
-When you definte a task as an array, it should contain a list of task names to be executed serially or concurrently.
+When you define a task as an array, it should contain a list of task names to be executed serially or concurrently.
 
 Generally, the array of tasks is executed concurrently, and only serially when [certain conditions](#serially) are true.
 
+An task array can also be explicitly created as concurrent using the [concurrent API](#concurrenttaskstask1-task2-taskn)
+
 ### Serially
 
-Each task in the array is executed serially if:
+Each task in the array is executed serially if one of the following is true:
 
 - The array is defined at the [top level](#top-level).
-- The first element of the array is [`"."`](#first-element-dot).
+- The array is created by the [serial API](#serialtaskstask1-task2-taskn).
+- The first element of the array is [`"."`](#first-element-dot) **DEPRECATED** use the [serial API](#serialtaskstask1-task2-taskn) instead.
+
+#### Using serial API
+
+Create an array of serial tasks within another concurrent array:
+
+```js
+const xclap = require("xclap");
+
+const tasks = {
+  foo: xclap.concurrent("a", xclap.serial("foo1", "foo2", "foo3"))
+};
+
+xclap.load(tasks);
+```
 
 #### top level
 
 At top level, an array of task names will be executed serially.
 
 ```js
-{
+const tasks = {
   foo: ["foo1", "foo2", "foo3"];
-}
+};
+
+xclap.load(tasks);
 ```
 
 #### First element dot
+
+> **DEPRECATED** - Please use the [serial API](serialtaskstask1-task2-taskn) instead.
 
 If the first element of the array is `"."` then the rest of tasks in the array will be executed serially.
 
@@ -223,17 +300,21 @@ If the first element of the array is `"."` then the rest of tasks in the array w
 
 #### Concurrently
 
-An array of tasks is executed concurrently, and only serially when [certain conditions](#serially) are true.
+By default, an ordinary array of tasks is executed concurrently, except when it's defined at the [top level](#top-level)
 
-For example, at the top level, to execute some tasks concurrently, specify them in a subarray.
-
-`foo1`, `foo2`, and `foo3` are executed **_concurrently_**.
+If you need to have an array of tasks at the top level to execute concurrently, use the [concurrent API](concurrenttaskstask1-task2-taskn) to create it.
 
 ```js
-{
-  foo: [["foo1", "foo2", "foo3"]];
-}
+const xclap = require("xclap");
+
+const tasks = {
+  foo: xclap.concurrent("foo1", "foo2", "foo3");
+};
+
+xclap.load(tasks);
 ```
+
+> `clap foo` will execute tasks `foo1`, `foo2`, and `foo3` **_concurrently_**.
 
 ### Namespace
 
@@ -278,11 +359,17 @@ The execution context is passed to any task function as `this`. It has the follo
 
 You can run more tasks under the same context with `this.run`
 
-- `this.run("task_name")` will run a single task
+- run a single task
 
-- `this.run([ ".", "name1", "name2", "name3"])` will execute them serially.
+  - `this.run("task_name")`
 
-- `this.run(["name1", "name2", "name3"])` will execute them concurrently.
+- execute tasks serially.
+
+  - `this.run(xclap.serial("name1", "name2", "name3"))`
+  - `this.run([ ".", "name1", "name2", "name3"])`
+
+- execute tasks concurrently
+  - `this.run(["name1", "name2", "name3"])`
 
 For example:
 
@@ -362,7 +449,8 @@ Accepted values are:
 Example:
 
 ```js
-const xclap = new XClap();
+const xclap = require("xclap");
+
 xclap.stopOnError = "full";
 ```
 
@@ -383,29 +471,52 @@ Run the task specified by `name`.
 
 Wait for all pending tasks to complete and then call `done`.
 
-## `exec(spec|cmd, [flags, options])`
+## `concurrent([tasks]|task1, task2, taskN)`
 
-Create a shell command with _optional_ [`flags`](#shell-task-flags) and `options`.
+Explicity creates an array of tasks to be executed concurrently.
+
+- The tasks can be passed in as a single array
+- Or they can be passed in as a list of variadic arguments
+
+Returns an array of tasks that's marked for concurrent execution.
+
+## `serial([tasks]|task1, task2, taskN)`
+
+Explicity creates an array of tasks to be executed serially.
+
+- The tasks can be passed in as a single array
+- Or they can be passed in as a list of variadic arguments
+
+Returns an array of tasks that's marked for serial execution.
+
+## `exec(spec|cmd, [flags|options])`
+
+Create a shell command task spec with _optional_ [`flags`](#shell-task-flags) or `options`.
 
 - `spec` - an object that specifies the fields `cmd`, `flags`, & `options` directly.
 - `cmd` - A string, or an array of strings to be `join(" ")`, to use as the shell command
 - `flags` - [Shell Task Flags](#shell-task-flags), can be specified as:
   - **string** - ie: `"tty,sync"`
   - **array** - ie: `["tty", "sync"]`
-  - **object** - ie: `{ tty: true, sync: true }`
-- `options` - `options` to pass to [child_process.spawn] or [child_process.exec]
+- `options` - Object to specify: `{ flags, execOptions, xclap }`:
+  - `flags` - [Shell Task Flags](#shell-task-flags), a string or array as above
+  - `execOptions` - options to pass to [child_process.spawn] or [child_process.exec]
+  - `xclap` - Object as options for xclap execution
+    - `delayRunMs` - milliseconds to wait before actually running the command
 
 Examples:
 
 ```js
 const xclap = require("xclap");
+
 const tasks = {
   cmd1: xclap.exec("echo hello", "tty"),
   cmd2: [
-    xclap.exec("echo foo", "", { env: { FOO: "bar" } }),
+    xclap.exec("echo foo", { execOptions: { env: { FOO: "bar" } } }),
     xclap.exec(["echo", "hello", "world"], "tty")
   ]
 };
+
 xclap.load(tasks);
 ```
 
