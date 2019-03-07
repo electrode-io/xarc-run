@@ -164,7 +164,7 @@ These are supported flags:
 - `tty` - Use [child_process.spawn] to launch the shell command with TTY control. **WARNING** Only one task at a time can take over the TTY.
 - `spawn` - Use [child_process.spawn] API instead of [child_process.exec] to launch the shell process. TTY control is not given.
 - `sync` - If either `tty` or `spawn` flag exist, then use [child_process.spawnSync] API. This will cause concurrent tasks to wait.
-- `noenv` - Do pass `process.env` to child process.
+- `noenv` - Do not pass `process.env` to child process.
 
 ### Function
 
