@@ -249,6 +249,10 @@ describe("xclap", function() {
     execXTaskSpec({ tty: true }, done);
   });
 
+  it("should execute XTaskSpec shell with npm flag", done => {
+    execXTaskSpec({ npm: true }, done);
+  });
+
   it("should execute anonymous XTaskSpec shell task", done => {
     const xclap = new XClap({
       foo: [gxclap.exec(`node -e "process.exit(process.stdout.isTTY ? 0 : 1)"`, "tty")]

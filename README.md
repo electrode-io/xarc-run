@@ -22,7 +22,7 @@
 - Tasks can have a [_finally_](./REFERENCE.md#finally-hook) hook that always runs after task finish or fail.
 - Support [flexible function task](./REFERENCE.md#function) that can return more tasks to run.
 
-## Usage
+## Why
 
 [npm scripts] is a quick and convenient place for simple build scripts but it's so simple there are some limitations:
 
@@ -33,13 +33,26 @@
 
 xclap picks up where [npm scripts] left off.
 
-It's most useful if you need to write reusable build scripts, and that's the primary purpose it was created for.
+It's most useful if you need to write reusable build scripts that use shell commands and JavaScript, and that's the primary purpose it was created for.
 
 Some typical use cases:
 
 - [namespaces](./REFERENCE.md#namespace) lets your users overload some of your tasks but still able to reference them.
 - Write complex build steps with comprehensive and powerful flow control like `dependent` and `finally` hooks, and serial and concurrent executions.
 - Advanced handling of JavaScript as part of the build steps allow integrating them directly with shell commands.
+
+### npm scripts
+
+You can execute your [npm scripts] directly with xclap, even multiple of them concurrently or serially.
+
+- serially: `clap -n -x script1 script2 script3`
+- concurrently: `clap -n script1 script2 script3`
+
+Basically, if you specify the `--npm` (`-n`) option then all npm scripts in your `package.json` are loaded into the namespace `npm`.
+
+You can enable this by default by setting the option in your `package.json` also.
+
+Similar to [npm], xclap execute these scripts with `tty` so concurrency may be affected if you run multiple commands that reads input from `tty`.
 
 ## Getting Started
 
@@ -98,7 +111,7 @@ JS hello world
 
 > You can call the file `clapfile.js` or `clap.js` if you prefer, but `xclap.js` is used if it exists.
 
-### Usage
+### Command Usage
 
 Any task can be invoked with the command `clap`:
 
@@ -225,14 +238,6 @@ For example:
 }
 ```
 
-### npm scripts
-
-If you specify the `--npm` option then all npm scripts in your `package.json` are loaded into the namespace `npm`.
-
-You can enable this by default by setting the option in your `package.json` also.
-
-> xclap does not handle [npm scripts] lifecyle rules so `clap test` will only execute `test` and no `pretest` or `posttest`.
-
 ### Async Tasks
 
 You can provide a JS function for a task that executes asynchrounously. Your function just need to take a callback or return a Promise.
@@ -274,3 +279,4 @@ Licensed under the [Apache License, Version 2.0](https://www.apache.org/licenses
 [zsh]: http://www.zsh.org/
 [load tasks into namespace]: REFERENCE.md#loading-task
 [auto complete with namespace]: REFERENCE.md#auto-complete-with-namespace
+[npm]: https://www.npmjs.com/package/npm
