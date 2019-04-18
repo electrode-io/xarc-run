@@ -454,6 +454,8 @@ const xclap = require("xclap");
 xclap.stopOnError = "full";
 ```
 
+> Note: If user specify this in CLI with option `--soe=<value>` then that will always be used.
+
 ## `load([namespace], tasks)`
 
 Load `tasks` into `[namespace]` (optional).

@@ -39,6 +39,7 @@ function clap(argv, offset) {
   const claps = nixClap(argv, offset);
   const opts = claps.opts;
 
+
   const numTasks = xclap.countTasks();
 
   if (numTasks === 0) {
@@ -96,7 +97,9 @@ function clap(argv, offset) {
 
   process.env.FORCE_COLOR = "true";
 
-  xclap.stopOnError = opts.soe;
+  if (xclap.stopOnError === undefined || claps.parsed.source.soe !== "default") {
+    xclap.stopOnError = opts.soe;
+  }
 
   let tasks = claps.tasks.map(x => {
     if (x.startsWith("/") && x.indexOf("/", 1) > 1) {
