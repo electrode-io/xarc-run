@@ -162,9 +162,10 @@ Done Process /foo2ba serial array ["xfoo1","xfoo2","~$echo test anon shell",["."
       xclap.waitAllPending(() => {
         intercept.restore();
         expect(error).to.exist;
-        expect(error.length).to.equal(2);
-        expect(error[0].message).to.equal("xerr");
-        expect(error[1].message).to.equal("xerr");
+        expect(error.more).to.exist;
+        expect(error.more.length).to.equal(1);
+        expect(error.message).to.equal("xerr");
+        expect(error.more[0].message).to.equal("xerr");
         const output = intercept.stdout
           .filter(x => x.match(/^\[/))
           .map(x => x.replace(/ \([0-9\.]+ ms\)/, ""))

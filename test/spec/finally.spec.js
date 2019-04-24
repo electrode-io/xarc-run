@@ -70,7 +70,7 @@ describe("xclap finally", function() {
       logs.push(`${data.type}${fin}`);
     });
     xclap.run("fooConcurrent", err => {
-      expect(err[0].message).to.equal("fnFail throwing");
+      expect(err.message).to.equal("fnFail throwing");
       expect(logs.sort()).to.deep.equal(
         [
           "lookup",
@@ -87,11 +87,11 @@ describe("xclap finally", function() {
           "fnFoo async",
           "fnFooX async",
           "function X",
-          "woopX finally Error: fnFooX error Error: fnFail throwing,Error: fnFooX error",
+          "woopX finally Error: fnFooX error Error: fnFail throwing",
           "serial-arr X",
           "lookup X",
           "function X",
-          "woop finally undefined Error: fnFail throwing,Error: fnFooX error"
+          "woop finally undefined Error: fnFail throwing"
         ].sort()
       );
       done();

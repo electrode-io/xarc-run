@@ -190,7 +190,7 @@ describe("xclap", function() {
 
     xclap.run("foo", err => {
       expect(err).to.exist;
-      expect(err[0].message).to.equal("shell cmd 'exit 1' exit code 1");
+      expect(err.message).to.equal("shell cmd 'exit 1' exit code 1");
       expect(doneItem).to.equal(1);
       expect(foo).to.equal(0);
       done();
@@ -336,7 +336,7 @@ describe("xclap", function() {
     xclap.run("foo", err => {
       expect(err).to.exist;
       expect(doneItem).to.equal(0);
-      expect(err[0].message).contains("Unknown flag foo in shell task");
+      expect(err.message).contains("Unknown flag foo in shell task");
       done();
     });
   });
@@ -346,9 +346,9 @@ describe("xclap", function() {
       foo: new gxclap.XTaskSpec({ type: "blah" })
     });
 
-    xclap.run("foo", errors => {
-      expect(errors).to.exist;
-      expect(errors[0].message).include("Unable to process XTaskSpec type blah");
+    xclap.run("foo", error => {
+      expect(error).to.exist;
+      expect(error.message).include("Unable to process XTaskSpec type blah");
       done();
     });
   });
@@ -358,9 +358,9 @@ describe("xclap", function() {
       foo: [new gxclap.XTaskSpec({ type: "blah" })]
     });
 
-    xclap.run("foo", errors => {
-      expect(errors).to.exist;
-      expect(errors[0].message).include("Unable to process XTaskSpec type blah");
+    xclap.run("foo", error => {
+      expect(error).to.exist;
+      expect(error.message).include("Unable to process XTaskSpec type blah");
       done();
     });
   });
@@ -379,7 +379,7 @@ describe("xclap", function() {
 
     xclap.run("foo", err => {
       expect(err).to.exist;
-      expect(err[0].message).to.equal(`cmd "node -e "process.exit(1)"" exit code 1`);
+      expect(err.message).to.equal(`cmd "node -e "process.exit(1)"" exit code 1`);
       expect(doneItem).to.equal(1);
       done();
     });
@@ -399,7 +399,7 @@ describe("xclap", function() {
 
     xclap.run("foo", err => {
       expect(err).to.exist;
-      expect(err[0].message).to.equal(`cmd "node -e "process.exit(1)"" exit code 1`);
+      expect(err.message).to.equal(`cmd "node -e "process.exit(1)"" exit code 1`);
       expect(doneItem).to.equal(1);
       done();
     });
@@ -424,7 +424,7 @@ describe("xclap", function() {
 
     xclap.run("foo", err => {
       expect(err).to.exist;
-      expect(err[0].message).contains(`ETIMEDOUT`);
+      expect(err.message).contains(`ETIMEDOUT`);
       expect(doneItem).to.equal(1);
       done();
     });
@@ -449,7 +449,7 @@ describe("xclap", function() {
 
     xclap.run("foo", err => {
       expect(err).to.exist;
-      expect(err[0].message).contains(`Missing )$ in shell task: ~(spawn,syncsleep 1`);
+      expect(err.message).contains(`Missing )$ in shell task: ~(spawn,syncsleep 1`);
       expect(doneItem).to.equal(0);
       done();
     });
@@ -473,7 +473,7 @@ describe("xclap", function() {
 
     xclap.run("foo", err => {
       expect(err).to.exist;
-      expect(err[0].message).to.equal("shell cmd 'exit 1' exit code 1");
+      expect(err.message).to.equal("shell cmd 'exit 1' exit code 1");
       expect(doneItem).to.equal(1);
       done();
     });
@@ -696,9 +696,10 @@ describe("xclap", function() {
 
     xclap.run("foo", err => {
       expect(err).to.exist;
-      expect(err.length).to.equal(2);
-      expect(err[0].message).to.equal("a failed");
-      expect(err[1].message).to.equal("c failed");
+      expect(err.more).to.exist;
+      expect(err.more.length).to.equal(1);
+      expect(err.message).to.equal("a failed");
+      expect(err.more[0].message).to.equal("c failed");
       expect(doneItem).to.equal(7);
       expect(foo).to.equal(1);
       expect(foo2).to.equal(1);
@@ -956,7 +957,7 @@ describe("xclap", function() {
     });
     xclap.run("1/foo", err => {
       expect(err).to.exist;
-      expect(err[0].message).to.equal("test");
+      expect(err.message).to.equal("test");
       done();
     });
   });
@@ -969,7 +970,7 @@ describe("xclap", function() {
     });
     xclap.run("foo", err => {
       expect(err).to.exist;
-      expect(err[0].message).to.equal("test");
+      expect(err.message).to.equal("test");
       done();
     });
   });
@@ -1040,7 +1041,7 @@ describe("xclap", function() {
     });
     xclap.run("foo", err => {
       expect(err).to.exist;
-      expect(err[0].message).to.equal("Task foo2 has unrecognize task value type Boolean");
+      expect(err.message).to.equal("Task foo2 has unrecognize task value type Boolean");
       done();
     });
   });
@@ -1051,7 +1052,7 @@ describe("xclap", function() {
     });
     xclap.run("foo", err => {
       expect(err).to.exist;
-      expect(err[0].message).to.equal(
+      expect(err.message).to.equal(
         "Unable to process task foo.S because value type Boolean is unknown and no value.item"
       );
       done();
@@ -1069,7 +1070,7 @@ describe("xclap", function() {
   it("should fail if task name is not found", done => {
     const xclap = new XClap({});
     xclap.run("foo", err => {
-      expect(err[0].message).to.equal("Task foo not found");
+      expect(err.message).to.equal("Task foo not found");
       done();
     });
   });
@@ -1105,7 +1106,7 @@ describe("xclap", function() {
   it("should fail if namespace is not found", done => {
     const xclap = new XClap({});
     xclap.run("foo/bar", err => {
-      expect(err[0].message).to.equal("No task namespace foo exist");
+      expect(err.message).to.equal("No task namespace foo exist");
       done();
     });
   });
@@ -1123,7 +1124,7 @@ describe("xclap", function() {
       test: () => undefined
     });
     xclap.run("foo/bar", err => {
-      expect(err[0].message).to.equal("Task bar in namespace foo not found");
+      expect(err.message).to.equal("Task bar in namespace foo not found");
       done();
     });
   });
@@ -1133,7 +1134,7 @@ describe("xclap", function() {
       test: () => undefined
     });
     xclap.run("/bar", err => {
-      expect(err[0].message).to.equal("Task bar in namespace / not found");
+      expect(err.message).to.equal("Task bar in namespace / not found");
       done();
     });
   });
@@ -1344,7 +1345,7 @@ describe("xclap", function() {
     };
 
     testAsync(tasks, err => {
-      expect(err[0].message).contains("test oops");
+      expect(err.message).contains("test oops");
       done();
     });
   });

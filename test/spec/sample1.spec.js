@@ -106,9 +106,10 @@ describe("sample1", function() {
     xclap.run("foo2ba", err => {
       intercept.restore();
       expect(err).to.exist;
-      expect(err.length).to.equal(2);
-      expect(err[0].message).to.equal("xerr");
-      expect(err[1].message).to.equal("xerr");
+      expect(err.more).to.exist;
+      expect(err.more.length).to.equal(1);
+      expect(err.message).to.equal("xerr");
+      expect(err.more[0].message).to.equal("xerr");
       intercept = xstdout.intercept(true);
       xclap.waitAllPending(err => {
         intercept.restore();
