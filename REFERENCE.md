@@ -181,6 +181,7 @@ The `this` context for the function will the clap [Execution Context](#execution
 The function can return:
 
 - `Promise` - `clap` will await for the promise.
+- [node.js stream] - `clap` will wait for the stream to end.
 - `array` - `clap` will treat the array as a list of tasks to be executed
   - The [array serial/concurrent rules](#array-serialconcurrent-rules) applied to the array.
   - The [anonymous shell command](#task-name-as-anonymous-shell-command) rule applied to each string element.
@@ -529,3 +530,4 @@ xclap.load(tasks);
 [child_process.spawn]: https://nodejs.org/api/child_process.html#child_process_child_process_spawn_command_args_options
 [child_process.spawnsync]: https://nodejs.org/api/child_process.html#child_process_child_process_spawnsync_command_args_options
 [child_process.exec]: https://nodejs.org/api/child_process.html#child_process_child_process_exec_command_options_callback
+[node.js stream]: https://nodejs.org/api/stream.html

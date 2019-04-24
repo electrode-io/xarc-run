@@ -8,6 +8,8 @@ const chalk = require("chalk");
 const assert = require("assert");
 const logger = require("../../lib/logger");
 const stripAnsi = require("strip-ansi");
+const Munchy = require("munchy");
+const { PassThrough } = require("stream");
 
 describe("xclap", function() {
   it("should lookup and exe a task as a function once", done => {
@@ -1295,5 +1297,55 @@ describe("xclap", function() {
       foo2: () => tasks.foo2Value++
     };
     testAsync(tasks, done);
+  });
+
+  const drainIt = munchy => {
+    const data = [];
+    const drain = new PassThrough();
+    drain.on("data", x => {
+      data.push(x);
+    });
+    munchy.pipe(drain);
+    return { data, drain };
+  };
+
+  it("should handle function returning stream", done => {
+    const tasks = {
+      foo2Value: 0,
+      foo: {
+        task: () => {
+          const m = new Munchy({}, "hello, world");
+          setTimeout(() => {
+            m.munch(null);
+            tasks.foo2Value++;
+            drainIt(m);
+          }, 30);
+          return m;
+        }
+      }
+    };
+
+    testAsync(tasks, done);
+  });
+
+  it("should handle function returning stream that fail", done => {
+    const tasks = {
+      foo2Value: 0,
+      foo: {
+        task: () => {
+          const m = new Munchy({}, "hello, world");
+          setTimeout(() => {
+            tasks.foo2Value++;
+            m.emit("error", new Error("test oops"));
+          }, 30);
+          return m;
+        }
+      }
+    };
+
+    testAsync(tasks, err => {
+      expect(err[0].message).contains("test oops");
+      done();
+    });
   });
 });

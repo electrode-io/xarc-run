@@ -16,7 +16,8 @@
 - Serial tasks execution.
 - Concurrent tasks execution.
 - Proper nesting task execution hierarchy.
-- Promise or callback support for tasks written in JavaScript.
+- Promise, [node.js stream], or callback support for tasks written in JavaScript.
+- Run time flow control - return further tasks to execute from JS task function.
 - Support custom task execution reporter.
 - Specify complex tasks execution pattern from command line.
 - Tasks can have a [_finally_](./REFERENCE.md#finally-hook) hook that always runs after task finish or fail.
@@ -29,7 +30,7 @@
 - You have to be careful to write scripts that work cross platforms
 - A single string in a JSON file may not be enough sometimes to fit a build script
 - Your only option is JS to do some of your bidding sometimes
-- No flow control, extending, or customizing
+- No stream support, flow control, or extending or customizing
 
 xclap picks up where [npm scripts] left off.
 
@@ -240,7 +241,7 @@ For example:
 
 ### Async Tasks
 
-You can provide a JS function for a task that executes asynchrounously. Your function just need to take a callback or return a Promise.
+You can provide a JS function for a task that executes asynchrounously. Your function just need to take a callback or return a Promise or a [node.js stream].
 
 ie:
 
@@ -280,3 +281,4 @@ Licensed under the [Apache License, Version 2.0](https://www.apache.org/licenses
 [load tasks into namespace]: REFERENCE.md#loading-task
 [auto complete with namespace]: REFERENCE.md#auto-complete-with-namespace
 [npm]: https://www.npmjs.com/package/npm
+[node.js stream]: https://nodejs.org/api/stream.html
