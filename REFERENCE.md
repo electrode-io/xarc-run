@@ -522,13 +522,15 @@ const xclap = require("xclap");
 const tasks = {
   cmd1: xclap.exec("echo hello", "tty"),
   cmd2: [
-    xclap.exec("echo foo", { execOptions: { env: { FOO: "bar" } } }),
+    // run `echo foo` with env FOO=bar
+    xclap.exec("echo foo", { env: { FOO: "bar" } }),
+    // run `echo hello world` with tty enabled
     xclap.exec(["echo", "hello", "world"], "tty"),
     // with a single spec object
     xclap.exec({
       cmd: ["echo", "hello", "world"],
       flags: "tty",
-      options: { env: { FOO: "bar" } }
+      env: { FOO: "bar" }
     })
   ]
 };
