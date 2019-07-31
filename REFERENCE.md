@@ -492,21 +492,27 @@ Explicity creates an array of tasks to be executed serially.
 
 Returns an array of tasks that's marked for serial execution.
 
-## `exec(spec|cmd, [flags|options])`
+## `exec(spec)`
 
 Create a shell command task spec with _optional_ [`flags`](#shell-task-flags) or `options`.
 
-- `spec` - an object that specifies the fields `cmd`, `flags`, & `options` directly.
-- `cmd` - A string, or an array of strings to be `join(" ")`, to use as the shell command
-- `flags` - [Shell Task Flags](#shell-task-flags), can be specified as:
-  - **string** - ie: `"tty,sync"`
-  - **array** - ie: `["tty", "sync"]`
-- `options` - Object to specify: `{ flags, execOptions, xclap, env }`:
-  - `flags` - [Shell Task Flags](#shell-task-flags), a string or array as above
+- `spec` - an object that specifies the following fields:
+
+  - `cmd` - A string, or an array of strings to be combined into a single one with `join(" ")`, to use as the shell command
+  - `flags` - [Shell Task Flags](#shell-task-flags), can be specified as:
+    - **string** - ie: `"tty,sync"`
+    - **array** - ie: `["tty", "sync"]`
   - `execOptions` - options to pass to [child_process.spawn] or [child_process.exec]
   - `xclap` - Object as options for xclap execution
     - `delayRunMs` - milliseconds to wait before actually running the command
   - `env` - Object of environment flags to set. It is actually `Object.assign`ed into `execOptions.env`.
+
+> Alternatively this can also be called as `exec(cmd, [flags|options])`
+
+Where:
+
+- `flags` - string or array as [Shell Task Flags](#shell-task-flags)
+- `options` - Object to specify: `{ flags, execOptions, xclap, env }`
 
 Examples:
 
@@ -517,7 +523,13 @@ const tasks = {
   cmd1: xclap.exec("echo hello", "tty"),
   cmd2: [
     xclap.exec("echo foo", { execOptions: { env: { FOO: "bar" } } }),
-    xclap.exec(["echo", "hello", "world"], "tty")
+    xclap.exec(["echo", "hello", "world"], "tty"),
+    // with a single spec object
+    xclap.exec({
+      cmd: ["echo", "hello", "world"],
+      flags: "tty",
+      options: { env: { FOO: "bar" } }
+    })
   ]
 };
 
