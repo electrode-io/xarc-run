@@ -501,11 +501,12 @@ Create a shell command task spec with _optional_ [`flags`](#shell-task-flags) or
 - `flags` - [Shell Task Flags](#shell-task-flags), can be specified as:
   - **string** - ie: `"tty,sync"`
   - **array** - ie: `["tty", "sync"]`
-- `options` - Object to specify: `{ flags, execOptions, xclap }`:
+- `options` - Object to specify: `{ flags, execOptions, xclap, env }`:
   - `flags` - [Shell Task Flags](#shell-task-flags), a string or array as above
   - `execOptions` - options to pass to [child_process.spawn] or [child_process.exec]
   - `xclap` - Object as options for xclap execution
     - `delayRunMs` - milliseconds to wait before actually running the command
+  - `env` - Object of environment flags to set. It is actually `Object.assign`ed into `execOptions.env`.
 
 Examples:
 
