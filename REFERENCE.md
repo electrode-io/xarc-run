@@ -25,14 +25,16 @@
 - [Execution Context](#execution-context)
   - [Task Options](#task-options)
     - [Inline Task Options](#inline-task-options)
-- [APIs](#apis)
+
+* [APIs](#apis)
   - [`stopOnError`](#stoponerror)
   - [`load([namespace], tasks)`](#loadnamespace-tasks)
   - [`run(name, [done])`](#runname-done)
   - [`waitAllPending(done)`](#waitallpendingdone)
+  - [`env(spec)`](#envspec)
   - [`concurrent([tasks]|task1, task2, taskN)`](#concurrenttaskstask1-task2-taskn)
   - [`serial([tasks]|task1, task2, taskN)`](#serialtaskstask1-task2-taskn)
-  - [`exec(spec|cmd, [flags|options])`](#execspeccmd-flagsoptions)
+  - [`exec(spec)`](#execspec)
 
 ## Creating Tasks
 
@@ -473,6 +475,30 @@ Run the task specified by `name`.
 ## `waitAllPending(done)`
 
 Wait for all pending tasks to complete and then call `done`.
+
+## `env(spec)`
+
+Create a task to set environment variables in `process.env`.
+
+- `spec` - Object of enviroment variables.
+
+Example:
+
+```js
+{
+  someTask: [xclap.env({ FOO: "bar" }), xclap.exec("echo $FOO")];
+}
+```
+
+> Note that this can be achieved easily with a function task:
+
+```js
+{
+  someTask: [() => Object.assign(process.env, { FOO: "bar" }), xclap.exec("echo $FOO")];
+}
+```
+
+> However, using `xclap.env` will log out the env variables and values nicely.
 
 ## `concurrent([tasks]|task1, task2, taskN)`
 
