@@ -19,8 +19,9 @@ describe("sample1 console report", function() {
   });
 
   it("should log report to console", done => {
+    debugger;
     const expectOutput = `NOTE: finally hook is unreliable when stopOnError is set to full
-Process x1/x1foo serial array ["?woofoo",["foo2","foo4"],"foo5a"]
+Process x1/x1foo serial array ["?woofoo",["foo2","foo4"],"foo5a","foo6","foo7"]
 Optional Task woofoo not found
 -Process x1/x1foo.S concurrent array ["foo2","foo4"]
 ..Process /foo2 serial array ["foo2a"]
@@ -84,12 +85,18 @@ Optional Task woofoo not found
 >>Done Execute echo foo5a 1
 >>Done Execute exec {a=b} 'echo foo5a 2'
 >Done Process /foo5a concurrent array ["~$echo foo5a 1","exec {a=b} 'echo foo5a 2'"]
-Done Process x1/x1foo serial array ["?woofoo",["foo2","foo4"],"foo5a"]
+.Process /foo6 serial array ["env{FOO=bar}","exec 'echo foo6 $FOO'"]
+--Execute /foo6.S setting env{FOO=bar}
+..Execute exec 'echo foo6 $FOO'
+>>Done Execute exec 'echo foo6 $FOO'
+>Done Process /foo6 serial array ["env{FOO=bar}","exec 'echo foo6 $FOO'"]
+-Execute /foo7 setting env{FOO=bar}
+Done Process x1/x1foo serial array ["?woofoo",["foo2","foo4"],"foo5a","foo6","foo7"]
 `;
     const intercept = xstdout.intercept(true);
     xclap.load(sample1);
     xclap.load("x1", {
-      x1foo: ["?woofoo", ["foo2", "foo4"], "foo5a"]
+      x1foo: ["?woofoo", ["foo2", "foo4"], "foo5a", "foo6", "foo7"]
     });
     xclap.run("x1foo", err => {
       intercept.restore();

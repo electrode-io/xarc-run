@@ -105,7 +105,12 @@ const tasks = {
   foo5a: xclap.concurrent(
     "~$echo foo5a 1",
     xclap.exec("echo foo5a 2", { execOptions: { env: { a: "b" } } })
-  )
+  ),
+  foo6: [xclap.env({ FOO: "bar" }), xclap.exec("echo foo6 $FOO")],
+  foo7: {
+    desc: "foo7",
+    task: xclap.env({ FOO: "bar" })
+  }
 };
 
 module.exports = tasks;
