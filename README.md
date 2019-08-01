@@ -7,6 +7,29 @@
 
 **xclap** can load and execute your [npm scripts] with auto completion for [bash] and [zsh]. It also allows you to define tasks in a JavaScript file, with support for advanced features such as namespace, serial and concurrent tasks execution, and proper nesting task execution hierarchy.
 
+# Table of Contents
+
+- [Features](#features)
+- [Why](#why)
+  - [npm scripts](#npm-scripts)
+- [Getting Started](#getting-started)
+  - [Install](#install)
+  - [A Quick Tasks Example](#a-quick-tasks-example)
+  - [Command Usage](#command-usage)
+    - [Specifying Complex Tasks from command line](#specifying-complex-tasks-from-command-line)
+    - [Task Name](#task-name)
+    - [Optional Task Execution](#optional-task-execution)
+    - [Task Definition](#task-definition)
+  - [package.json](#packagejson)
+    - [Tasks](#tasks)
+    - [Options](#options)
+  - [Async Tasks](#async-tasks)
+- [Use Cases](#use-cases)
+  - [Environment Variables](#environment-variables)
+- [Detailed Reference](#detailed-reference)
+
+* [License](#license)
+
 ## Features
 
 - **_Support [namespaces](./REFERENCE.md#namespace) for tasks._**
@@ -276,7 +299,7 @@ ie: The following would work on bash but not Windows.
 }
 ```
 
-In xclap JS task:
+In xclap JS task they would work on all platforms:
 
 ```js
 const xclap = require("xclap");
