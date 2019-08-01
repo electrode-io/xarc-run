@@ -101,6 +101,7 @@ Here is a simple sample. Save it to `xclap.js` and xclap will automatically load
 ```js
 const xclap = require("xclap");
 const { exec, concurrent, serial, env } = xclap;
+const rimraf = require("rimraf");
 
 const tasks = {
   hello: "echo hello world",
@@ -120,8 +121,15 @@ const tasks = {
     desc: "Run a shell command with TTY control and set an env",
     task: exec("echo test", { flags: "tty", env: { foo: "bar" } })
   },
+  babel: exec("babel src -D lib"),
   // serial array of two tasks, first one to set env, second to run babel.
-  compile: serial(env({ BABEL_ENV: "production" }), exec("babel src -D lib"))
+  compile: serial(env({ BABEL_ENV: "production" }), "babel"),
+  // more complex nesting serial/concurrent tasks.
+  build: serial(
+    () => rimraf.sync("dist"), // cleanup
+    env({ NODE_ENV: "production" }), // set env
+    concurrent("babel", exec("webpack")) // invoke babel task and run webpack concurrently
+  )
 };
 
 xclap.load(tasks);
