@@ -99,9 +99,12 @@ You can define your tasks in a JavaScript file, allowing you do anything that's 
 Here is a simple sample. Save it to `xclap.js` and xclap will automatically load it.
 
 ```js
+"use strict";
+
+const util = require("util");
 const xclap = require("xclap");
 const { exec, concurrent, serial, env } = xclap;
-const rimraf = require("rimraf");
+const rimraf = util.promisify(require("rimraf"));
 
 const tasks = {
   hello: "echo hello world",
@@ -115,27 +118,36 @@ const tasks = {
     // with the serial and concurrent APIs (below).
     task: ["hello", "jsFunc"]
   },
-  // invoke tasks hello and js concurrently as a simple concurrent array
+  // invoke tasks hello and jsFunc concurrently as a simple concurrent array
   both2: concurrent("hello", "jsFunc"),
   shell: {
     desc: "Run a shell command with TTY control and set an env",
-    task: exec("echo test", { flags: "tty", env: { foo: "bar" } })
+    task: exec({ cmd: "echo test", flags: "tty", env: { foo: "bar" } })
   },
   babel: exec("babel src -D lib"),
-  // serial array of two tasks, first one to set env, second to run babel.
+  // serial array of two tasks, first one to set env, second to invoke the babel task.
   compile: serial(env({ BABEL_ENV: "production" }), "babel"),
   // more complex nesting serial/concurrent tasks.
-  build: serial(
-    () => rimraf.sync("dist"), // cleanup
-    env({ NODE_ENV: "production" }), // set env
-    concurrent("babel", exec("webpack")) // invoke babel task and run webpack concurrently
-  )
+  build: {
+    desc: "Run production build",
+    task: serial(
+      () => rimraf("dist"), // cleanup, (returning a promise will be awaited)
+      env({ NODE_ENV: "production" }), // set env
+      concurrent("babel", exec("webpack")) // invoke babel task and run webpack concurrently
+    )
+  }
 };
 
 xclap.load(tasks);
 ```
 
-Then invoke the task:
+> Init an npm project and save the file to disk as `xclap.js`:
+
+```bash
+$ npm init --yes && npm install rimraf xclap && npm install -g xclap-cli
+```
+
+> Then invoke one of the tasks:
 
 ```bash
 $ clap hello
@@ -145,7 +157,7 @@ hello world
 JS hello world
 ```
 
-> You can call the file `clapfile.js` or `clap.js` if you prefer, but `xclap.js` is used if it exists.
+> You can name the file `clapfile.js` or `clap.js` if you prefer.
 
 ### Command Usage
 
