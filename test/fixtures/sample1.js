@@ -2,6 +2,8 @@
 
 const xclap = require("../..");
 
+const { exec, env, serial, concurrent } = xclap;
+
 const tasks = {
   xfoo1: cb => {
     setTimeout(() => {
@@ -53,7 +55,7 @@ const tasks = {
       }
     }, 40);
   },
-  foo2a: [
+  foo2a: serial(
     "xfoo1",
     "xfoo2",
     "~$echo test anon shell",
@@ -62,7 +64,7 @@ const tasks = {
     "foo3",
     ["a", "b", ["a", "c"], "xfoo4", "b", "xfoo4", () => console.log("concurrent anon")],
     "xfoo4"
-  ],
+  ),
   xerr: cb => {
     throw new Error("xerr");
   },
@@ -102,11 +104,8 @@ const tasks = {
     },
     finally: () => console.log("foo4 finally")
   },
-  foo5a: xclap.concurrent(
-    "~$echo foo5a 1",
-    xclap.exec("echo foo5a 2", { execOptions: { env: { a: "b" } } })
-  ),
-  foo6: [xclap.env({ FOO: "bar" }), xclap.exec("echo foo6 $FOO")],
+  foo5a: concurrent("~$echo foo5a 1", exec("echo foo5a 2", { execOptions: { env: { a: "b" } } })),
+  foo6: [env({ FOO: "bar" }), xclap.exec("echo foo6 $FOO")],
   foo7: {
     desc: "foo7",
     task: xclap.env({ FOO: "bar" })
