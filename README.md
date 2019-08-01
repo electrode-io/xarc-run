@@ -258,7 +258,40 @@ const tasks = {
 }
 ```
 
-### Detailed Reference
+## Use Cases
+
+One of the common use of `xclap` is to write cross platform build scripts that work on \*nix and Windows, but npm scripts are effectively executed by the shell and they are prone to break on different platforms.
+
+### Environment Variables
+
+ie: The following would work on bash but not Windows.
+
+```js
+{
+  "scripts": {
+    "prod-build": "NODE_ENV=production npm run build",
+    "build": "webpack",
+    "compile": "BABEL_ENV=production babel src -D lib"
+  }
+}
+```
+
+In xclap JS task:
+
+```js
+const xclap = require("xclap");
+const { env, exec } = xclap;
+
+const tasks = {
+  "prod-build": [env({ NODE_ENV: "production" }), "build"],
+  build: "webpack",
+  compile: exec("babel src -D lib", { env: { BABEL_ENV: "production" } })
+};
+
+xclap.load(tasks);
+```
+
+## Detailed Reference
 
 See [reference](./REFERENCE.md) for more detailed information on features such as [load tasks into namespace], and setup [auto complete with namespace] for your shell.
 
