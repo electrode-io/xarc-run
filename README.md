@@ -100,24 +100,28 @@ Here is a simple sample. Save it to `xclap.js` and xclap will automatically load
 
 ```js
 const xclap = require("xclap");
+const { exec, concurrent, serial, env } = xclap;
 
 const tasks = {
   hello: "echo hello world",
-  js: () => console.log("JS hello world"),
+  jsFunc() {
+    console.log("JS hello world");
+  },
   both: {
-    desc: "invoke tasks hello and js in serial order",
+    desc: "invoke tasks hello and jsFunc in serial order",
     // only array at top level like this is default to serial, other times
-    // they are default to concurrent.
-    task: ["hello", "js"]
+    // they are default to concurrent, or they can be marked explicitly
+    // with the serial and concurrent APIs (below).
+    task: ["hello", "jsFunc"]
   },
-  both2: {
-    desc: "invoke tasks hello and js concurrently",
-    task: xclap.concurrent("hello", "js")
-  },
+  // invoke tasks hello and js concurrently as a simple concurrent array
+  both2: concurrent("hello", "jsFunc"),
   shell: {
     desc: "Run a shell command with TTY control and set an env",
-    task: xclap.exec("echo test", { flags: "tty", execOptions: { env: { foo: "bar" } } })
-  }
+    task: exec("echo test", { flags: "tty", env: { foo: "bar" } })
+  },
+  // serial array of two tasks, first one to set env, second to run babel.
+  compile: serial(env({ BABEL_ENV: "production" }), exec("babel src -D lib"))
 };
 
 xclap.load(tasks);
