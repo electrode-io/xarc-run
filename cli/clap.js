@@ -39,7 +39,6 @@ function clap(argv, offset) {
   const claps = nixClap(argv, offset);
   const opts = claps.opts;
 
-
   const numTasks = xclap.countTasks();
 
   if (numTasks === 0) {
@@ -85,7 +84,7 @@ function clap(argv, offset) {
   if (opts.nmbin) {
     const nmBin = Path.join(opts.cwd, "node_modules", ".bin");
     if (Fs.existsSync(nmBin)) {
-      const x = chalk.magenta(`${xsh.pathCwdNm.replace(nmBin)}`);
+      const x = chalk.magenta(`${xsh.pathCwd.replace(nmBin, ".")}`);
       if (!process.env.PATH.match(new RegExp(`${nmBin}(${Path.delimiter}|$)`))) {
         envPath.addToFront(nmBin);
         logger.log(`Added ${x} to PATH`);

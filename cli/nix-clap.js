@@ -168,7 +168,7 @@ function nixClap(argv, start) {
 
   const opts = parsed.opts;
 
-  const xclapLoc = xsh.pathCwd.replace(Path.dirname(__dirname));
+  const xclapLoc = xsh.pathCwd.replace(Path.dirname(__dirname), ".");
 
   logger.log(`${chalk.green("xclap")} version ${xclapPkg.version} at ${chalk.magenta(xclapLoc)}`);
   logger.log(
