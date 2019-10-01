@@ -5,9 +5,11 @@
 
 [npm scripts] on steroid - an advanced and flexible JavaScript task executor and build tool.
 
-**xclap** can load and execute your [npm scripts] with auto completion for [bash] and [zsh]. It also allows you to define tasks in a JavaScript file, with support for advanced features such as namespace, serial and concurrent tasks execution, and proper nesting task execution hierarchy.
+- Run `npm scripts` concurrently or serially
+- Extend `npm scripts` with JavaScript
+- namespace support and more
 
-# Table of Contents
+## Table of Contents
 
 - [Features](#features)
 - [Why](#why)
