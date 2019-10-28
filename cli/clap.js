@@ -94,7 +94,9 @@ function clap(argv, offset) {
     }
   }
 
-  process.env.FORCE_COLOR = "true";
+  if (!process.env.hasOwnProperty("FORCE_COLOR")) {
+    process.env.FORCE_COLOR = "1";
+  }
 
   if (xclap.stopOnError === undefined || claps.parsed.source.soe !== "default") {
     xclap.stopOnError = opts.soe;
