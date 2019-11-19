@@ -105,5 +105,8 @@
     "tasks": {
       "test": "echo pkg test"
     }
+  },
+  "prettier": {
+    "printWidth": 100
   }
 }

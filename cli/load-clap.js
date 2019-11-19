@@ -2,7 +2,6 @@
 
 const Path = require("path");
 const Fs = require("fs");
-const optionalRequire = require("optional-require")(require);
 
 /*
  * Look for clap file at clapDir
@@ -34,28 +33,19 @@ function loadClap(clapDir, search) {
 module.exports = loadClap;
 
 function findClapFile(clapDir) {
-  let found = false;
-  let foundPkg = false;
-  let clapFile;
-  let clapTasks;
+  const dirFiles = Fs.readdirSync(clapDir);
+  const files = ["xclap.", "clapfile.", "clap.", "gulpfile."];
 
-  const file = ["xclap.js", "clapfile.js", "clap.js", "gulpfile.js"].find(f => {
-    clapFile = Path.join(clapDir, f);
-    found = Fs.existsSync(clapFile);
-    return found;
+  const clapFile = dirFiles.find(f => {
+    return files.find(n => f.startsWith(n));
   });
 
-  if (!found) {
-    const pkgJson = Path.join(clapDir, "package.json");
-    if (Fs.existsSync(pkgJson)) {
-      foundPkg = true;
-    }
-  }
+  const foundPkg = Boolean(dirFiles.find(f => f === "package.json"));
 
   return {
-    found,
+    found: Boolean(clapFile),
     foundPkg,
-    clapFile,
+    clapFile: clapFile ? Path.join(clapDir, clapFile) : undefined,
     dir: clapDir
   };
 }

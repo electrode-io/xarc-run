@@ -11,12 +11,14 @@
 
 ## Table of Contents
 
+- [Table of Contents](#table-of-contents)
 - [Features](#features)
 - [Why](#why)
   - [npm scripts](#npm-scripts)
 - [Getting Started](#getting-started)
   - [Install](#install)
   - [A Quick Tasks Example](#a-quick-tasks-example)
+  - [TypeScript](#typescript)
   - [Command Usage](#command-usage)
     - [Specifying Complex Tasks from command line](#specifying-complex-tasks-from-command-line)
     - [Task Name](#task-name)
@@ -160,6 +162,20 @@ JS hello world
 ```
 
 > You can name the file `clapfile.js` or `clap.js` if you prefer.
+
+### TypeScript
+
+Name your task file `xclap.ts` if you want to use TypeScript.
+
+You also need to install [ts-node](https://www.npmjs.com/package/ts-node) to your `node_modules`
+
+ie:
+
+```bash
+npm install -D ts-node typescript
+```
+
+xclap automatically loads `ts-node/register` when it detects `xclap.ts` file.
 
 ### Command Usage
 

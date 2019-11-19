@@ -51,18 +51,25 @@ function searchClap(search, opts) {
   return loadResult;
 }
 
+function loadClapFile(name) {
+  if (Path.extname(name) === ".ts") {
+    logger.log("loading ts-node/register");
+    require("ts-node/register");
+  }
+
+  return optionalRequire(name, {
+    fail: e => {
+      const errMsg = chalk.red(`Unable to load ${name}`);
+      logger.log(`${errMsg}: ${e.stack}`);
+    }
+  });
+}
+
 function loadTasks(opts, searchResult) {
   npmLoader(xclap, opts);
   const loadMsg = chalk.green(`${xsh.pathCwd.replace(searchResult.clapFile)}`);
 
-  const tasks =
-    searchResult.clapFile &&
-    optionalRequire(searchResult.clapFile, {
-      fail: e => {
-        const errMsg = chalk.red(`Unable to load ${searchResult.clapFile}`);
-        logger.log(`${errMsg}: ${e.stack}`);
-      }
-    });
+  const tasks = searchResult.clapFile && loadClapFile(searchResult.clapFile);
 
   if (!tasks) return;
 
