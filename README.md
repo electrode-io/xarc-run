@@ -1,4 +1,4 @@
-[![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url]
+[![NPM version][npm-image]][npm-url] [![Build Status][ci-shield]][ci-url]
 [![Dependency Status][daviddm-image]][daviddm-url] [![devDependency Status][daviddm-dev-image]][daviddm-dev-url]
 
 # xclap
@@ -364,8 +364,8 @@ See [reference](./REFERENCE.md) for more detailed information on features such a
 
 Licensed under the [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 
-[travis-image]: https://travis-ci.org/jchip/xclap.svg?branch=master
-[travis-url]: https://travis-ci.org/jchip/xclap
+[ci-shield]: https://travis-ci.org/electrode-io/xclap.svg?branch=master
+[ci-url]: https://travis-ci.org/electrode-io/xclap
 [npm-image]: https://badge.fury.io/js/xclap.svg
 [npm-url]: https://npmjs.org/package/xclap
 [daviddm-image]: https://david-dm.org/jchip/xclap/status.svg
