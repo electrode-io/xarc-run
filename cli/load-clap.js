@@ -36,9 +36,8 @@ function findClapFile(clapDir) {
   const dirFiles = Fs.readdirSync(clapDir);
   const files = ["xclap.", "clapfile.", "clap.", "gulpfile."];
 
-  const clapFile = dirFiles.find(f => {
-    return files.find(n => f.startsWith(n));
-  });
+  let clapFile;
+  files.find(n => (clapFile = dirFiles.find(f => f.startsWith(n))));
 
   const foundPkg = Boolean(dirFiles.find(f => f === "package.json"));
 
