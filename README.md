@@ -11,13 +11,13 @@
 
 ## Table of Contents
 
-- [Table of Contents](#table-of-contents)
 - [Features](#features)
 - [Why](#why)
   - [npm scripts](#npm-scripts)
 - [Getting Started](#getting-started)
   - [Install](#install)
-  - [A Quick Tasks Example](#a-quick-tasks-example)
+  - [A Simple Example](#a-simple-example)
+  - [A More Complex Example](#a-more-complex-example)
   - [TypeScript](#typescript)
   - [Command Usage](#command-usage)
     - [Specifying Complex Tasks from command line](#specifying-complex-tasks-from-command-line)
@@ -31,8 +31,7 @@
 - [Use Cases](#use-cases)
   - [Environment Variables](#environment-variables)
 - [Detailed Reference](#detailed-reference)
-
-* [License](#license)
+- [License](#license)
 
 ## Features
 
@@ -96,11 +95,47 @@ If you'd like to get the command `clap` globally, you can install another small 
 $ npm install -g xclap-cli
 ```
 
-### A Quick Tasks Example
+### A Simple Example
 
 You can define your tasks in a JavaScript file, allowing you do anything that's possible with JS.
 
 Here is a simple sample. Save it to `xclap.js` and xclap will automatically load it.
+
+```js
+"use strict";
+const xclap = require("xclap");
+
+const tasks = {
+  hello: "echo hello world", // a shell command to be exec'ed
+  jsFunc() {
+    console.log("JS hello world");
+  },
+  both: ["hello", "jsFun"] // execute the two tasks serially
+};
+
+// Load the tasks into xclap
+xclap.load(tasks);
+```
+
+> Then init an npm project and save the file to disk as `xclap.js`:
+
+```bash
+npm init --yes
+npm install rimraf xclap
+npm install -g xclap-cli
+```
+
+And try one of these commands:
+
+- `clap hello` - invoke the task `hello`
+- `clap jsFunc` - invoke the task `jsFunc`
+- `clap both` - invoke the task `both`
+- `clap hello jsFunc` - runs `hello` and `jsFunc` concurrently.
+- `clap -x hello jsFunc` - runs `hello` and `jsFunc` serially.
+
+### A More Complex Example
+
+Here is a more complex example to showcase a few more features:
 
 ```js
 "use strict";
@@ -144,24 +179,6 @@ const tasks = {
 
 xclap.load(tasks);
 ```
-
-> Init an npm project and save the file to disk as `xclap.js`:
-
-```bash
-$ npm init --yes && npm install rimraf xclap && npm install -g xclap-cli
-```
-
-> Then invoke one of the tasks:
-
-```bash
-$ clap hello
-hello world
-$ clap both
-hello world
-JS hello world
-```
-
-> You can name the file `clapfile.js` or `clap.js` if you prefer.
 
 ### TypeScript
 
@@ -360,7 +377,7 @@ xclap.load(tasks);
 
 See [reference](./REFERENCE.md) for more detailed information on features such as [load tasks into namespace], and setup [auto complete with namespace] for your shell.
 
-# License
+## License
 
 Licensed under the [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 

@@ -66,6 +66,13 @@ function loadClapFile(name) {
 }
 
 function loadTasks(opts, searchResult) {
+  if (!searchResult.clapFile) {
+    logger.quiet(false);
+    logger.log(`No xclap.js found - xclap has nothing to do
+    Please create xclap.js - sample: https://www.npmjs.com/package/xclap#a-simple-example `);
+    exit(1);
+  }
+
   npmLoader(xclap, opts);
   const loadMsg = chalk.green(`${xsh.pathCwd.replace(searchResult.clapFile)}`);
 
