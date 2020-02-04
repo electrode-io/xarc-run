@@ -1,6 +1,6 @@
 {
   "name": "xclap",
-  "version": "0.2.41",
+  "version": "0.2.42",
   "description": "npm scripts on steroid - npm scripts concurrently or serially, and more",
   "main": "lib/index.js",
   "scripts": {
