@@ -67,5 +67,10 @@ module.exports = {
     alias: "x",
     desc: "Execute tasks from command line serially",
     default: false
+  },
+  require: {
+    type: "string array",
+    alias: "r",
+    desc: "require module for tasks instead of loading xclap.js"
   }
 };

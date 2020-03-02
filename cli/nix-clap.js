@@ -12,6 +12,7 @@ const xclapPkg = require("../package.json");
 const xclap = require("..");
 const loadClap = require("./load-clap");
 const npmLoader = require("./npm-loader");
+const ck = require("chalker");
 
 function exit(code) {
   process.exit(code);
@@ -65,8 +66,24 @@ function loadClapFile(name) {
   });
 }
 
+function processTasks(tasks, loadMsg, ns = "clap") {
+  if (typeof tasks === "function") {
+    tasks(xclap);
+    logger.log(`Called export function from ${loadMsg}`);
+  } else if (typeof tasks === "object") {
+    if (Object.keys(tasks).length > 0) {
+      xclap.load(ns, tasks);
+      logger.log(`Loaded tasks from ${loadMsg} into namespace ${chalk.magenta(ns)}`);
+    } else {
+      logger.log(`Loaded ${loadMsg}`);
+    }
+  } else {
+    logger.log(`Unknown export type ${chalk.yellow(typeof tasks)} from ${loadMsg}`);
+  }
+}
+
 function loadTasks(opts, searchResult) {
-  if (!searchResult.clapFile) {
+  if (!opts.require && !searchResult.clapFile) {
     logger.quiet(false);
     logger.log(`No xclap.js found - xclap has nothing to do
     Please create xclap.js - sample: https://www.npmjs.com/package/xclap#a-simple-example `);
@@ -74,24 +91,30 @@ function loadTasks(opts, searchResult) {
   }
 
   npmLoader(xclap, opts);
-  const loadMsg = chalk.green(`${xsh.pathCwd.replace(searchResult.clapFile)}`);
 
-  const tasks = searchResult.clapFile && loadClapFile(searchResult.clapFile);
-
-  if (!tasks) return;
-
-  if (typeof tasks === "function") {
-    tasks(xclap);
-    logger.log(`Called export function from ${loadMsg}`);
-  } else if (typeof tasks === "object") {
-    if (Object.keys(tasks).length > 0) {
-      xclap.load("clap", tasks);
-      logger.log(`Loaded tasks from ${loadMsg} into namespace ${chalk.magenta("clap")}`);
-    } else {
-      logger.log(`Loaded ${loadMsg}`);
-    }
+  if (opts.require) {
+    opts.require.forEach(xmod => {
+      let file;
+      try {
+        file = require.resolve(xmod);
+      } catch (err) {
+        logger.log(
+          ck`<red>ERROR:</> <yellow>Unable to require module</> <cyan>'${xmod}'</> - <red>${err.message}</>`
+        );
+        return;
+      }
+      const tasks = loadClapFile(file);
+      if (tasks) {
+        const loadMsg = chalk.green(xmod);
+        processTasks(tasks, loadMsg);
+      }
+    });
   } else {
-    logger.log(`Unknown export type ${chalk.yellow(typeof tasks)} from ${loadMsg}`);
+    const tasks = searchResult.clapFile && loadClapFile(searchResult.clapFile);
+    if (!tasks) return;
+
+    const loadMsg = chalk.green(`${xsh.pathCwd.replace(searchResult.clapFile)}`);
+    processTasks(tasks, loadMsg);
   }
 }
 
@@ -198,7 +221,11 @@ function nixClap(argv, start) {
     opts.cwd = process.cwd();
   }
 
-  const searchResult = searchClap(search, opts);
+  let searchResult = {};
+
+  if (!opts.require) {
+    searchResult = searchClap(search, opts);
+  }
 
   const Pkg = optionalRequire(Path.join(opts.cwd, "package.json"));
 
