@@ -1,7 +1,7 @@
 language: node_js
 node_js:
-  - v8
   - v10
+  - v12
 notifications:
   email:
     - joel123@gmail.com

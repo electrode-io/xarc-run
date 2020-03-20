@@ -24,6 +24,6 @@ describe("stringify", function() {
     const b = {};
     a.b = b;
     b.a = a;
-    expect(stringify(a)).to.equal("ERROR: Converting circular structure to JSON");
+    expect(stringify(a)).includes("ERROR: Converting circular structure to JSON");
   });
 });
