@@ -15,8 +15,8 @@ describe("index", function() {
       expect(t1.slice(1)).to.deep.equal(["a", "b"]);
     });
 
-    it("should create concurrent array from array", () => {
-      const t1 = xclap.concurrent(["a", "b"]);
+    it("should create concurrent array with alias parallel from array", () => {
+      const t1 = xclap.parallel(["a", "b"]);
       expect(t1[0].toString()).to.equal("Symbol(concurrent)");
       expect(t1.slice(1)).to.deep.equal(["a", "b"]);
     });
