@@ -115,7 +115,24 @@ const tasks = {
     xclap.serial("~$echo abc", ".exec", "~$echo BAD IF YOU SEE THIS"),
     xclap.serial("~$sleep 1;", ".stop", "~$echo BAD IF YOU SEE THIS ALSO")
   ),
-  ".exec": () => xsh.exec("sleep 10")
+  ".exec": () => xsh.exec(`node -`),
+  // a failure from a task should cause child process to be removed
+  // without the stop
+  ".stop-with-failure": {
+    task: xclap.concurrent(
+      xclap.serial(
+        "~$echo abc",
+        `~$node -e "setInterval(() => console.log('hello', Date.now()), 1000)"`,
+        "~$echo BAD IF YOU SEE THIS"
+      ),
+      xclap.serial(
+        "~$sleep 5",
+        "~$echo hello",
+        () => process.exit() // doing this cause node process to stay
+        // () => Promise.reject(new Error("foo")) // this cause node process to go away
+      )
+    )
+  }
 };
 
 xclap.load("1", tasks);
