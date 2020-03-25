@@ -6,10 +6,11 @@ const expect = require("chai").expect;
 const xstdout = require("xstdout");
 const chalk = require("chalk");
 const assert = require("assert");
-const logger = require("../../lib/logger");
 const stripAnsi = require("strip-ansi");
 const Munchy = require("munchy");
 const { PassThrough } = require("stream");
+const { asyncVerify, runFinally } = require("run-verify");
+const xaa = require("xaa");
 
 describe("xclap", function() {
   it("should lookup and exe a task as a function once", done => {
@@ -428,6 +429,58 @@ describe("xclap", function() {
       expect(doneItem).to.equal(1);
       done();
     });
+  });
+
+  it("should kill task exec child and stop", () => {
+    const xclap = new XClap();
+    xclap.load({
+      ".stop": () => xclap.stop(),
+      "test-stop": xclap.concurrent(
+        xclap.serial("~$echo abc", "~$sleep 1", "~$echo BAD IF YOU SEE THIS"),
+        xclap.serial(() => xaa.delay(100), ".stop", "~$echo BAD IF YOU SEE THIS ALSO")
+      )
+    });
+
+    const intercept = xstdout.intercept(true);
+
+    return asyncVerify(
+      next => {
+        xclap.run("test-stop", next);
+      },
+      () => {
+        intercept.restore();
+        expect(intercept.stdout.join()).not.include("BAD IF YOU SEE THIS");
+      },
+      runFinally(() => {
+        intercept.restore();
+      })
+    );
+  });
+
+  it("should kill task spawn child and stop", () => {
+    const xclap = new XClap();
+    xclap.load({
+      ".stop": () => xclap.stop(),
+      "test-stop": xclap.concurrent(
+        xclap.serial("~$echo abc", "~(spawn)$sleep 2", "~$echo BAD IF YOU SEE THIS"),
+        xclap.serial(() => xaa.delay(100), ".stop", "~$echo BAD IF YOU SEE THIS ALSO")
+      )
+    });
+
+    const intercept = xstdout.intercept(true);
+
+    return asyncVerify(
+      next => {
+        xclap.run("test-stop", next);
+      },
+      () => {
+        intercept.restore();
+        expect(intercept.stdout.join()).not.include("BAD IF YOU SEE THIS");
+      },
+      runFinally(() => {
+        intercept.restore();
+      })
+    );
   });
 
   it("should handle error of shell command malformed", done => {

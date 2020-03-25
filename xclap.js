@@ -106,7 +106,13 @@ const tasks = {
   },
   foo6: xclap.concurrent(["foo", "bar"]),
   foo7: xclap.serial(["foo", "bar"]),
-  tty: `~(tty)$node -e "console.log('blah', process.stdout.isTTY, process.env.TERM); process.exit(0);"`
+  tty: `~(tty)$node -e "console.log('blah', process.stdout.isTTY, process.env.TERM); process.exit(0);"`,
+
+  ".stop": () => xclap.stop(),
+  ".test-stop": xclap.concurrent(
+    xclap.serial("~$echo abc", "~$sleep 100", "~$echo BAD IF YOU SEE THIS"),
+    xclap.serial("~$sleep 1;", ".stop", "~$echo BAD IF YOU SEE THIS ALSO")
+  )
 };
 
 xclap.load("1", tasks);

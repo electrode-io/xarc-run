@@ -82,7 +82,9 @@
     "munchy": "^1.0.7",
     "nyc": "^11.0.2",
     "prettier": "^1.2.2",
+    "run-verify": "^1.2.2",
     "strip-ansi": "^5.0.0",
+    "xaa": "^1.2.2",
     "xstdout": "^0.1.0"
   },
   "nyc": {
