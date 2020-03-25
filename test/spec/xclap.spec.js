@@ -10,6 +10,7 @@ const stripAnsi = require("strip-ansi");
 const Munchy = require("munchy");
 const { PassThrough } = require("stream");
 const { asyncVerify, runFinally } = require("run-verify");
+const xsh = require("xsh");
 const xaa = require("xaa");
 
 describe("xclap", function() {
@@ -463,6 +464,32 @@ describe("xclap", function() {
       ".stop": () => xclap.stop(),
       "test-stop": xclap.concurrent(
         xclap.serial("~$echo abc", "~(spawn)$sleep 2", "~$echo BAD IF YOU SEE THIS"),
+        xclap.serial(() => xaa.delay(100), ".stop", "~$echo BAD IF YOU SEE THIS ALSO")
+      )
+    });
+
+    const intercept = xstdout.intercept(true);
+
+    return asyncVerify(
+      next => {
+        xclap.run("test-stop", next);
+      },
+      () => {
+        intercept.restore();
+        expect(intercept.stdout.join()).not.include("BAD IF YOU SEE THIS");
+      },
+      runFinally(() => {
+        intercept.restore();
+      })
+    );
+  });
+
+  it("should kill task child from a function and stop", () => {
+    const xclap = new XClap();
+    xclap.load({
+      ".stop": () => xclap.stop(),
+      "test-stop": xclap.concurrent(
+        xclap.serial("~$echo abc", () => xsh.exec("sleep 2"), "~$echo BAD IF YOU SEE THIS"),
         xclap.serial(() => xaa.delay(100), ".stop", "~$echo BAD IF YOU SEE THIS ALSO")
       )
     });

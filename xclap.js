@@ -1,6 +1,8 @@
 "use strict";
 const xclap = require(".");
 
+const xsh = require("xsh");
+
 const tasks = {
   xfoo1: cb => {
     setTimeout(() => {
@@ -110,9 +112,10 @@ const tasks = {
 
   ".stop": () => xclap.stop(),
   ".test-stop": xclap.concurrent(
-    xclap.serial("~$echo abc", "~$sleep 100", "~$echo BAD IF YOU SEE THIS"),
+    xclap.serial("~$echo abc", ".exec", "~$echo BAD IF YOU SEE THIS"),
     xclap.serial("~$sleep 1;", ".stop", "~$echo BAD IF YOU SEE THIS ALSO")
-  )
+  ),
+  ".exec": () => xsh.exec("sleep 10")
 };
 
 xclap.load("1", tasks);
