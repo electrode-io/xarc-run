@@ -461,10 +461,9 @@ describe("xclap", function() {
   it("should kill task spawn child and stop", () => {
     const xclap = new XClap();
     xclap.load({
-      ".stop": () => xclap.stop(),
       "test-stop": xclap.concurrent(
         xclap.serial("~$echo abc", "~(spawn)$sleep 2", "~$echo BAD IF YOU SEE THIS"),
-        xclap.serial(() => xaa.delay(100), ".stop", "~$echo BAD IF YOU SEE THIS ALSO")
+        xclap.serial(() => xaa.delay(100), xclap.stop(), "~$echo BAD IF YOU SEE THIS ALSO")
       )
     });
 
