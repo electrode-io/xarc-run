@@ -6,8 +6,10 @@ const expect = require("chai").expect;
 const xstdout = require("xstdout");
 const chalk = require("chalk");
 const logger = require("../../../lib/logger");
+const { asyncVerify, runFinally } = require("run-verify");
 
 describe("sample1 console report", function() {
+  this.timeout(10000);
   before(() => {
     chalk.enabled = false;
     logger.quiet(false);
@@ -18,8 +20,7 @@ describe("sample1 console report", function() {
     chalk.enabled = true;
   });
 
-  it("should log report to console", done => {
-    debugger;
+  it("should log report to console", () => {
     const expectOutput = `NOTE: finally hook is unreliable when stopOnError is set to full
 Process x1/x1foo serial array ["?woofoo",["foo2","foo4"],"foo5a","foo6","foo7"]
 Optional Task woofoo not found
@@ -98,20 +99,20 @@ Done Process x1/x1foo serial array ["?woofoo",["foo2","foo4"],"foo5a","foo6","fo
     xclap.load("x1", {
       x1foo: ["?woofoo", ["foo2", "foo4"], "foo5a", "foo6", "foo7"]
     });
-    xclap.run("x1foo", err => {
-      intercept.restore();
-      if (err) {
-        return done(err);
-      }
-      // drop tasks output and keep reporter activities only
-      const output = intercept.stdout
-        .filter(x => x.match(/^\[/))
-        .map(x => x.replace(/ \([0-9\.]+ ms\)/, ""))
-        .map(x => x.replace(/^\[[^\]]+\] /, ""))
-        .join("");
-      expect(output).to.equal(expectOutput);
-      done();
-    });
+    return asyncVerify(
+      next => xclap.run("x1foo", next),
+      () => {
+        intercept.restore();
+        // drop tasks output and keep reporter activities only
+        const output = intercept.stdout
+          .filter(x => x.match(/^\[/))
+          .map(x => x.replace(/ \([0-9\.]+ ms\)/, ""))
+          .map(x => x.replace(/^\[[^\]]+\] /, ""))
+          .join("");
+        expect(output).to.equal(expectOutput);
+      },
+      runFinally(() => intercept.restore())
+    );
   });
 
   it("should log failure report to console", done => {

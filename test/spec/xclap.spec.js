@@ -14,6 +14,8 @@ const xsh = require("xsh");
 const xaa = require("xaa");
 
 describe("xclap", function() {
+  this.timeout(10000);
+
   it("should lookup and exe a task as a function once", done => {
     let foo = 0;
     const xclap = new XClap({
