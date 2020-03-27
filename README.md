@@ -9,31 +9,221 @@
 - Extend `npm scripts` with JavaScript
 - namespace support and more
 
-## Table of Contents
+## Running [npm scripts]
 
-- [Features](#features)
-- [Why](#why)
-  - [npm scripts](#npm-scripts)
-- [Getting Started](#getting-started)
-  - [Install](#install)
-  - [A Simple Example](#a-simple-example)
-  - [A More Complex Example](#a-more-complex-example)
-  - [TypeScript](#typescript)
-  - [Command Usage](#command-usage)
-    - [Specifying Complex Tasks from command line](#specifying-complex-tasks-from-command-line)
-    - [Task Name](#task-name)
-    - [Optional Task Execution](#optional-task-execution)
-    - [Task Definition](#task-definition)
-  - [package.json](#packagejson)
-    - [Tasks](#tasks)
-    - [Options](#options)
-  - [Async Tasks](#async-tasks)
-- [Use Cases](#use-cases)
-  - [Environment Variables](#environment-variables)
-- [Detailed Reference](#detailed-reference)
-- [License](#license)
+You can use xclap to run all your [npm scripts] in `package.json`.
 
-## Features
+And you can run multiple of them **concurrently** or **serially**.
+
+Some examples below:
+
+| what you want to do                 | npm command    | xclap command                   |
+| ----------------------------------- | -------------- | ------------------------------- |
+| run `test`                          | `npm run test` | `clap --npm test`               |
+| run `lint` and then `test` serially | N/A            | `clap --npm --serial lint test` |
+| run `lint` and `test` concurrently  | N/A            | `clap --npm lint test`          |
+
+## Running JavaScript tasks
+
+You can write your tasks in JavaScript and run them with xclap.
+
+> This is useful when a shell script is too long to fit in a JSON string, or when it's not easy to do something with shell script.
+
+xclap provides these APIs: `concurrent`, `serial`, `exec`, `env`, and `load`.
+
+Put your tasks in a file `xclap.js` and xclap will load it automatically.
+
+An example `xclap.js`:
+
+```js
+const { load, exec, concurrent, serial } = require("xclap");
+load({
+  //
+  // define a task hello, with a string definition
+  // because a string is the task's direct value, it will be executed as a shell command.
+  //
+  hello: "echo hello",
+  //
+  // define a task world, using a JavaScript function to print something
+  //
+  world: () => console.log("world"),
+  //
+  // define a task serialTask, that will execute the three tasks serially, first two are
+  // the hello and world tasks defined above, and 3rd one is a shell command defined with exec.
+  // because the 3rd one is not a direct value of a task, it has to use exec to define a shell command.
+  //
+  serialTask: serial("hello", "world", exec("echo hi from exec")),
+  //
+  // define a task concurrentTask, that will execute the three tasks concurrently
+  //
+  concurrentTask: concurrent("hello", "world", exec("echo hi from exec")),
+  //
+  // define a task nesting, that does complex nesting of concurrent/serial constructs
+  //
+  nesting: concurrent(serial("hello", "world"), serial("serialTask", concurrent("hello", "world")))
+});
+```
+
+To run the tasks defined above from the command prompt, below are some examples:
+
+| task                                  | command                     |
+| ------------------------------------- | --------------------------- |
+| run `hello`                           | `clap hello`                |
+| run `hello` and then `world` serially | `clap --serial hello world` |
+| run `hello` and `world` concurrently  | `clap hello world`          |
+
+### `exec` and shell scripts
+
+Use `exec` to invoke a shell command from JavaScript.
+
+Here are some examples:
+
+| shell script in JSON string | shell script using `exec` in JavaScript          | note                         |
+| --------------------------- | ------------------------------------------------ | ---------------------------- |
+| `echo hello`                | `exec("echo hello")`                             |                              |
+| `FOO=bar echo hello $FOO`   | `exec("FOO=bar echo hello $FOO")`                |                              |
+| `echo hello && echo world`  | `exec("echo hello && echo world")`               |                              |
+| `echo hello && echo world`  | `serial(exec("echo hello"), exec("echo world"))` | using serial instead of `&&` |
+
+- `exec` supports `options` that can set a few things. Some examples below:
+
+| what you want to do                   | shell script using `exec` in JavaScript                            |
+| ------------------------------------- | ------------------------------------------------------------------ |
+| setting env                           | `exec("echo hello $FOO", {env: {FOO: "bar"}})`                     |
+| provide tty                           | `exec("echo hello", {flags: "tty"})`                               |
+| using spawn with tty, and setting env | `exec("echo hello $FOO", {flags: "tty,spawn", env: {FOO: "bar"}})` |
+
+### Function tasks
+
+A task in JavaScript can be just a function.
+
+```js
+load({
+  hello: () => console.log("hello")
+});
+```
+
+A function task can do a few things:
+
+- Return a promise or be an async function, and xclap will wait for the Promise.
+- Return a stream and xclap will wait for the stream to end.
+- Return another task for xclap to execute further.
+- Access arguments passed to the task with `this.args` (for non-fat-arrow functions only)
+
+`this.args` example:
+
+```js
+load({
+  // A function task named hello that access arguments with `this.args`
+  // It must not be a fat arrow function to access `this.args`
+  hello() {
+    console.log("hello args:", this.args);
+    return ["foo"];
+  },
+  h2: ["hello world"],
+  foo: "echo bar"
+});
+```
+
+### Running tasks with `concurrent` and `serial`
+
+Use `concurrent` and `serial` to define a task that run multiple other tasks **concurrently** or **serially**.
+
+Some examples:
+
+- To do the same thing as the shell script `echo hello && echo world`:
+
+```js
+serial(exec("echo hello"), exec("echo world"));
+```
+
+- or concurrently:
+
+```js
+concurrent(exec("echo hello"), exec("echo world"));
+```
+
+- You can specify any valid tasks:
+
+```js
+serial(
+  exec("echo hello"),
+  () => console.log("world"),
+  "name-of-a-task",
+  concurrent("task1", "task2")
+);
+```
+
+### Tasks to set `process.env`
+
+`env` allows you to create a task to set variables in `process.env`.
+
+You use it by passing an object of env vars, like `env({VAR_NAME: "var-value"})`
+
+Examples:
+
+```js
+load({
+  setEnv: serial(env({ FOO: "bar" }), () => console.log(process.env.FOO))
+});
+```
+
+### And to put it all together
+
+A popular CI/CD use case is to start servers and then run tests, which can be achieved using xclap JavaScript tasks:
+
+```js
+const { concurrent, serial, load, stop } = require("xclap");
+const waitOn = require("wait-on");
+
+const waitUrl = url => waitOn({ resources: [url] });
+
+load({
+  "start-server-and-test": concurrent(
+    // start the servers concurrently
+    concurrent("start-mock-server", "start-app-server"),
+    serial(
+      // wait for servers concurrently, and then run tests
+      concurrent("wait-mock-server", "wait-app-server"),
+      "run-tests",
+      // Finally stop servers and exit.
+      // This is only needed because there are long running servers.
+      () => stop()
+    )
+  ),
+  "start-mock-server": "mock-server",
+  "start-app-server": "node lib/server",
+  "wait-mock-server": () => waitUrl("http://localhost:8000"),
+  "wait-app-server": () => waitUrl("http://localhost:3000"),
+  "run-tests": "cypress run --headless -b chrome"
+});
+```
+
+> xclap adds `node_modules/.bin` to PATH. That's why `npx` is not needed to run commands like `cypress` that's installed in `node_modules`.
+
+### Shorthands
+
+Not a fan of full API names like `concurrent`, `serial`, `exec`? You can skip them.
+
+- `concurrent`: Any array of tasks are concurrent, except when they are specified at the top level.
+- `exec`: Any string starting with `~$` are treated as shell script.
+- `serial`: An array of tasks specified at the top level is executed serially.
+
+Example:
+
+```js
+load({
+  executeSerially: ["task1", "task2"], // top level array serially
+  concurrentArray: [["task1", "task2"]], // Any other array (the one within) are concurrent
+  topLevelShell: "echo hello", // top level string is a shell script
+  shellScripts: [
+    "~$echo hello", // any string started with ~$ is shell script
+    "~(tty,spawn)$echo hello" // also possible to specify tty and spawn flag between ~ and $
+  ]
+});
+```
+
+## Full List of Features
 
 - **_Support [namespaces](./REFERENCE.md#namespace) for tasks._**
 - Load and execute npm scripts from `package.json`.
@@ -49,61 +239,29 @@
 - Tasks can have a [_finally_](./REFERENCE.md#finally-hook) hook that always runs after task finish or fail.
 - Support [flexible function task](./REFERENCE.md#function) that can return more tasks to run.
 
-## Why
-
-[npm scripts] is a quick and convenient place for simple build scripts but it's so simple there are some limitations:
-
-- You have to be careful to write scripts that work cross platforms
-- A single string in a JSON file may not be enough sometimes to fit a build script
-- Your only option is JS to do some of your bidding sometimes
-- No stream support, flow control, or extending or customizing
-
-xclap picks up where [npm scripts] left off.
-
-It's most useful if you need to write reusable build scripts that use shell commands and JavaScript, and that's the primary purpose it was created for.
-
-Some typical use cases:
-
-- [namespaces](./REFERENCE.md#namespace) lets your users overload some of your tasks but still able to reference them.
-- Write complex build steps with comprehensive and powerful flow control like `dependent` and `finally` hooks, and serial and concurrent executions.
-- Advanced handling of JavaScript as part of the build steps allow integrating them directly with shell commands.
-
-### npm scripts
-
-You can execute your [npm scripts] directly with xclap, even multiple of them concurrently or serially.
-
-- serially: `clap -n -x script1 script2 script3`
-- concurrently: `clap -n script1 script2 script3`
-
-Basically, if you specify the `--npm` (`-n`) option then all npm scripts in your `package.json` are loaded into the namespace `npm`.
-
-You can enable this by default by setting the option in your `package.json` also.
-
-Similar to [npm], xclap execute these scripts with `tty` so concurrency may be affected if you run multiple commands that reads input from `tty`.
-
 ## Getting Started
 
-### Install
+Still reading? OK, maybe you want to take it for a test drive?
+
+## A Simple Example
+
+Here is a simple sample.
+
+1. First setup the directory and project:
 
 ```bash
-$ npm install xclap --save-dev
+mkdir xclap-test
+cd xclap-test
+npm init --yes
+npm install rimraf xclap
+npm install -g xclap-cli
 ```
 
-If you'd like to get the command `clap` globally, you can install another small npm module [xclap-cli] globally.
-
-```bash
-$ npm install -g xclap-cli
-```
-
-### A Simple Example
-
-You can define your tasks in a JavaScript file, allowing you do anything that's possible with JS.
-
-Here is a simple sample. Save it to `xclap.js` and xclap will automatically load it.
+2. Save the following code to `xclap.js`:
 
 ```js
 "use strict";
-const xclap = require("xclap");
+const { load } = require("xclap");
 
 const tasks = {
   hello: "echo hello world", // a shell command to be exec'ed
@@ -114,26 +272,20 @@ const tasks = {
 };
 
 // Load the tasks into xclap
-xclap.load(tasks);
+load(tasks);
 ```
 
-> Then init an npm project and save the file to disk as `xclap.js`:
+3. And try one of these commands:
 
-```bash
-npm init --yes
-npm install rimraf xclap
-npm install -g xclap-cli
-```
+| what to do                            | command                      |
+| ------------------------------------- | ---------------------------- |
+| run the task `hello`                  | `clap hello`                 |
+| run the task `jsFunc`                 | `clap jsFunc`                |
+| run the task `both`                   | `clap both`                  |
+| run `hello` and `jsFunc` concurrently | `clap hello jsFunc`          |
+| run `hello` and `jsFunc` serially     | `clap --serial hello jsFunc` |
 
-And try one of these commands:
-
-- `clap hello` - invoke the task `hello`
-- `clap jsFunc` - invoke the task `jsFunc`
-- `clap both` - invoke the task `both`
-- `clap hello jsFunc` - runs `hello` and `jsFunc` concurrently.
-- `clap -x hello jsFunc` - runs `hello` and `jsFunc` serially.
-
-### A More Complex Example
+## A More Complex Example
 
 Here is a more complex example to showcase a few more features:
 
@@ -141,8 +293,7 @@ Here is a more complex example to showcase a few more features:
 "use strict";
 
 const util = require("util");
-const xclap = require("xclap");
-const { exec, concurrent, serial, env } = xclap;
+const { exec, concurrent, serial, env, load } = require("xclap");
 const rimraf = util.promisify(require("rimraf"));
 
 const tasks = {
@@ -177,10 +328,18 @@ const tasks = {
   }
 };
 
-xclap.load(tasks);
+load(tasks);
 ```
 
-### TypeScript
+## Global `clap` command
+
+If you'd like to get the command `clap` globally, so you don't have to type `npx clap`, you can install another small npm module [xclap-cli] globally.
+
+```bash
+$ npm install -g xclap-cli
+```
+
+## TypeScript
 
 Name your task file `xclap.ts` if you want to use TypeScript.
 
@@ -194,7 +353,7 @@ npm install -D ts-node typescript
 
 xclap automatically loads `ts-node/register` when it detects `xclap.ts` file.
 
-### Command Usage
+## Command Line Usage
 
 Any task can be invoked with the command `clap`:
 
@@ -214,15 +373,15 @@ For help on usage:
 $ clap -h
 ```
 
-To load [npm scripts] into the `npm` namespace, use the `-n` option:
+To load [npm scripts] into the `npm` namespace, use the `--npm` option:
 
 ```bash
-$ clap -n test
+$ clap --npm test
 ```
 
 You can also specify command line options under `xclap` in your `package.json`.
 
-#### Specifying Complex Tasks from command line
+### Specifying Complex Tasks from command line
 
 You can specify your tasks as an array from the command line.
 
@@ -235,13 +394,13 @@ $ clap [ task_a, task_b ]
 You can also execute them serially with:
 
 ```bash
-$ clap -x [ task_a, task_b ]
+$ clap --serial [ task_a, task_b ]
 ```
 
 You can execute tasks serially, and then some tasks concurrently:
 
 ```bash
-$ clap -x [task_a, task_b, [task_c1, task_c2]]
+$ clap --serial [task_a, task_b, [task_c1, task_c2]]
 ```
 
 > will execute `task_a`, then `task_b`, and finally `task_c1` and `task_c2` concurrently.
@@ -252,7 +411,7 @@ You can pass the whole array in as a single string, which will be parsed as an a
 $ clap "[task_a, task_b, [task_c1, task_c2]]"
 ```
 
-#### Task Name
+## Task Name
 
 Task name is any alphanumeric string that does not contain `/`, or starts with `?` or `~$`.
 
@@ -267,7 +426,7 @@ Tasks can be invoked from command line:
 - prefix `?` to let you indicate that the execution of a task is optional so it won't fail if the task is not found.
 - prefix `~$` to indicate the task to be a string as a shell command
 
-#### Optional Task Execution
+## Optional Task Execution
 
 By prefixing the task name with `?` when invoking, you can indicate the execution of a task as optional so it won't fail in case the task is not found.
 
@@ -275,15 +434,15 @@ For example:
 
 - `xclap ?foo/task1` or `xclap ?task1` won't fail if `task1` is not found.
 
-#### Task Definition
+## Task Definition
 
 A task can be `string`, `array`, `function`, or `object`. See [reference](./REFERENCE.md#task-definition) for details.
 
-### package.json
+## package.json
 
 You can define xclap tasks and options in your `package.json`.
 
-#### Tasks
+## Tasks
 
 You can also define **xclap** tasks without JavaScript capability in an object `xclap.tasks` in your `package.json`.
 
@@ -306,7 +465,7 @@ For example:
 
 And you can invoke them with `clap pkg/foo`, or `clap foo` if there are no other namespace with a task named `foo`.
 
-#### Options
+## Options
 
 xclap command line options can also be specified in `xclap` inside your `package.json`.
 
@@ -321,9 +480,9 @@ For example:
 }
 ```
 
-### Async Tasks
+## Async Tasks
 
-You can provide a JS function for a task that executes asynchrounously. Your function just need to take a callback or return a Promise or a [node.js stream].
+You can provide a JS function for a task that executes asynchronously. Your function just need to take a callback or return a Promise or a [node.js stream].
 
 ie:
 
@@ -338,39 +497,6 @@ const tasks = {
     }
   }
 }
-```
-
-## Use Cases
-
-One of the common use of `xclap` is to write cross platform build scripts that work on \*nix and Windows, but npm scripts are effectively executed by the shell and they are prone to break on different platforms.
-
-### Environment Variables
-
-ie: The following would work on bash but not Windows.
-
-```js
-{
-  "scripts": {
-    "prod-build": "NODE_ENV=production npm run build",
-    "build": "webpack",
-    "compile": "BABEL_ENV=production babel src -D lib"
-  }
-}
-```
-
-In xclap JS task they would work on all platforms:
-
-```js
-const xclap = require("xclap");
-const { env, exec } = xclap;
-
-const tasks = {
-  "prod-build": [env({ NODE_ENV: "production" }), "build"],
-  build: "webpack",
-  compile: exec("babel src -D lib", { env: { BABEL_ENV: "production" } })
-};
-
-xclap.load(tasks);
 ```
 
 ## Detailed Reference
