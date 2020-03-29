@@ -132,6 +132,26 @@ const tasks = {
         // () => Promise.reject(new Error("foo")) // this cause node process to go away
       )
     )
+  },
+  ".arg-opts": {
+    desc: "test nix-clap parsing args",
+    argOpts: {
+      foo: { require: true, type: "string", alias: "f" }
+    },
+    task: context => {
+      console.log(context.argOpts);
+    }
+  },
+  ".blah-1": {
+    task(context) {
+      console.log(context.argOpts);
+    }
+  },
+  ".blah-2": {
+    allowUnknownOptions: false,
+    task(context) {
+      console.log(context.argOpts);
+    }
   }
 };
 

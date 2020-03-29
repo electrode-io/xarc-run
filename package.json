@@ -69,16 +69,16 @@
     "insync": "^2.1.1",
     "jaro-winkler": "^0.2.8",
     "lodash.foreach": "^4.5.0",
-    "nix-clap": "^1.0.8",
+    "nix-clap": "^1.3.10",
     "optional-require": "^1.0.0",
     "path-is-inside": "^1.0.2",
     "string-array": "^1.0.0",
-    "unwrap-npm-cmd": "^1.1.0",
-    "xsh": "^0.4.0"
+    "unwrap-npm-cmd": "^1.1.1",
+    "xsh": "^0.4.4"
   },
   "devDependencies": {
     "chai": "^4.0.0",
-    "mocha": "4",
+    "mocha": "^7.1.1",
     "munchy": "^1.0.7",
     "nyc": "^11.0.2",
     "prettier": "^1.2.2",

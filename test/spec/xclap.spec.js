@@ -9,7 +9,7 @@ const assert = require("assert");
 const stripAnsi = require("strip-ansi");
 const Munchy = require("munchy");
 const { PassThrough } = require("stream");
-const { asyncVerify, runFinally } = require("run-verify");
+const { asyncVerify, runFinally, runTimeout, expectError } = require("run-verify");
 const xsh = require("xsh");
 const xaa = require("xaa");
 
@@ -38,6 +38,78 @@ describe("xclap", function() {
       expect(foo).to.equal(1);
       done();
     });
+  });
+
+  it("should lookup and call task function with 2 params with context and callback", () => {
+    let foo = 0;
+    let context;
+    const xclap = new XClap({
+      foo(ctx, done) {
+        context = ctx;
+        done();
+      }
+    });
+
+    return asyncVerify(
+      runTimeout(500),
+      next => xclap.run("foo -a=50 --bar=60", next),
+      () => {
+        expect(context).to.be.an("object");
+        expect(context.argOpts).to.deep.equal({ a: "50", bar: "60" });
+      }
+    );
+  });
+
+  it("should fail on unknown options if allowUnknownOptions is false", () => {
+    let context;
+    const xclap = new XClap({
+      foo: {
+        allowUnknownOptions: false,
+        task(ctx) {
+          context = ctx;
+        }
+      }
+    });
+
+    return asyncVerify(
+      runTimeout(500),
+      expectError(next => xclap.run("foo -a=50 --bar=60", next)),
+      error => {
+        expect(error.message).equal("Unknown options for task foo: a, bar");
+      }
+    );
+  });
+
+  it("should pass context to function that take a single param named ctx/context", () => {
+    let receivedContext;
+    let receivedCtx;
+    const xclap = new XClap({
+      foo: {
+        task(context) {
+          receivedContext = context;
+        }
+      },
+      blah: {
+        task(ctx) {
+          receivedCtx = ctx;
+        }
+      }
+    });
+
+    return asyncVerify(
+      next => xclap.run("foo -a=50 --bar=60 ", next),
+      () => {
+        expect(receivedContext).to.be.an("object");
+        expect(receivedContext.argOpts.a).equal("50");
+        expect(receivedContext.argOpts.bar).equal("60");
+      },
+      next => xclap.run("blah -x=500 --abc=100", next),
+      () => {
+        expect(receivedCtx).to.be.an("object");
+        expect(receivedCtx.argOpts.x).equal("500");
+        expect(receivedCtx.argOpts.abc).equal("100");
+      }
+    );
   });
 
   it("should exe task name return by function", done => {

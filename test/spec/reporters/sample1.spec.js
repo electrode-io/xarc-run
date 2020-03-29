@@ -6,7 +6,7 @@ const expect = require("chai").expect;
 const xstdout = require("xstdout");
 const chalk = require("chalk");
 const logger = require("../../../lib/logger");
-const { asyncVerify, runFinally } = require("run-verify");
+const { expectError, runTimeout, asyncVerify, runFinally } = require("run-verify");
 
 describe("sample1 console report", function() {
   this.timeout(10000);
@@ -94,11 +94,13 @@ Optional Task woofoo not found
 -Execute /foo7 setting env{FOO=bar}
 Done Process x1/x1foo serial array ["?woofoo",["foo2","foo4"],"foo5a","foo6","foo7"]
 `;
+
     const intercept = xstdout.intercept(true);
     xclap.load(sample1);
     xclap.load("x1", {
       x1foo: ["?woofoo", ["foo2", "foo4"], "foo5a", "foo6", "foo7"]
     });
+
     return asyncVerify(
       next => xclap.run("x1foo", next),
       () => {
@@ -115,7 +117,7 @@ Done Process x1/x1foo serial array ["?woofoo",["foo2","foo4"],"foo5a","foo6","fo
     );
   });
 
-  it("should log failure report to console", done => {
+  it("should log failure report to console", () => {
     const expectOutput = `Process /foo2ba serial array ["xfoo1","xfoo2","~$echo test anon shell",[".","a","b"],"func","foo3",["a","b",["/a","c"],"xerr","b","xerr","func"],"xfoo4"]
 -Execute /xfoo1 as function
 >Done Execute /xfoo1 as function
@@ -159,29 +161,47 @@ Done Process x1/x1foo serial array ["?woofoo",["foo2","foo4"],"foo5a","foo6","fo
 >Done Process /foo2ba.S concurrent array ["a","b",["/a","c"],"xerr","b","xerr","func"]
 Done Process /foo2ba serial array ["xfoo1","xfoo2","~$echo test anon shell",[".","a","b"],"func","foo3",["a","b",["/a","c"],"xerr","b","xerr","func"],"xfoo4"]
 `;
-    let error;
+
     let intercept = xstdout.intercept(true);
     xclap.load(sample1);
-    xclap.run("foo2ba", err => {
-      error = err;
-    });
 
-    xclap.once("spawn-async", () =>
-      xclap.waitAllPending(() => {
-        intercept.restore();
-        expect(error).to.exist;
+    let eventReceived;
+    let waitedPending;
+
+    return asyncVerify(
+      runTimeout(5000),
+      runFinally(() => intercept.restore()),
+      expectError(next => {
+        xclap.once("spawn-async", a => {
+          xclap.waitAllPending(() => (waitedPending = true));
+          eventReceived = true;
+        });
+        xclap.run("foo2ba", next);
+      }),
+      error => {
+        expect(error.message).to.equal("xerr");
         expect(error.more).to.exist;
         expect(error.more.length).to.equal(1);
-        expect(error.message).to.equal("xerr");
         expect(error.more[0].message).to.equal("xerr");
+      },
+      next => {
+        const wait = () => {
+          if (eventReceived && waitedPending) {
+            return next();
+          }
+          setTimeout(wait, 10);
+        };
+        wait();
+      },
+      () => {
+        intercept.restore();
         const output = intercept.stdout
           .filter(x => x.match(/^\[/))
           .map(x => x.replace(/ \([0-9\.]+ ms\)/, ""))
           .map(x => x.replace(/^\[[^\]]+\] /, ""))
           .join("");
         expect(output).to.equal(expectOutput);
-        done();
-      })
+      }
     );
   });
 });
