@@ -14,8 +14,36 @@
 Ready to jump in and take it for a test drive? Jump to [a simple example](#a-simple-example)
 
 ## Table of Contents
-
-
+- [xclap](#xclap)
+  - [Getting Started](#getting-started)
+  - [Table of Contents](#table-of-contents)
+  - [xclap Features](#xclap-features)
+  - [Running [npm scripts]](#running-npm-scripts)
+  - [Examples](#examples)
+  - [Running JavaScript tasks](#running-javascript-tasks)
+    - [xclap APIs](#xclap-apis)
+    - [`exec` and shell scripts](#exec-and-shell-scripts)
+    - [Function tasks](#function-tasks)
+    - [Running tasks with `concurrent` and `serial`](#running-tasks-with-concurrent-and-serial)
+    - [More Examples](#more-examples)
+    - [Tasks to set `process.env`](#tasks-to-set-processenv)
+    - [Putting it all together](#putting-it-all-together)
+    - [Shorthand](#shorthand)
+  - [A Simple Example](#a-simple-example)
+  - [A More Complex Example](#a-more-complex-example)
+  - [Global `clap` command](#global-clap-command)
+  - [TypeScript](#typescript)
+  - [Command Line Usage](#command-line-usage)
+    - [Specifying Complex Tasks from command line](#specifying-complex-tasks-from-command-line)
+  - [Task Name](#task-name)
+  - [Optional Task Execution](#optional-task-execution)
+  - [Task Definition](#task-definition)
+  - [package.json](#packagejson)
+  - [Tasks](#tasks)
+  - [Options](#options)
+  - [Async Tasks](#async-tasks)
+  - [Detailed Reference](#detailed-reference)
+  - [License](#license)
 
 ## xclap Features
 
@@ -33,11 +61,19 @@ Ready to jump in and take it for a test drive? Jump to [a simple example](#a-sim
 + Tasks can have a [_finally hook_](./REFERENCE.md#finally-hook)  that always runs after task finish or fail
 + Support [flexible function task](./REFERENCE.md#function) that can return more tasks to run
 
-| what you want to do                 | npm command    | xclap command                   |
-| ----------------------------------- | -------------- | ------------------------------- |
-| run `test`                          | `npm run test` | `clap --npm test`               |
-| run `lint` and then `test` serially | N/A            | `clap --npm --serial lint test` |
-| run `lint` and `test` concurrently  | N/A            | `clap --npm lint test`          |
+## Running [npm scripts]
+
+You can use xclap to run all your [npm scripts] in `package.json` and manage multiple scripts **concurrently** or **serially**.
+
+## Examples
+
+| task                                | npm command    | xclap command          |
+| ----------------------------------- | -------------- | ---------------------- |
+| run `test`                          | `npm run test` | `clap -n test`         |
+| run `lint` and then `test` serially | N/A            | `clap -n -x lint test` |
+| run `lint` and `test` concurrently  | N/A            | `clap -n lint test`    |
+
++ the `-n` (alias for `--npm`) flag tells `xclap` to load [npm scripts] from your `package.json`
 
 ## Running JavaScript tasks
 
@@ -81,11 +117,11 @@ load({
 
 To run the tasks defined above from the command prompt, below are some examples:
 
-| task                                  | command                     |
-| ------------------------------------- | --------------------------- |
-| run `hello`                           | `clap hello`                |
-| run `hello` and then `world` serially | `clap --serial hello world` |
-| run `hello` and `world` concurrently  | `clap hello world`          |
+| task                                  | command               |
+| ------------------------------------- | --------------------- |
+| run `hello`                           | `clap hello`          |
+| run `hello` and then `world` serially | `clap -x hello world` |
+| run `hello` and `world` concurrently  | `clap hello world`    |
 
 ### `exec` and shell scripts
 
@@ -269,13 +305,13 @@ load(tasks);
 
 3. And try one of these commands:
 
-| what to do                            | command                      |
-| ------------------------------------- | ---------------------------- |
-| run the task `hello`                  | `clap hello`                 |
-| run the task `jsFunc`                 | `clap jsFunc`                |
-| run the task `both`                   | `clap both`                  |
-| run `hello` and `jsFunc` concurrently | `clap hello jsFunc`          |
-| run `hello` and `jsFunc` serially     | `clap --serial hello jsFunc` |
+| what to do                            | command                |
+| ------------------------------------- | ---------------------- |
+| run the task `hello`                  | `clap hello`           |
+| run the task `jsFunc`                 | `clap jsFunc`          |
+| run the task `both`                   | `clap both`            |
+| run `hello` and `jsFunc` concurrently | `clap hello jsFunc`    |
+| run `hello` and `jsFunc` serially     | `clap -x hello jsFunc` |
 
 ## A More Complex Example
 
