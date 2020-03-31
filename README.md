@@ -14,11 +14,12 @@
 Ready to jump in and take it for a test drive? Jump to [a simple example](#a-simple-example)
 
 ## Table of Contents
+
 - [xclap](#xclap)
   - [Getting Started](#getting-started)
   - [Table of Contents](#table-of-contents)
   - [xclap Features](#xclap-features)
-  - [Running [npm scripts]](#running-npm-scripts)
+  - [Running npm scripts](#running-npm-scripts)
   - [Examples](#examples)
   - [Running JavaScript tasks](#running-javascript-tasks)
     - [xclap APIs](#xclap-apis)
@@ -61,7 +62,7 @@ Ready to jump in and take it for a test drive? Jump to [a simple example](#a-sim
 + Tasks can have a [_finally hook_](./REFERENCE.md#finally-hook)  that always runs after task finish or fail
 + Support [flexible function task](./REFERENCE.md#function) that can return more tasks to run
 
-## Running [npm scripts]
+## Running npm scripts
 
 You can use xclap to run all your [npm scripts] in `package.json` and manage multiple scripts **concurrently** or **serially**.
 
