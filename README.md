@@ -23,6 +23,11 @@ Some examples below:
 | run `lint` and then `test` serially | N/A            | `clap --npm --serial lint test` |
 | run `lint` and `test` concurrently  | N/A            | `clap --npm lint test`          |
 
+Alias for the options:
+
+- `-n`: `--npm`
+- `-x`: `--serial`
+
 ## Running JavaScript tasks
 
 You can write your tasks in JavaScript and run them with xclap.
@@ -66,7 +71,7 @@ load({
 
 To run the tasks defined above from the command prompt, below are some examples:
 
-| task                                  | command                     |
+| what you want to do                   | command                     |
 | ------------------------------------- | --------------------------- |
 | run `hello`                           | `clap hello`                |
 | run `hello` and then `world` serially | `clap --serial hello world` |
@@ -89,8 +94,8 @@ Here are some examples:
 
 | what you want to do                   | shell script using `exec` in JavaScript                            |
 | ------------------------------------- | ------------------------------------------------------------------ |
-| setting env                           | `exec("echo hello $FOO", {env: {FOO: "bar"}})`                     |
-| provide tty                           | `exec("echo hello", {flags: "tty"})`                               |
+| setting an env variable               | `exec("echo hello $FOO", {env: {FOO: "bar"}})`                     |
+| provide tty to the shell process      | `exec("echo hello", {flags: "tty"})`                               |
 | using spawn with tty, and setting env | `exec("echo hello $FOO", {flags: "tty,spawn", env: {FOO: "bar"}})` |
 
 ### Function tasks
@@ -108,16 +113,15 @@ A function task can do a few things:
 - Return a promise or be an async function, and xclap will wait for the Promise.
 - Return a stream and xclap will wait for the stream to end.
 - Return another task for xclap to execute further.
-- Access arguments passed to the task with `this.args` (for non-fat-arrow functions only)
+- Access arguments with `context.argOpts`.
 
-`this.args` example:
+Example:
 
 ```js
 load({
-  // A function task named hello that access arguments with `this.args`
-  // It must not be a fat arrow function to access `this.args`
-  hello() {
-    console.log("hello args:", this.args);
+  // A function task named hello that access arguments with `context.argOpts`
+  async hello(context) {
+    console.log("hello argOpts:", context.argOpts);
     return ["foo"];
   },
   h2: ["hello world"],
@@ -241,7 +245,7 @@ load({
 
 ## Getting Started
 
-Still reading? OK, maybe you want to take it for a test drive?
+Still reading? Maybe you want to take it for a test drive?
 
 ## A Simple Example
 
