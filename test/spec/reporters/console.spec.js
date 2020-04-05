@@ -6,10 +6,10 @@ const XQItem = require("../../../lib/xqitem");
 const expect = require("chai").expect;
 const chalk = require("chalk");
 
-describe("XReporterConsole", function () {
-  const saved = chalk.enabled;
-  before(() => chalk.enabled = false);
-  after(() => chalk.enabled = saved);
+describe("XReporterConsole", function() {
+  const saveLevel = chalk.level;
+  before(() => (chalk.level = 0));
+  after(() => (chalk.level = saveLevel));
   it("should indent by qitem level", () => {
     const xclap = new XClap();
     const reporter = new XReporterConsole(xclap);

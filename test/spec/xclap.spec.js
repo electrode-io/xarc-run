@@ -1309,12 +1309,15 @@ describe("xclap", function() {
     let intercept;
     const xclap = new XClap();
     xclap.stopOnError = false;
+    let saveLevel;
     beforeEach(() => {
-      chalk.enabled = false;
+      saveLevel = chalk.level;
+      chalk.level = 0;
       intercept = xstdout.intercept(true);
     });
+
     afterEach(() => {
-      chalk.enabled = true;
+      chalk.level = saveLevel;
       intercept.restore();
     });
 

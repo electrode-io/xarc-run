@@ -64,8 +64,8 @@
   },
   "homepage": "https://github.com/jchip/xclap",
   "dependencies": {
-    "chalk": "^2.0.1",
-    "chalker": "^1.1.2",
+    "chalk": "^4.0.0",
+    "chalker": "^1.2.0",
     "insync": "^2.1.1",
     "jaro-winkler": "^0.2.8",
     "lodash.foreach": "^4.5.0",

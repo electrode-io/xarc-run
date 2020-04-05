@@ -10,14 +10,15 @@ const { expectError, runTimeout, asyncVerify, runFinally } = require("run-verify
 
 describe("sample1 console report", function() {
   this.timeout(10000);
+  let saveLevel = chalk.level;
   before(() => {
-    chalk.enabled = false;
+    chalk.level = 0;
     logger.quiet(false);
     logger.coloring(false);
   });
 
   after(() => {
-    chalk.enabled = true;
+    chalk.level = saveLevel;
   });
 
   it("should log report to console", () => {
