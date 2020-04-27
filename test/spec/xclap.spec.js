@@ -406,8 +406,17 @@ describe("xclap", function() {
     xclap.run("foo", err => {
       expect(process.env[key]).to.equal("TEST123");
       delete process.env[key];
-      done();
+      done(err);
     });
+  });
+
+  it("updateEnv should set env", () => {
+    const key = `TEST_${Date.now()}`;
+    delete process.env[key];
+    const xclap = new XClap({});
+    xclap.updateEnv({ [key]: "hello" });
+    expect(process.env[key]).to.equal("hello");
+    delete process.env[key];
   });
 
   it("should handle shell with unknown flag", done => {
