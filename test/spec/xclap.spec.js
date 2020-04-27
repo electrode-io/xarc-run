@@ -395,6 +395,21 @@ describe("xclap", function() {
     });
   });
 
+  it("env should avoid replacing if override is false", done => {
+    const key = `TEST_${Date.now()}`;
+    delete process.env[key];
+    process.env[key] = "TEST123";
+    const xclap = new XClap({});
+    xclap.load({
+      foo: xclap.env({ [key]: "blah" }, { override: false })
+    });
+    xclap.run("foo", err => {
+      expect(process.env[key]).to.equal("TEST123");
+      delete process.env[key];
+      done();
+    });
+  });
+
   it("should handle shell with unknown flag", done => {
     const xclap = new XClap({
       foo: `~(spawn,foo,sync)$echo hello`

@@ -28,4 +28,14 @@ describe("update env", function() {
     expect(process.env.H).to.equal(undefined);
     delete process.env.FOO;
   });
+
+  it("should avoid replacing if override is false", () => {
+    const target = { FOO: "blah", TEST: "xyz" };
+    updateEnv({ HELLO: "world", FOO: "bar", TEST: null }, target, false);
+    expect(target).to.deep.equal({
+      FOO: "blah",
+      TEST: "xyz",
+      HELLO: "world"
+    });
+  });
 });
