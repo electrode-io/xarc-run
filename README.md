@@ -26,7 +26,7 @@ Some examples below:
 Alias for the options:
 
 - `-n`: `--npm`
-- `-x`: `--serial`
+- `-s`: `--serial`
 
 ## Running JavaScript tasks
 

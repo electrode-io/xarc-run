@@ -52,7 +52,7 @@ module.exports = {
       assert(v === "soft" || v === "full", `option soe value must be one of: no, soft, full`);
       return v;
     },
-    alias: "s",
+    alias: "e",
     desc: `Stop on errors - one of: no, soft, full`,
     default: "full"
   },
@@ -64,7 +64,7 @@ module.exports = {
   },
   serial: {
     type: "boolean",
-    alias: "x",
+    alias: ["s", "x"],
     desc: "Execute tasks from command line serially",
     default: false
   },
