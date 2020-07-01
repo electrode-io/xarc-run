@@ -1,7 +1,7 @@
 "use strict";
 
 const XReporterConsole = require("../../../lib/reporters/console");
-const XClap = require("../../../lib/xclap");
+const XRun = require("../../../lib/xrun");
 const XQItem = require("../../../lib/xqitem");
 const expect = require("chai").expect;
 const chalk = require("chalk");
@@ -11,8 +11,8 @@ describe("XReporterConsole", function() {
   before(() => (chalk.level = 0));
   after(() => (chalk.level = saveLevel));
   it("should indent by qitem level", () => {
-    const xclap = new XClap();
-    const reporter = new XReporterConsole(xclap);
+    const xrun = new XRun();
+    const reporter = new XReporterConsole(xrun);
     const xqi = new XQItem({ name: "test" });
     expect(reporter._indent(xqi)).to.equal("");
     xqi.level = 1;

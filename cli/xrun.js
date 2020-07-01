@@ -1,8 +1,8 @@
 "use strict";
 
 const Path = require("path");
-const nixClap = require("./nix-clap");
-const xclap = require("..");
+const parseCmdArgs = require("./parse-cmd-args");
+const runner = require("..");
 const chalk = require("chalk");
 const logger = require("../lib/logger");
 const usage = require("./usage");
@@ -21,7 +21,7 @@ function exit(code) {
   process.exit(code);
 }
 
-function clap(argv, offset) {
+function xrun(argv, offset, clapMode = false) {
   if (!argv) {
     argv = process.argv;
     offset = 2;
@@ -36,10 +36,10 @@ function clap(argv, offset) {
     return exit(0);
   }
 
-  const claps = nixClap(argv, offset);
-  const opts = claps.opts;
+  const cmdArgs = parseCmdArgs(argv, offset, clapMode);
+  const opts = cmdArgs.opts;
 
-  const numTasks = xclap.countTasks();
+  const numTasks = runner.countTasks();
 
   if (numTasks === 0) {
     logger.log(chalk.red("No tasks found - please load some."));
@@ -48,11 +48,11 @@ function clap(argv, offset) {
     const ns = opts.list && opts.list.split(",").map(x => x.trim());
     try {
       if (opts.full) {
-        let fn = xclap._tasks.fullNames(ns);
+        let fn = runner._tasks.fullNames(ns);
         if (opts.full > 1) fn = fn.map(x => (x.startsWith("/") ? x : `/${x}`));
         console.log(fn.join("\n"));
       } else {
-        console.log(xclap._tasks.names(ns).join("\n"));
+        console.log(runner._tasks.names(ns).join("\n"));
       }
     } catch (err) {
       console.log(err.message);
@@ -60,22 +60,29 @@ function clap(argv, offset) {
     return exit(0);
   } else if (opts.ns) {
     flushLogger(opts);
-    console.log(xclap._tasks._namespaces.join("\n"));
+    console.log(runner._tasks._namespaces.join("\n"));
     return exit(0);
   }
 
-  if (claps.tasks.length === 0 || numTasks === 0) {
+  const cmdName = Path.basename(process.argv[1] || "") || "xrun";
+
+  if (cmdArgs.tasks.length === 0 || numTasks === 0) {
     flushLogger(opts);
-    xclap.printTasks();
+    runner.printTasks();
     if (!opts.quiet) {
       console.log(`${usage}`);
-      console.log(chalk.bold(" Help:"), "clap -h", chalk.bold(" Example:"), "clap build\n");
+      console.log(
+        chalk.bold(" Help:"),
+        `${cmdName} -h`,
+        chalk.bold(" Example:"),
+        `${cmdName} build\n`
+      );
     }
     return exit(1);
   }
 
   if (opts.help) {
-    console.log("help for tasks:", claps.tasks);
+    console.log("help for tasks:", cmdArgs.tasks);
     return exit(0);
   }
 
@@ -98,11 +105,11 @@ function clap(argv, offset) {
     process.env.FORCE_COLOR = "1";
   }
 
-  if (xclap.stopOnError === undefined || claps.parsed.source.soe !== "default") {
-    xclap.stopOnError = opts.soe;
+  if (runner.stopOnError === undefined || cmdArgs.parsed.source.soe !== "default") {
+    runner.stopOnError = opts.soe;
   }
 
-  let tasks = claps.tasks.map(x => {
+  let tasks = cmdArgs.tasks.map(x => {
     if (x.startsWith("/") && x.indexOf("/", 1) > 1) {
       return x.substr(1);
     }
@@ -128,7 +135,7 @@ function clap(argv, offset) {
     tasks = ["."].concat(tasks);
   }
 
-  return xclap.run(tasks.length === 1 ? tasks[0] : tasks);
+  return runner.run(tasks.length === 1 ? tasks[0] : tasks);
 }
 
-module.exports = clap;
+module.exports = xrun;

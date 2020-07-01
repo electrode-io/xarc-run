@@ -2,17 +2,19 @@
 
 const Path = require("path");
 const cliOptions = require("./cli-options");
-const NixClap = require("nix-clap");
+const NixC = require("nix-clap");
 const chalk = require("chalk");
 const xsh = require("xsh");
 const usage = require("./usage");
 const optionalRequire = require("optional-require")(require);
 const logger = require("../lib/logger");
-const xclapPkg = require("../package.json");
-const xclap = require("..");
-const loadClap = require("./load-clap");
+const myPkg = require("../package.json");
+const xrun = require("..");
+const searchUpTaskFile = require("./search-up-task-file");
 const npmLoader = require("./npm-loader");
 const ck = require("chalker");
+const requireAt = require("require-at");
+const config = require("./config");
 
 function exit(code) {
   process.exit(code);
@@ -36,43 +38,47 @@ function updateCwd(dir, opts) {
   }
 }
 
-function searchClap(search, opts) {
-  const clapDir = Path.join(opts.cwd, opts.dir || "");
+function searchTaskFile(search, opts) {
+  const xrunDir = Path.join(opts.cwd, opts.dir || "");
 
-  const loadResult = loadClap(clapDir, search);
+  const loadResult = searchUpTaskFile(xrunDir, search);
 
   if (!loadResult.found) {
-    const x = chalk.magenta(xsh.pathCwd.replace(clapDir));
-    logger.log(`No ${chalk.green("xclap.js")} found in ${x}`);
+    const x = chalk.magenta(xsh.pathCwd.replace(xrunDir));
+    logger.log(`No ${chalk.green(config.taskFile)} found in ${x}`);
   } else if (search) {
-    // force CWD to where clap file was found
+    // force CWD to where xrun task file was found
     updateCwd(loadResult.dir, opts);
   }
 
   return loadResult;
 }
 
-function loadClapFile(name) {
+function loadTaskFile(name) {
   if (Path.extname(name) === ".ts") {
     logger.log("loading ts-node/register");
-    require("ts-node/register");
+    optionalRequire("ts-node/register", {
+      fail: e => {
+        logger.log("Unable to load ts-node/register, TypeScript may not work.", e.message);
+      }
+    });
   }
 
   return optionalRequire(name, {
     fail: e => {
-      const errMsg = chalk.red(`Unable to load ${name}`);
-      logger.log(`${errMsg}: ${e.stack}`);
+      const errMsg = chalk.red(`Unable to load ${xsh.pathCwd.replace(name, ".")}`);
+      logger.log(`${errMsg}: ${xsh.pathCwd.replace(e.stack, ".", "g")}`);
     }
   });
 }
 
-function processTasks(tasks, loadMsg, ns = "clap") {
+function processTasks(tasks, loadMsg, ns = "xrun") {
   if (typeof tasks === "function") {
-    tasks(xclap);
+    tasks(xrun);
     logger.log(`Called export function from ${loadMsg}`);
   } else if (typeof tasks === "object") {
     if (Object.keys(tasks).length > 0) {
-      xclap.load(ns, tasks);
+      xrun.load(ns, tasks);
       logger.log(`Loaded tasks from ${loadMsg} into namespace ${chalk.magenta(ns)}`);
     } else {
       logger.log(`Loaded ${loadMsg}`);
@@ -83,42 +89,42 @@ function processTasks(tasks, loadMsg, ns = "clap") {
 }
 
 function loadTasks(opts, searchResult) {
-  if (!opts.require && !searchResult.clapFile) {
+  if (!opts.require && !searchResult.xrunFile) {
     logger.quiet(false);
-    logger.log(`No xclap.js found - xclap has nothing to do
-    Please create xclap.js - sample: https://www.npmjs.com/package/xclap#a-simple-example `);
+    logger.log(`No ${config.taskFile} found - ${myPkg.name} has nothing to do
+    Please create ${config.taskFile} - sample: https://www.npmjs.com/package/${myPkg.name}#a-simple-example `);
     exit(1);
   }
 
-  npmLoader(xclap, opts);
+  npmLoader(xrun, opts);
 
   if (opts.require) {
     opts.require.forEach(xmod => {
       let file;
       try {
-        file = require.resolve(xmod);
+        file = requireAt(process.cwd()).resolve(xmod);
       } catch (err) {
         logger.log(
           ck`<red>ERROR:</> <yellow>Unable to require module</> <cyan>'${xmod}'</> - <red>${err.message}</>`
         );
         return;
       }
-      const tasks = loadClapFile(file);
+      const tasks = loadTaskFile(file);
       if (tasks) {
         const loadMsg = chalk.green(xmod);
         processTasks(tasks, loadMsg);
       }
     });
   } else {
-    const tasks = searchResult.clapFile && loadClapFile(searchResult.clapFile);
+    const tasks = searchResult.xrunFile && loadTaskFile(searchResult.xrunFile);
     if (!tasks) return;
 
-    const loadMsg = chalk.green(`${xsh.pathCwd.replace(searchResult.clapFile)}`);
+    const loadMsg = chalk.green(`${xsh.pathCwd.replace(searchResult.xrunFile)}`);
     processTasks(tasks, loadMsg);
   }
 }
 
-function nixClap(argv, start) {
+function parseArgs(argv, start, clapMode = false) {
   function getOpt(name) {
     if (cliOptions.hasOwnProperty(name)) {
       return cliOptions[name];
@@ -185,9 +191,9 @@ function nixClap(argv, start) {
   const tasks = taskXt.tasks;
   if (taskArgs.length > 0) tasks.push(extractTask(taskXt.k, taskArgs.length));
 
-  const nc = new NixClap({
-    name: xclapPkg.name,
-    version: xclapPkg.version,
+  const nc = new NixC({
+    name: myPkg.name,
+    version: myPkg.version,
     usage,
     handlers: {
       "unknown-command": false,
@@ -205,11 +211,18 @@ function nixClap(argv, start) {
 
   const opts = parsed.opts;
 
-  const xclapLoc = xsh.pathCwd.replace(Path.dirname(__dirname), ".");
+  // xrun defaults npm option to true but
+  // old xclap defaults npm option to false
+  // so if user didn't supply the option, force it to false
+  if (clapMode && parsed.source.npm === "default") {
+    opts.npm = false;
+  }
 
-  logger.log(`${chalk.green("xclap")} version ${xclapPkg.version} at ${chalk.magenta(xclapLoc)}`);
+  const myDir = xsh.pathCwd.replace(Path.dirname(__dirname), ".");
+
+  logger.log(`${chalk.green(myPkg.name)} version ${myPkg.version} at ${chalk.magenta(myDir)}`);
   logger.log(
-    `${chalk.green("NodeJS")} version ${process.version} at ${chalk.magenta(process.execPath)}`
+    `${chalk.green("node.js")} version ${process.version} at ${chalk.magenta(process.execPath)}`
   );
 
   // don't search if user has explicitly set CWD
@@ -224,18 +237,20 @@ function nixClap(argv, start) {
   let searchResult = {};
 
   if (!opts.require) {
-    searchResult = searchClap(search, opts);
+    searchResult = searchTaskFile(search, opts);
   }
 
-  const Pkg = optionalRequire(Path.join(opts.cwd, "package.json"));
+  const Pkg = optionalRequire(Path.join(opts.cwd, "package.json"), { default: {} });
 
-  if (Pkg && Pkg.xclap) {
-    const pkgConfig = Object.assign({}, Pkg.xclap);
+  const pkgOptField = config.getPkgOpt(Pkg);
+
+  if (pkgOptField) {
+    const pkgConfig = Object.assign({}, Pkg[pkgOptField]);
     delete pkgConfig.cwd; // not allow pkg config to override cwd
     delete pkgConfig.tasks;
     nc.applyConfig(pkgConfig, parsed);
     const pkgName = chalk.magenta("CWD/package.json");
-    logger.log(`Applied ${chalk.green("xclap options")} from ${pkgName}`);
+    logger.log(`Applied ${chalk.green(pkgOptField)} options from ${pkgName}`);
   }
 
   loadTasks(opts, searchResult);
@@ -250,4 +265,4 @@ function nixClap(argv, start) {
   };
 }
 
-module.exports = nixClap;
+module.exports = parseArgs;

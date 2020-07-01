@@ -1,9 +1,9 @@
 "use strict";
 
-const xclap = require("..");
+const xrun = require("..");
 const print1 = require("./fixtures/print1");
 
-xclap.load(print1);
-xclap.load("ns1", print1);
+xrun.load(print1);
+xrun.load("ns1", print1);
 
-xclap.printTasks();
+xrun.printTasks();

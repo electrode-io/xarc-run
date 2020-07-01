@@ -1,6 +1,6 @@
 "use strict";
 
-const xclap = require("..");
+const xrun = require("..");
 
 // sample to test a function task that fails
 
@@ -24,9 +24,9 @@ const tasks = {
   },
   shFooX: {
     task: "~$blah",
-    finally: "~$echo err $XCLAP_ERR fail $XCLAP_FAILED"
+    finally: "~$echo err $XRUN_ERR fail $XRUN_FAILED"
   },
   fooConcurrent: [["fnFoo", "fnFail"]]
 };
 
-xclap.load(tasks).run("fooConcurrent");
+xrun.load(tasks).run("fooConcurrent");

@@ -1,7 +1,7 @@
 "use strict";
 
-const xclap = require("..");
+const xrun = require("..");
 const sample1 = require("./fixtures/sample1");
 
-xclap.load(sample1);
-xclap.run("foo2ba");
+xrun.load(sample1);
+xrun.run("foo2ba");

@@ -1,5 +1,6 @@
 "use strict";
-const xclap = require("../../");
+const xrun = require("../../");
+
 const tasks = {
   xfoo1: cb => {
     setTimeout(() => {
@@ -96,7 +97,7 @@ const tasks = {
     desc: "task as an array with dir",
     task: ["a", `~$test dir ${process.cwd()}/node_modules/test`]
   },
-  foo6: xclap.exec("echo xclap.exec task", "tty"),
+  foo6: xrun.exec("echo xrun.exec task", "tty"),
   noDesc: {
     task: "should not show this"
   },

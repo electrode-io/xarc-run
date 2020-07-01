@@ -1,18 +1,21 @@
 "use strict";
 
-const Path = require("path");
-const optionalRequire = require("optional-require")(require);
 const logger = require("../lib/logger");
 const chalk = require("chalk");
+const readPkgUp = require("read-pkg-up");
+const myPkg = require("../package.json");
+const config = require("./config");
 
-module.exports = (xclap, options) => {
-  const Pkg = optionalRequire(Path.join(options.cwd, "package.json"));
+module.exports = (xrun, options) => {
+  const readPkg = readPkgUp.sync();
 
-  if (!Pkg) {
+  if (!readPkg) {
     return;
   }
 
-  const pkgName = chalk.magenta("CWD/package.json");
+  const Pkg = readPkg.packageJson;
+
+  const pkgName = chalk.magenta(readPkg.path.replace(process.cwd(), "CWD"));
 
   if (Pkg.scripts && options.npm !== false) {
     const scripts = {};
@@ -20,24 +23,28 @@ module.exports = (xclap, options) => {
       if (!k.startsWith("pre") && !k.startsWith("post")) {
         const pre = `pre${k}`;
         const post = `post${k}`;
-        scripts[k] = xclap.serial(
+        scripts[k] = xrun.serial(
           Pkg.scripts.hasOwnProperty(pre) && pre,
-          xclap.exec(Pkg.scripts[k], "npm"),
+          xrun.exec(Pkg.scripts[k], "npm"),
           Pkg.scripts.hasOwnProperty(post) && post
         );
       } else {
-        scripts[k] = xclap.exec(Pkg.scripts[k], "npm");
+        scripts[k] = xrun.exec(Pkg.scripts[k], "npm");
       }
     }
-    xclap.load("npm", scripts);
+    xrun.load("npm", scripts);
     logger.log(`Loaded npm scripts from ${pkgName} into namespace ${chalk.magenta("npm")}`);
   }
 
-  if (Pkg.xclap) {
-    const tasks = Object.assign({}, Pkg.xclap.tasks);
+  const pkgConfig = config.getPkgOpt(Pkg);
+
+  if (pkgConfig) {
+    const tasks = Object.assign({}, pkgConfig.tasks);
     if (Object.keys(tasks).length > 0) {
-      xclap.load("pkg", tasks);
-      logger.log(`Loaded xclap tasks from ${pkgName} into namespace ${chalk.magenta("pkg")}`);
+      xrun.load("pkg", tasks);
+      logger.log(
+        `Loaded ${myPkg.name} tasks from ${pkgName} into namespace ${chalk.magenta("pkg")}`
+      );
     }
   }
 };

@@ -1,18 +1,20 @@
 "use strict";
 
-const xclap = require("..");
-const sample1 = require("./fixtures/sample1");
+const xrun = require("..");
 
-xclap.load({
+xrun.load({
   foo2: {
     dep: "echo foo2-dep",
     task: ["foo3"]
   },
-  foo3: ["~$echo hello", function () {
-    this.run([".", "foo4", () => console.log("blah")], (err, value) => {
-      console.log("blah blah");
-    })
-  }],
+  foo3: [
+    "~$echo hello",
+    function() {
+      this.run([".", "foo4", () => console.log("blah")], (err, value) => {
+        console.log("blah blah");
+      });
+    }
+  ],
   foo4: "echo foo4"
 });
-xclap.run("foo2");
+xrun.run("foo2");

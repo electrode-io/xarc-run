@@ -1,6 +1,6 @@
 "use strict";
 
-const XClap = require("../../lib/xclap");
+const XRun = require("../../lib/xrun");
 const sample1 = require("../fixtures/sample1");
 const expect = require("chai").expect;
 const xstdout = require("xstdout");
@@ -51,8 +51,8 @@ describe("sample1", function() {
       "test anon shell",
       "this is foo3Dep"
     ];
-    const xclap = new XClap(sample1);
-    xclap.run("foo2", err => {
+    const xrun = new XRun(sample1);
+    xrun.run("foo2", err => {
       intercept.restore();
       if (err) {
         return done(err);
@@ -85,14 +85,14 @@ describe("sample1", function() {
       "test anon shell",
       "this is foo3Dep"
     ];
-    const xclap = new XClap(sample1);
-    xclap.run("foo2ba", err => {
+    const xrun = new XRun(sample1);
+    xrun.run("foo2ba", err => {
       intercept.restore();
       expect(err).to.exist;
       const output = intercept.stdout.sort().map(x => x.trim());
       expect(output).to.deep.equal(expectOutput.sort());
       intercept = xstdout.intercept(true);
-      xclap.waitAllPending(() => {
+      xrun.waitAllPending(() => {
         intercept.restore();
         done();
       });
@@ -101,9 +101,9 @@ describe("sample1", function() {
 
   it("should run sample1:foo2b tasks with stopOnError false", done => {
     let intercept = xstdout.intercept(true);
-    const xclap = new XClap(sample1);
-    xclap.stopOnError = false;
-    xclap.run("foo2ba", err => {
+    const xrun = new XRun(sample1);
+    xrun.stopOnError = false;
+    xrun.run("foo2ba", err => {
       intercept.restore();
       expect(err).to.exist;
       expect(err.more).to.exist;
@@ -111,7 +111,7 @@ describe("sample1", function() {
       expect(err.message).to.equal("xerr");
       expect(err.more[0].message).to.equal("xerr");
       intercept = xstdout.intercept(true);
-      xclap.waitAllPending(err => {
+      xrun.waitAllPending(err => {
         intercept.restore();
         done(err);
       });

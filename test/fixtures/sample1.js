@@ -1,8 +1,8 @@
 "use strict";
 
-const xclap = require("../..");
+const xrun = require("../..");
 
-const { exec, env, serial, concurrent } = xclap;
+const { exec, env, serial, concurrent } = xrun;
 
 const tasks = {
   xfoo1: cb => {
@@ -105,10 +105,10 @@ const tasks = {
     finally: () => console.log("foo4 finally")
   },
   foo5a: concurrent("~$echo foo5a 1", exec("echo foo5a 2", { execOptions: { env: { a: "b" } } })),
-  foo6: [env({ FOO: "bar" }), xclap.exec("echo foo6 $FOO")],
+  foo6: [env({ FOO: "bar" }), xrun.exec("echo foo6 $FOO")],
   foo7: {
     desc: "foo7",
-    task: xclap.env({ FOO: "bar" })
+    task: xrun.env({ FOO: "bar" })
   }
 };
 

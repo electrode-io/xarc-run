@@ -1,30 +1,40 @@
 # Detail Reference
 
-- [Creating Tasks](#creating-tasks)
-- [Loading Task](#loading-task)
-- [Task Definition](#task-definition)
-  - [Direct Action Task](#direct-action-task)
-  - [A Task Object](#a-task-object)
-  - [String](#string)
-    - [String Array](#string-array)
-  - [Array](#array)
-    - [Anonymous String Shell Command](#anonymous-string-shell-command)
-      - [Shell Task Flags](#shell-task-flags)
-  - [Function](#function)
-  - [Task Spec](#task-spec)
-  - [Object](#object)
-    - [finally hook](#finally-hook)
-- [Array serial/concurrent rules](#array-serialconcurrent-rules)
-  - [Serially](#serially)
-    - [Using serial API](#using-serial-api)
-    - [top level](#top-level)
-    - [First element dot](#first-element-dot)
-    - [Concurrently](#concurrently)
-  - [Namespace](#namespace)
-    - [Auto Complete with namespace](#auto-complete-with-namespace)
-- [Execution Context](#execution-context)
-  - [Task Options](#task-options)
-    - [Inline Task Options](#inline-task-options)
+- [Detail Reference](#detail-reference)
+  - [Creating Tasks](#creating-tasks)
+  - [Loading Task](#loading-task)
+  - [Task Definition](#task-definition)
+    - [Direct Action Task](#direct-action-task)
+    - [A Task Object](#a-task-object)
+    - [String](#string)
+      - [String Array](#string-array)
+    - [Array](#array)
+      - [Anonymous String Shell Command](#anonymous-string-shell-command)
+        - [Shell Task Flags](#shell-task-flags)
+    - [Function](#function)
+    - [Task Spec](#task-spec)
+    - [Object](#object)
+      - [finally hook](#finally-hook)
+  - [Array serial/concurrent rules](#array-serialconcurrent-rules)
+    - [Serially](#serially)
+      - [Using serial API](#using-serial-api)
+      - [top level](#top-level)
+      - [First element dot](#first-element-dot)
+      - [Concurrently](#concurrently)
+    - [Namespace](#namespace)
+      - [Auto Complete with namespace](#auto-complete-with-namespace)
+  - [Execution Context](#execution-context)
+    - [Task Options](#task-options)
+      - [Inline Task Options](#inline-task-options)
+- [APIs](#apis)
+  - [`stopOnError`](#stoponerror)
+  - [`load([namespace], tasks)`](#loadnamespace-tasks)
+  - [`run(name, [done])`](#runname-done)
+  - [`waitAllPending(done)`](#waitallpendingdone)
+  - [`env(spec)`](#envspec)
+  - [`concurrent([tasks]|task1, task2, taskN)`](#concurrenttaskstask1-task2-taskn)
+  - [`serial([tasks]|task1, task2, taskN)`](#serialtaskstask1-task2-taskn)
+  - [`exec(spec)`](#execspec)
 
 * [APIs](#apis)
   - [`stopOnError`](#stoponerror)
@@ -58,13 +68,13 @@ const tasks = {
 
 ## Loading Task
 
-Tasks can be loaded with `xclap.load`. You can specify a namespace for the tasks.
+Tasks can be loaded with `xrun.load`. You can specify a namespace for the tasks.
 
 ```js
-const xclap = require("xclap");
-xclap.load(tasks);
+const xrun = require("@xarc/run");
+xrun.load(tasks);
 // or load into a namespace
-xclap.load("myapp", tasks);
+xrun.load("myapp", tasks);
 ```
 
 ## Task Definition
@@ -95,12 +105,12 @@ To allow decorating a task with more information such as name and description, t
 }
 ```
 
-`clap foo` will cause the shell command `echo hello` to be spawned.
+`xrun foo` will cause the shell command `echo hello` to be spawned.
 
 This two environment variables are defined, mainly for the [`finally`](#finally-hook) hook.
 
-- `XCLAP_ERR` - If task failed, this would contain the error message.
-- `XCLAP_FAILED` - If any task failed, this would be `true`.
+- `xrun_ERR` - If task failed, this would contain the error message.
+- `xrun_FAILED` - If any task failed, this would be `true`.
 
 #### String Array
 
@@ -132,7 +142,7 @@ The [array serial/concurrent rules](#array-serialconcurrent-rules) will be appli
 }
 ```
 
-`clap foo` will cause the three tasks `foo1`, `foo2`, `foo3` to be executed **_serially_**.
+`xrun foo` will cause the three tasks `foo1`, `foo2`, `foo3` to be executed **_serially_**.
 
 #### Anonymous String Shell Command
 
@@ -176,21 +186,21 @@ These are supported flags:
 }
 ```
 
-`clap foo` will cause the function to be called.
+`xrun foo` will cause the function to be called.
 
-The `this` context for the function will the clap [Execution Context](#execution-context). If you don't want to use `this`, then you can use fat arrow function for your task.
+The `this` context for the function will the xrun [Execution Context](#execution-context). If you don't want to use `this`, then you can use fat arrow function for your task.
 
 The function can return:
 
-- `Promise` - `clap` will await for the promise.
-- [node.js stream] - `clap` will wait for the stream to end.
-- `array` - `clap` will treat the array as a list of tasks to be executed
+- `Promise` - `xrun` will await for the promise.
+- [node.js stream] - `xrun` will wait for the stream to end.
+- `array` - `xrun` will treat the array as a list of tasks to be executed
   - The [array serial/concurrent rules](#array-serialconcurrent-rules) applied to the array.
   - The [anonymous shell command](#task-name-as-anonymous-shell-command) rule applied to each string element.
-- `string` - `clap` will treat the string as a task name or an [anonymous shell command to executed](#task-name-as-anonymous-shell-command).
-- `function` - `clap` will call the function as another task function.
+- `string` - `xrun` will treat the string as a task name or an [anonymous shell command to executed](#task-name-as-anonymous-shell-command).
+- `function` - `xrun` will call the function as another task function.
 - `stream` - [TBD]
-- `undefined` or anything else - `clap` will wait for the `callback` to be called.
+- `undefined` or anything else - `xrun` will wait for the `callback` to be called.
 
 ### Task Spec
 
@@ -203,14 +213,14 @@ This is a more systematic approach to declare an [anonymous string shell command
 A task spec shell command can be declared as the task or a task in the array:
 
 ```js
-const xclap = require("xclap");
+const xrun = require("@xarc/run");
 
 const tasks = {
-  hello: xclap.exec("echo hello"),
-  foo: [xclap.exec("echo foo"), xclap.exec("echo bar")]
+  hello: xrun.exec("echo hello"),
+  foo: [xrun.exec("echo foo"), xrun.exec("echo bar")]
 };
 
-xclap.load(tasks);
+xrun.load(tasks);
 ```
 
 ### Object
@@ -243,7 +253,7 @@ When defining task as an object, you can have a `finally` property that defines 
 
 Note that the finally hook is processed the same way as a task. Other tasks that are referenced by the `finally` hook will not have their `finally` hook invoked.
 
-If you set `stopOnError` to `full`, then be careful if you have concurrent running tasks, because `full` stop immediately abandon all pending async sub tasks, but since xclap can't reliably cancel them, they could be continuing to run, and therefore could cause concurrent conflict with your finally hook.
+If you set `stopOnError` to `full`, then be careful if you have concurrent running tasks, because `full` stop immediately abandon all pending async sub tasks, but since xrun can't reliably cancel them, they could be continuing to run, and therefore could cause concurrent conflict with your finally hook.
 
 If you have async task, it's best you set [`stopOnError`](#stoponerror) to `soft`.
 
@@ -268,13 +278,13 @@ Each task in the array is executed serially if one of the following is true:
 Create an array of serial tasks within another concurrent array:
 
 ```js
-const xclap = require("xclap");
+const xrun = require("@xarc/run");
 
 const tasks = {
-  foo: xclap.concurrent("a", xclap.serial("foo1", "foo2", "foo3"))
+  foo: xrun.concurrent("a", xrun.serial("foo1", "foo2", "foo3"))
 };
 
-xclap.load(tasks);
+xrun.load(tasks);
 ```
 
 #### top level
@@ -286,7 +296,7 @@ const tasks = {
   foo: ["foo1", "foo2", "foo3"];
 };
 
-xclap.load(tasks);
+xrun.load(tasks);
 ```
 
 #### First element dot
@@ -308,16 +318,16 @@ By default, an ordinary array of tasks is executed concurrently, except when it'
 If you need to have an array of tasks at the top level to execute concurrently, use the [concurrent API](concurrenttaskstask1-task2-taskn) to create it.
 
 ```js
-const xclap = require("xclap");
+const xrun = require("@xarc/run");
 
 const tasks = {
-  foo: xclap.concurrent("foo1", "foo2", "foo3");
+  foo: xrun.concurrent("foo1", "foo2", "foo3");
 };
 
-xclap.load(tasks);
+xrun.load(tasks);
 ```
 
-> `clap foo` will execute tasks `foo1`, `foo2`, and `foo3` **_concurrently_**.
+> `xrun foo` will execute tasks `foo1`, `foo2`, and `foo3` **_concurrently_**.
 
 ### Namespace
 
@@ -326,7 +336,7 @@ A group of tasks can be assigned a namespace and allows you to have tasks with t
 For example:
 
 ```js
-xclap.load([namepsace], tasks);
+xrun.load([namepsace], tasks);
 ```
 
 You refer to the namespaces with `/`, ie: `ns/foo`.
@@ -339,19 +349,19 @@ If you run a task without specifying the namespace, then it's searched through a
 
 #### Auto Complete with namespace
 
-To assist auto completion when using [xclap-cli], you may specify all namespaces with a leading `/` when invoking from the command line. It will be stripped before xclap run them.
+To assist auto completion when using [@xarc/run-cli], you may specify all namespaces with a leading `/` when invoking from the command line. It will be stripped before xrun run them.
 
 ie:
 
 ```bash
-$ clap /foo/bar
+$ xrun /foo/bar
 ```
 
 That way, you can press `tab` after the first `/` to get auto completion with namespaces.
 
 ## Execution Context
 
-A continuous execution context is maintained from the top whenever you invoke a task with `clap <name>`.
+A continuous execution context is maintained from the top whenever you invoke a task with `xrun <name>`.
 
 The execution context is passed to any task function as `this`. It has the following properties:
 
@@ -368,7 +378,7 @@ You can run more tasks under the same context with `this.run`
 
 - execute tasks serially.
 
-  - `this.run(xclap.serial("name1", "name2", "name3"))`
+  - `this.run(xrun.serial("name1", "name2", "name3"))`
   - `this.run([ ".", "name1", "name2", "name3"])`
 
 - execute tasks concurrently
@@ -392,10 +402,10 @@ The execution context also has `argv` which is an array of the task options. The
 
 Examples:
 
-- `xclap foo` - argv: `["foo"]`
-- `xclap foo --bar` - argv: `["foo", "--bar"]`
-- `xclap ?foo --bar --woo` - argv: `["?foo", "--bar", "--woo"]`
-- `xclap ?ns/foo --bar` - argv: `["?ns/foo", "--bar"]`
+- `xrun foo` - argv: `["foo"]`
+- `xrun foo --bar` - argv: `["foo", "--bar"]`
+- `xrun ?foo --bar --woo` - argv: `["?foo", "--bar", "--woo"]`
+- `xrun ?ns/foo --bar` - argv: `["?ns/foo", "--bar"]`
 
 The argv is only applicable if the task is a JavaScript `function`.
 
@@ -435,11 +445,11 @@ const tasks = {
 
 # APIs
 
-`xclap` supports the following methods:
+`xrun` supports the following methods:
 
 ## `stopOnError`
 
-Configure `xclap`'s behavior if any task execution failed.
+Configure `xrun`'s behavior if any task execution failed.
 
 Accepted values are:
 
@@ -447,14 +457,14 @@ Accepted values are:
 - `"soft"` - Allow existing async tasks to run to completion and invoke `finally` hooks, but no new tasks will be executed.
 - `true`, `"full"` - Stop and exit immediately, don't wait for any pending async tasks, `finally` hooks invocation is unreliable.
 
-> XClap defaults this to `"full"`
+> xrun defaults this to `"full"`
 
 Example:
 
 ```js
-const xclap = require("xclap");
+const xrun = require("@xarc/run");
 
-xclap.stopOnError = "full";
+xrun.stopOnError = "full";
 ```
 
 > Note: If user specify this in CLI with option `--soe=<value>` then that will always be used.
@@ -486,7 +496,7 @@ Example:
 
 ```js
 {
-  someTask: [xclap.env({ FOO: "bar" }), xclap.exec("echo $FOO")];
+  someTask: [xrun.env({ FOO: "bar" }), xrun.exec("echo $FOO")];
 }
 ```
 
@@ -494,11 +504,11 @@ Example:
 
 ```js
 {
-  someTask: [() => Object.assign(process.env, { FOO: "bar" }), xclap.exec("echo $FOO")];
+  someTask: [() => Object.assign(process.env, { FOO: "bar" }), xrun.exec("echo $FOO")];
 }
 ```
 
-> However, using `xclap.env` will log out the env variables and values nicely.
+> However, using `xrun.env` will log out the env variables and values nicely.
 
 ## `concurrent([tasks]|task1, task2, taskN)`
 
@@ -529,7 +539,7 @@ Create a shell command task spec with _optional_ [`flags`](#shell-task-flags) or
     - **string** - ie: `"tty,sync"`
     - **array** - ie: `["tty", "sync"]`
   - `execOptions` - options to pass to [child_process.spawn] or [child_process.exec]
-  - `xclap` - Object as options for xclap execution
+  - `xrun` - Object as options for xrun execution
     - `delayRunMs` - milliseconds to wait before actually running the command
   - `env` - Object of environment flags to set. It is actually `Object.assign`ed into `execOptions.env`.
 
@@ -538,22 +548,22 @@ Create a shell command task spec with _optional_ [`flags`](#shell-task-flags) or
 Where:
 
 - `flags` - string or array as [Shell Task Flags](#shell-task-flags)
-- `options` - Object to specify: `{ flags, execOptions, xclap, env }`
+- `options` - Object to specify: `{ flags, execOptions, xrun, env }`
 
 Examples:
 
 ```js
-const xclap = require("xclap");
+const xrun = require("@xarc/run");
 
 const tasks = {
-  cmd1: xclap.exec("echo hello", "tty"),
+  cmd1: xrun.exec("echo hello", "tty"),
   cmd2: [
     // run `echo foo` with env FOO=bar
-    xclap.exec("echo foo", { env: { FOO: "bar" } }),
+    xrun.exec("echo foo", { env: { FOO: "bar" } }),
     // run `echo hello world` with tty enabled
-    xclap.exec(["echo", "hello", "world"], "tty"),
+    xrun.exec(["echo", "hello", "world"], "tty"),
     // with a single spec object
-    xclap.exec({
+    xrun.exec({
       cmd: ["echo", "hello", "world"],
       flags: "tty",
       env: { FOO: "bar" }
@@ -561,11 +571,11 @@ const tasks = {
   ]
 };
 
-xclap.load(tasks);
+xrun.load(tasks);
 ```
 
 [npm scripts]: https://docs.npmjs.com/misc/scripts
-[xclap-cli]: https://github.com/jchip/xclap-cli
+[@xarc/run-cli]: https://github.com/jchip/@xarc/run-cli
 [bash]: https://www.gnu.org/software/bash/
 [zsh]: http://www.zsh.org/
 [child_process.spawn]: https://nodejs.org/api/child_process.html#child_process_child_process_spawn_command_args_options

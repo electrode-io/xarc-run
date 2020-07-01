@@ -1,5 +1,5 @@
 "use strict";
-const xclap = require(".");
+const xrun = require(".");
 
 const xsh = require("xsh");
 
@@ -99,33 +99,33 @@ const tasks = {
     }
   },
 
-  foo5a: xclap.exec(["env | grep foo"], {}, { env: { foo: "bar" } }),
-  foo5b: [xclap.exec(`echo abc "${process.cwd()}/blah"`), xclap.exec("echo 123", { tty: true })],
+  foo5a: xrun.exec(["env | grep foo"], {}, { env: { foo: "bar" } }),
+  foo5b: [xrun.exec(`echo abc "${process.cwd()}/blah"`), xrun.exec("echo 123", { tty: true })],
   foo5c: `~(noenv)$env`,
-  foo5d: xclap.exec("env", { noenv: true }),
+  foo5d: xrun.exec("env", { noenv: true }),
   foo4: function() {
     console.log("foo4 task argv", this.argv);
   },
-  foo6: xclap.concurrent(["foo", "bar"]),
-  foo7: xclap.serial(["foo", "bar"]),
+  foo6: xrun.concurrent(["foo", "bar"]),
+  foo7: xrun.serial(["foo", "bar"]),
   tty: `~(tty)$node -e "console.log('blah', process.stdout.isTTY, process.env.TERM); process.exit(0);"`,
 
-  ".stop": () => xclap.stop(),
-  ".test-stop": xclap.concurrent(
-    xclap.serial("~$echo abc", ".exec", "~$echo BAD IF YOU SEE THIS"),
-    xclap.serial("~$sleep 1;", ".stop", "~$echo BAD IF YOU SEE THIS ALSO")
+  ".stop": () => xrun.stop(),
+  ".test-stop": xrun.concurrent(
+    xrun.serial("~$echo abc", ".exec", "~$echo BAD IF YOU SEE THIS"),
+    xrun.serial("~$sleep 1;", ".stop", "~$echo BAD IF YOU SEE THIS ALSO")
   ),
   ".exec": () => xsh.exec(`node -`),
   // a failure from a task should cause child process to be removed
   // without the stop
   ".stop-with-failure": {
-    task: xclap.concurrent(
-      xclap.serial(
+    task: xrun.concurrent(
+      xrun.serial(
         "~$echo abc",
         `~$node -e "setInterval(() => console.log('hello', Date.now()), 1000)"`,
         "~$echo BAD IF YOU SEE THIS"
       ),
-      xclap.serial(
+      xrun.serial(
         "~$sleep 5",
         "~$echo hello",
         () => process.exit() // doing this cause node process to stay
@@ -155,9 +155,9 @@ const tasks = {
   }
 };
 
-xclap.load("1", tasks);
+xrun.load("1", tasks);
 
-xclap.load({
+xrun.load({
   hello: "echo hello world"
 });
 

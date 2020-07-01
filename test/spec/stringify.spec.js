@@ -2,7 +2,7 @@
 
 const stringify = require("../../lib/stringify");
 const expect = require("chai").expect;
-const xclap = require("../..");
+const xrun = require("../..");
 
 describe("stringify", function() {
   it("should stringify an array", () => {
@@ -14,7 +14,7 @@ describe("stringify", function() {
   it("should stringify XTaskSpec", () => {
     expect(
       stringify({
-        x: xclap.exec("hello", "tty")
+        x: xrun.exec("hello", "tty")
       })
     ).to.equal(`{"x":"exec(tty) 'hello'"}`);
   });

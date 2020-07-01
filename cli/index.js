@@ -1,2 +1,2 @@
 "use strict";
-module.exports = require("./clap");
+module.exports = require("./xrun");

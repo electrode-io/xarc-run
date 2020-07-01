@@ -1,7 +1,7 @@
 "use strict";
 
-const gxclap = require("../..");
-const XClap = require("../../lib/xclap");
+const gxrun = require("../..");
+const XRun = require("../../lib/xrun");
 const expect = require("chai").expect;
 const xstdout = require("xstdout");
 const chalk = require("chalk");
@@ -20,27 +20,27 @@ const {
 const xsh = require("xsh");
 const xaa = require("xaa");
 
-describe("xclap", function() {
+describe("xrun", function() {
   this.timeout(10000);
 
   it("should lookup and exe a task as a function once", () => {
     let foo = 0;
-    const xclap = new XClap({
+    const xrun = new XRun({
       foo: () => foo++
     });
     const exeEvents = ["lookup", "function"];
 
-    xclap.on("execute", data => {
+    xrun.on("execute", data => {
       expect(data.type).to.equal(exeEvents[0]);
       expect(data.qItem.name).to.equal("foo");
       exeEvents.shift();
     });
 
     let doneItem = 0;
-    xclap.on("done-item", () => doneItem++);
+    xrun.on("done-item", () => doneItem++);
 
     return asyncVerify(
-      next => xclap.run("foo", next),
+      next => xrun.run("foo", next),
       () => {
         expect(doneItem).to.equal(1);
         expect(foo).to.equal(1);
@@ -49,9 +49,8 @@ describe("xclap", function() {
   });
 
   it("should lookup and call task function with 2 params with context and callback", () => {
-    let foo = 0;
     let context;
-    const xclap = new XClap({
+    const xrun = new XRun({
       foo(ctx, done) {
         context = ctx;
         done();
@@ -60,7 +59,7 @@ describe("xclap", function() {
 
     return asyncVerify(
       runTimeout(500),
-      next => xclap.run("foo -a=50 --bar=60", next),
+      () => xrun.asyncRun("foo -a=50 --bar=60"),
       () => {
         expect(context).to.be.an("object");
         expect(context.argOpts).to.deep.equal({ a: "50", bar: "60" });
@@ -70,7 +69,7 @@ describe("xclap", function() {
 
   it("should fail on unknown options if allowUnknownOptions is false", () => {
     let context;
-    const xclap = new XClap({
+    const xrun = new XRun({
       foo: {
         allowUnknownOptions: false,
         task(ctx) {
@@ -81,7 +80,7 @@ describe("xclap", function() {
 
     return asyncVerify(
       runTimeout(500),
-      expectError(next => xclap.run("foo -a=50 --bar=60", next)),
+      expectError(() => xrun.asyncRun("foo -a=50 --bar=60")),
       error => {
         expect(error.message).equal("Unknown options for task foo: a, bar");
       }
@@ -91,7 +90,7 @@ describe("xclap", function() {
   it("should pass context to function that take a single param named ctx/context", () => {
     let receivedContext;
     let receivedCtx;
-    const xclap = new XClap({
+    const xrun = new XRun({
       foo: {
         task(context) {
           receivedContext = context;
@@ -105,13 +104,13 @@ describe("xclap", function() {
     });
 
     return asyncVerify(
-      next => xclap.run("foo -a=50 --bar=60 ", next),
+      next => xrun.run("foo -a=50 --bar=60 ", next),
       () => {
         expect(receivedContext).to.be.an("object");
         expect(receivedContext.argOpts.a).equal("50");
         expect(receivedContext.argOpts.bar).equal("60");
       },
-      next => xclap.run("blah -x=500 --abc=100", next),
+      next => xrun.run("blah -x=500 --abc=100", next),
       () => {
         expect(receivedCtx).to.be.an("object");
         expect(receivedCtx.argOpts.x).equal("500");
@@ -122,21 +121,21 @@ describe("xclap", function() {
 
   it("should exe task name return by function", done => {
     let foo = 0;
-    const xclap = new XClap({
+    const xrun = new XRun({
       foo: () => "foo2",
       foo2: () => foo++
     });
     const exeEvents = ["lookup", "function", "lookup", "function"];
 
-    xclap.on("execute", data => {
+    xrun.on("execute", data => {
       expect(data.type).to.equal(exeEvents[0]);
       exeEvents.shift();
     });
 
     let doneItem = 0;
-    xclap.on("done-item", () => doneItem++);
+    xrun.on("done-item", () => doneItem++);
 
-    xclap.run("foo", err => {
+    xrun.run("foo", err => {
       if (err) {
         return done(err);
       }
@@ -149,7 +148,7 @@ describe("xclap", function() {
   it("should exe task array return by function", done => {
     let foo2 = 0,
       foo3 = 0;
-    const xclap = new XClap({
+    const xrun = new XRun({
       foo: () => ["foo2", "foo3"],
       foo2: () => foo2++,
       foo3: () => foo3++
@@ -164,15 +163,15 @@ describe("xclap", function() {
       "function"
     ];
 
-    xclap.on("execute", data => {
+    xrun.on("execute", data => {
       expect(data.type).to.equal(exeEvents[0]);
       exeEvents.shift();
     });
 
     let doneItem = 0;
-    xclap.on("done-item", () => doneItem++);
+    xrun.on("done-item", () => doneItem++);
 
-    xclap.run("foo", err => {
+    xrun.run("foo", err => {
       if (err) {
         return done(err);
       }
@@ -185,21 +184,21 @@ describe("xclap", function() {
 
   it("should exe function return by function", () => {
     let foo = 0;
-    const xclap = new XClap({
+    const xrun = new XRun({
       foo: () => () => foo++
     });
     const exeEvents = ["lookup", "function", "function"];
 
-    xclap.on("execute", data => {
+    xrun.on("execute", data => {
       expect(data.type).to.equal(exeEvents[0]);
       exeEvents.shift();
     });
 
     let doneItem = 0;
-    xclap.on("done-item", () => doneItem++);
+    xrun.on("done-item", () => doneItem++);
 
     return asyncVerify(
-      next => xclap.run("foo", next),
+      next => xrun.run("foo", next),
       () => {
         expect(doneItem).to.equal(2);
         expect(foo).to.equal(1);
@@ -208,7 +207,7 @@ describe("xclap", function() {
   });
 
   it("should pass task options as argv", () => {
-    const xclap = new XClap({
+    const xrun = new XRun({
       foo: function() {
         expect(this.argv).to.deep.equal(["foo"]);
       },
@@ -220,12 +219,12 @@ describe("xclap", function() {
       }
     });
 
-    return asyncVerify(next => xclap.run(["foo", "foo1 --test", "foo2 --a --b"], next));
+    return asyncVerify(next => xrun.run(["foo", "foo1 --test", "foo2 --a --b"], next));
   });
 
   it("should execute a dep string as shell directly", () => {
     let foo = 0;
-    const xclap = new XClap({
+    const xrun = new XRun({
       foo: {
         dep: "set a=0",
         task: () => foo++
@@ -233,16 +232,16 @@ describe("xclap", function() {
     });
     const exeEvents = ["lookup", "shell", "function"];
 
-    xclap.on("execute", data => {
+    xrun.on("execute", data => {
       expect(data.type).to.equal(exeEvents[0]);
       exeEvents.shift();
     });
 
     let doneItem = 0;
-    xclap.on("done-item", data => doneItem++);
+    xrun.on("done-item", data => doneItem++);
 
     return asyncVerify(
-      next => xclap.run("foo", next),
+      next => xrun.run("foo", next),
       () => {
         expect(doneItem).to.equal(2);
         expect(foo).to.equal(1);
@@ -252,7 +251,7 @@ describe("xclap", function() {
 
   it("should handle error from dep shell", () => {
     let foo = 0;
-    const xclap = new XClap({
+    const xrun = new XRun({
       foo: {
         dep: "exit 1",
         task: () => foo++
@@ -260,15 +259,15 @@ describe("xclap", function() {
     });
     const exeEvents = ["lookup", "shell", "function"];
 
-    xclap.on("execute", data => {
+    xrun.on("execute", data => {
       expect(data.type).to.equal(exeEvents[0]);
       exeEvents.shift();
     });
 
     let doneItem = 0;
-    xclap.on("done-item", data => doneItem++);
+    xrun.on("done-item", data => doneItem++);
 
-    return asyncVerify(expectError(next => xclap.run("foo", next)), err => {
+    return asyncVerify(expectError(next => xrun.run("foo", next)), err => {
       expect(err.message).to.equal("shell cmd 'exit 1' exit code 1");
       expect(doneItem).to.equal(1);
       expect(foo).to.equal(0);
@@ -276,21 +275,21 @@ describe("xclap", function() {
   });
 
   it("should execute shell with tty", () => {
-    const xclap = new XClap({
+    const xrun = new XRun({
       foo: `~(tty)$node -e "process.exit(process.stdout.isTTY ? 0 : 1)"`
     });
     const exeEvents = ["lookup", "shell"];
 
-    xclap.on("execute", data => {
+    xrun.on("execute", data => {
       expect(data.type).to.equal(exeEvents[0]);
       exeEvents.shift();
     });
 
     let doneItem = 0;
-    xclap.on("done-item", data => doneItem++);
+    xrun.on("done-item", data => doneItem++);
 
     return asyncVerify(
-      next => xclap.run("foo", next),
+      next => xrun.run("foo", next),
       () => {
         expect(doneItem).to.equal(1);
       }
@@ -298,21 +297,21 @@ describe("xclap", function() {
   });
 
   const execXTaskSpec = flags => {
-    const xclap = new XClap({
-      foo: gxclap.exec(`node -e "process.exit(process.stdout.isTTY ? 0 : 1)"`, { flags })
+    const xrun = new XRun({
+      foo: gxrun.exec(`node -e "process.exit(process.stdout.isTTY ? 0 : 1)"`, { flags })
     });
     const exeEvents = ["lookup", "shell"];
 
-    xclap.on("execute", data => {
+    xrun.on("execute", data => {
       expect(data.type).to.equal(exeEvents[0]);
       exeEvents.shift();
     });
 
     let doneItem = 0;
-    xclap.on("done-item", data => doneItem++);
+    xrun.on("done-item", data => doneItem++);
 
     return asyncVerify(
-      next => xclap.run("foo", next),
+      next => xrun.run("foo", next),
       () => {
         expect(doneItem).to.equal(1);
       }
@@ -336,21 +335,21 @@ describe("xclap", function() {
   });
 
   it("should execute anonymous XTaskSpec shell task", () => {
-    const xclap = new XClap({
-      foo: [gxclap.exec(`node -e "process.exit(process.stdout.isTTY ? 0 : 1)"`, "tty")]
+    const xrun = new XRun({
+      foo: [gxrun.exec(`node -e "process.exit(process.stdout.isTTY ? 0 : 1)"`, "tty")]
     });
     const exeEvents = ["lookup", "serial-arr", "shell"];
 
-    xclap.on("execute", data => {
+    xrun.on("execute", data => {
       expect(data.type).to.equal(exeEvents[0]);
       exeEvents.shift();
     });
 
     let doneItem = 0;
-    xclap.on("done-item", data => doneItem++);
+    xrun.on("done-item", data => doneItem++);
 
     return asyncVerify(
-      next => xclap.run("foo", next),
+      next => xrun.run("foo", next),
       () => {
         expect(doneItem).to.equal(2);
       }
@@ -358,21 +357,21 @@ describe("xclap", function() {
   });
 
   it("should execute shell with spawn sync", () => {
-    const xclap = new XClap({
+    const xrun = new XRun({
       foo: `~(spawn,sync)$echo hello`
     });
     const exeEvents = ["lookup", "shell"];
 
-    xclap.on("execute", data => {
+    xrun.on("execute", data => {
       expect(data.type).to.equal(exeEvents[0]);
       exeEvents.shift();
     });
 
     let doneItem = 0;
-    xclap.on("done-item", data => doneItem++);
+    xrun.on("done-item", data => doneItem++);
 
     return asyncVerify(
-      next => xclap.run("foo", next),
+      next => xrun.run("foo", next),
       () => {
         expect(doneItem).to.equal(1);
       }
@@ -381,21 +380,21 @@ describe("xclap", function() {
 
   it("should execute shell with spawn sync noenv", () => {
     process.env.FOO_NOENV = 1;
-    const xclap = new XClap({
+    const xrun = new XRun({
       foo: `~(spawn,sync,noenv)$exit $FOO_NOENV`
     });
     const exeEvents = ["lookup", "shell"];
 
-    xclap.on("execute", data => {
+    xrun.on("execute", data => {
       expect(data.type).to.equal(exeEvents[0]);
       exeEvents.shift();
     });
 
     let doneItem = 0;
-    xclap.on("done-item", data => doneItem++);
+    xrun.on("done-item", data => doneItem++);
 
     return asyncVerify(
-      next => xclap.run("foo", next),
+      next => xrun.run("foo", next),
       () => {
         expect(doneItem).to.equal(1);
       }
@@ -406,14 +405,14 @@ describe("xclap", function() {
     const key = `TEST_${Date.now()}`;
     delete process.env[key];
     process.env[key] = "TEST123";
-    const xclap = new XClap({});
+    const xrun = new XRun({});
 
-    xclap.load({
-      foo: xclap.env({ [key]: "blah" }, { override: false })
+    xrun.load({
+      foo: xrun.env({ [key]: "blah" }, { override: false })
     });
 
     return asyncVerify(
-      next => xclap.run("foo", next),
+      next => xrun.run("foo", next),
       () => {
         expect(process.env[key]).to.equal("TEST123");
         delete process.env[key];
@@ -424,90 +423,90 @@ describe("xclap", function() {
   it("updateEnv should set env", () => {
     const key = `TEST_${Date.now()}`;
     delete process.env[key];
-    const xclap = new XClap({});
-    xclap.updateEnv({ [key]: "hello" });
+    const xrun = new XRun({});
+    xrun.updateEnv({ [key]: "hello" });
     expect(process.env[key]).to.equal("hello");
     delete process.env[key];
   });
 
   it("should handle shell with unknown flag", () => {
-    const xclap = new XClap({
+    const xrun = new XRun({
       foo: `~(spawn,foo,sync)$echo hello`
     });
     const exeEvents = ["lookup", "shell"];
 
-    xclap.on("execute", data => {
+    xrun.on("execute", data => {
       expect(data.type).to.equal(exeEvents[0]);
       exeEvents.shift();
     });
 
     let doneItem = 0;
-    xclap.on("done-item", data => doneItem++);
+    xrun.on("done-item", data => doneItem++);
 
-    return asyncVerify(expectError(next => xclap.run("foo", next)), err => {
+    return asyncVerify(expectError(next => xrun.run("foo", next)), err => {
       expect(doneItem).to.equal(0);
       expect(err.message).contains("Unknown flag foo in shell task");
     });
   });
 
   it("should handle XTaskSpec with unknown type", () => {
-    const xclap = new XClap({
-      foo: new gxclap.XTaskSpec({ type: "blah" })
+    const xrun = new XRun({
+      foo: new gxrun.XTaskSpec({ type: "blah" })
     });
 
-    return asyncVerify(expectError(next => xclap.run("foo", next)), err => {
+    return asyncVerify(expectError(next => xrun.run("foo", next)), err => {
       expect(err.message).include("Unable to process XTaskSpec type blah");
     });
   });
 
   it("should handle anonymous XTaskSpec with unknown type", () => {
-    const xclap = new XClap({
-      foo: [new gxclap.XTaskSpec({ type: "blah" })]
+    const xrun = new XRun({
+      foo: [new gxrun.XTaskSpec({ type: "blah" })]
     });
 
-    return asyncVerify(expectError(next => xclap.run("foo", next)), err => {
+    return asyncVerify(expectError(next => xrun.run("foo", next)), err => {
       expect(err.message).include("Unable to process XTaskSpec type blah");
     });
   });
 
   it("should handle fail status of shell with spawn", () => {
-    const xclap = new XClap({ foo: `~(spawn)$node -e "process.exit(1)"` });
+    const xrun = new XRun({ foo: `~(spawn)$node -e "process.exit(1)"` });
     const exeEvents = ["lookup", "shell"];
 
-    xclap.on("execute", data => {
+    xrun.on("execute", data => {
       expect(data.type).to.equal(exeEvents[0]);
       exeEvents.shift();
     });
 
     let doneItem = 0;
-    xclap.on("done-item", data => doneItem++);
+    xrun.on("done-item", data => doneItem++);
 
-    return asyncVerify(expectError(next => xclap.run("foo", next)), err => {
+    return asyncVerify(expectError(next => xrun.run("foo", next)), err => {
       expect(err.message).to.equal(`cmd "node -e "process.exit(1)"" exit code 1`);
       expect(doneItem).to.equal(1);
     });
   });
 
   it("should handle fail status of shell with spawn sync", () => {
-    const xclap = new XClap({ foo: `~(spawn,sync)$node -e "process.exit(1)"` });
+    const xrun = new XRun({ foo: `~(spawn,sync)$node -e "process.exit(1)"` });
     const exeEvents = ["lookup", "shell"];
 
-    xclap.on("execute", data => {
+    xrun.on("execute", data => {
       expect(data.type).to.equal(exeEvents[0]);
       exeEvents.shift();
     });
 
     let doneItem = 0;
-    xclap.on("done-item", data => doneItem++);
+    xrun.on("done-item", data => doneItem++);
 
-    return asyncVerify(expectError(next => xclap.run("foo", next)), err => {
+    return asyncVerify(expectError(next => xrun.run("foo", next)), err => {
       expect(err.message).to.equal(`cmd "node -e "process.exit(1)"" exit code 1`);
       expect(doneItem).to.equal(1);
     });
   });
 
   it("should handle error of shell with spawn sync", () => {
-    const xclap = new XClap({
+    const xrun = new XRun({
       foo: {
         options: { timeout: 10 },
         task: `~(spawn,sync)$sleep 1`
@@ -515,27 +514,27 @@ describe("xclap", function() {
     });
     const exeEvents = ["lookup", "shell"];
 
-    xclap.on("execute", data => {
+    xrun.on("execute", data => {
       expect(data.type).to.equal(exeEvents[0]);
       exeEvents.shift();
     });
 
     let doneItem = 0;
-    xclap.on("done-item", data => doneItem++);
+    xrun.on("done-item", data => doneItem++);
 
-    return asyncVerify(expectError(next => xclap.run("foo", next)), err => {
+    return asyncVerify(expectError(next => xrun.run("foo", next)), err => {
       expect(err.message).contains(`ETIMEDOUT`);
       expect(doneItem).to.equal(1);
     });
   });
 
   it("should kill task exec child and stop", () => {
-    const xclap = new XClap();
-    xclap.load({
-      ".stop": () => xclap.stop(),
-      "test-stop": xclap.concurrent(
-        xclap.serial("~$echo abc", "~$sleep 1", "~$echo BAD IF YOU SEE THIS"),
-        xclap.serial(() => xaa.delay(100), ".stop", "~$echo BAD IF YOU SEE THIS ALSO")
+    const xrun = new XRun();
+    xrun.load({
+      ".stop": () => xrun.stop(),
+      "test-stop": xrun.concurrent(
+        xrun.serial("~$echo abc", "~$sleep 1", "~$echo BAD IF YOU SEE THIS"),
+        xrun.serial(() => xaa.delay(100), ".stop", "~$echo BAD IF YOU SEE THIS ALSO")
       )
     });
 
@@ -543,7 +542,7 @@ describe("xclap", function() {
 
     return asyncVerify(
       next => {
-        xclap.run("test-stop", next);
+        xrun.run("test-stop", next);
       },
       () => {
         intercept.restore();
@@ -556,11 +555,11 @@ describe("xclap", function() {
   });
 
   it("should kill task spawn child and stop", () => {
-    const xclap = new XClap();
-    xclap.load({
-      "test-stop": xclap.concurrent(
-        xclap.serial("~$echo abc", "~(spawn)$sleep 2", "~$echo BAD IF YOU SEE THIS"),
-        xclap.serial(() => xaa.delay(100), xclap.stop(), "~$echo BAD IF YOU SEE THIS ALSO")
+    const xrun = new XRun();
+    xrun.load({
+      "test-stop": xrun.concurrent(
+        xrun.serial("~$echo abc", "~(spawn)$sleep 2", "~$echo BAD IF YOU SEE THIS"),
+        xrun.serial(() => xaa.delay(100), xrun.stop(), "~$echo BAD IF YOU SEE THIS ALSO")
       )
     });
 
@@ -568,7 +567,7 @@ describe("xclap", function() {
 
     return asyncVerify(
       next => {
-        xclap.run("test-stop", next);
+        xrun.run("test-stop", next);
       },
       () => {
         intercept.restore();
@@ -581,12 +580,12 @@ describe("xclap", function() {
   });
 
   it("should kill task child from a function and stop", () => {
-    const xclap = new XClap();
-    xclap.load({
-      ".stop": () => xclap.stop(),
-      "test-stop": xclap.concurrent(
-        xclap.serial("~$echo abc", () => xsh.exec("sleep 2"), "~$echo BAD IF YOU SEE THIS"),
-        xclap.serial(() => xaa.delay(100), ".stop", "~$echo BAD IF YOU SEE THIS ALSO")
+    const xrun = new XRun();
+    xrun.load({
+      ".stop": () => xrun.stop(),
+      "test-stop": xrun.concurrent(
+        xrun.serial("~$echo abc", () => xsh.exec("sleep 2"), "~$echo BAD IF YOU SEE THIS"),
+        xrun.serial(() => xaa.delay(100), ".stop", "~$echo BAD IF YOU SEE THIS ALSO")
       )
     });
 
@@ -594,7 +593,7 @@ describe("xclap", function() {
 
     return asyncVerify(
       next => {
-        xclap.run("test-stop", next);
+        xrun.run("test-stop", next);
       },
       () => {
         intercept.restore();
@@ -607,7 +606,7 @@ describe("xclap", function() {
   });
 
   it("should handle error of shell command malformed", () => {
-    const xclap = new XClap({
+    const xrun = new XRun({
       foo: {
         options: { timeout: 10 },
         task: `~(spawn,syncsleep 1`
@@ -615,37 +614,37 @@ describe("xclap", function() {
     });
     const exeEvents = ["lookup", "shell"];
 
-    xclap.on("execute", data => {
+    xrun.on("execute", data => {
       expect(data.type).to.equal(exeEvents[0]);
       exeEvents.shift();
     });
 
     let doneItem = 0;
-    xclap.on("done-item", data => doneItem++);
+    xrun.on("done-item", data => doneItem++);
 
-    return asyncVerify(expectError(next => xclap.run("foo", next)), err => {
+    return asyncVerify(expectError(next => xrun.run("foo", next)), err => {
       expect(err.message).contains(`Missing )$ in shell task: ~(spawn,syncsleep 1`);
       expect(doneItem).to.equal(0);
     });
   });
 
   it("should handle error from task shell", () => {
-    const xclap = new XClap({
+    const xrun = new XRun({
       foo: {
         task: "exit 1"
       }
     });
     const exeEvents = ["lookup", "shell"];
 
-    xclap.on("execute", data => {
+    xrun.on("execute", data => {
       expect(data.type).to.equal(exeEvents[0]);
       exeEvents.shift();
     });
 
     let doneItem = 0;
-    xclap.on("done-item", data => doneItem++);
+    xrun.on("done-item", data => doneItem++);
 
-    return asyncVerify(expectError(next => xclap.run("foo", next)), err => {
+    return asyncVerify(expectError(next => xrun.run("foo", next)), err => {
       expect(err.message).to.equal("shell cmd 'exit 1' exit code 1");
       expect(doneItem).to.equal(1);
     });
@@ -653,7 +652,7 @@ describe("xclap", function() {
 
   it("should execute serial tasks", () => {
     let foo = 0;
-    const xclap = new XClap({
+    const xrun = new XRun({
       foo: [() => foo++, [".", "a", "b", "c"]],
       a: cb => process.nextTick(cb),
       b: cb => process.nextTick(cb),
@@ -672,16 +671,16 @@ describe("xclap", function() {
       "function"
     ];
 
-    xclap.on("execute", data => {
+    xrun.on("execute", data => {
       expect(data.type).to.equal(exeEvents[0]);
       exeEvents.shift();
     });
 
     let doneItem = 0;
-    xclap.on("done-item", () => doneItem++);
+    xrun.on("done-item", () => doneItem++);
 
     return asyncVerify(
-      next => xclap.run("foo", next),
+      next => xrun.run("foo", next),
       () => {
         expect(doneItem).to.equal(6);
         expect(foo).to.equal(1);
@@ -690,17 +689,17 @@ describe("xclap", function() {
   });
 
   it("should count tasks", () => {
-    const xclap = new XClap();
-    expect(xclap.countTasks()).to.equal(0);
-    xclap.load({ foo: () => undefined });
-    expect(xclap.countTasks()).to.equal(1);
-    xclap.load("1", { foo: () => undefined, bar: () => undefined });
-    expect(xclap.countTasks()).to.equal(3);
+    const xrun = new XRun();
+    expect(xrun.countTasks()).to.equal(0);
+    xrun.load({ foo: () => undefined });
+    expect(xrun.countTasks()).to.equal(1);
+    xrun.load("1", { foo: () => undefined, bar: () => undefined });
+    expect(xrun.countTasks()).to.equal(3);
   });
 
   it("should handle top serial tasks with first dot", () => {
     let foo = 0;
-    const xclap = new XClap({
+    const xrun = new XRun({
       foo: [".", () => foo++, [".", "a", "b", "c"]],
       a: cb => process.nextTick(cb),
       b: cb => process.nextTick(cb),
@@ -719,16 +718,16 @@ describe("xclap", function() {
       "function"
     ];
 
-    xclap.on("execute", data => {
+    xrun.on("execute", data => {
       expect(data.type).to.equal(exeEvents[0]);
       exeEvents.shift();
     });
 
     let doneItem = 0;
-    xclap.on("done-item", () => doneItem++);
+    xrun.on("done-item", () => doneItem++);
 
     return asyncVerify(
-      next => xclap.run("foo", next),
+      next => xrun.run("foo", next),
       () => {
         expect(doneItem).to.equal(6);
         expect(foo).to.equal(1);
@@ -739,7 +738,7 @@ describe("xclap", function() {
   it("should execute concurrent tasks", () => {
     let foo = 0,
       foo2 = 0;
-    const xclap = new XClap({
+    const xrun = new XRun({
       foo: [() => foo++, ["a", "b", () => foo2++, "c"]],
       a: cb => process.nextTick(cb),
       b: cb => process.nextTick(cb),
@@ -759,16 +758,16 @@ describe("xclap", function() {
       "function"
     ];
 
-    xclap.on("execute", data => {
+    xrun.on("execute", data => {
       expect(data.type).to.equal(exeEvents[0]);
       exeEvents.shift();
     });
 
     let doneItem = 0;
-    xclap.on("done-item", () => doneItem++);
+    xrun.on("done-item", () => doneItem++);
 
     return asyncVerify(
-      next => xclap.run("foo", next),
+      next => xrun.run("foo", next),
       () => {
         expect(doneItem).to.equal(7);
         expect(foo).to.equal(1);
@@ -781,7 +780,7 @@ describe("xclap", function() {
     let foo = 0,
       foo2 = 0,
       fooX = 0;
-    const xclap = new XClap({
+    const xrun = new XRun({
       foo: [() => foo++, ["a", "b", () => foo2++, "c"]],
       fooX: cb => {
         fooX++;
@@ -808,16 +807,16 @@ describe("xclap", function() {
       "function"
     ];
 
-    xclap.on("execute", data => {
+    xrun.on("execute", data => {
       expect(data.type).to.equal(exeEvents[0]);
       exeEvents.shift();
     });
 
     let doneItem = 0;
-    xclap.on("done-item", () => doneItem++);
+    xrun.on("done-item", () => doneItem++);
 
     return asyncVerify(
-      next => xclap.run(["foo", "fooX"], next),
+      next => xrun.run(["foo", "fooX"], next),
       () => {
         expect(doneItem).to.equal(9);
         expect(foo).to.equal(1);
@@ -830,7 +829,7 @@ describe("xclap", function() {
   it("should return all errors from concurrent tasks", () => {
     let foo = 0,
       foo2 = 0;
-    const xclap = new XClap({
+    const xrun = new XRun({
       foo: [() => foo++, ["a", "b", () => foo2++, "c"]],
       a: cb => {
         throw new Error("a failed");
@@ -854,16 +853,16 @@ describe("xclap", function() {
       "function"
     ];
 
-    xclap.on("execute", data => {
+    xrun.on("execute", data => {
       expect(data.type).to.equal(exeEvents[0]);
       exeEvents.shift();
     });
 
     let doneItem = 0;
-    xclap.on("done-item", () => doneItem++);
+    xrun.on("done-item", () => doneItem++);
 
     return asyncVerify(
-      expectError(next => xclap.run("foo", next)),
+      expectError(next => xrun.run("foo", next)),
       err => {
         expect(err.more).to.exist;
         expect(err.more.length).to.equal(1);
@@ -873,7 +872,7 @@ describe("xclap", function() {
         expect(foo).to.equal(1);
         expect(foo2).to.equal(1);
       },
-      next => xclap.waitAllPending(next),
+      next => xrun.waitAllPending(next),
       () => {
         expect(doneItem).to.equal(7);
       }
@@ -883,7 +882,7 @@ describe("xclap", function() {
   it("should execute a dep function directly", () => {
     let foo = 0,
       dep = 0;
-    const xclap = new XClap({
+    const xrun = new XRun({
       foo: {
         dep: () => dep++,
         task: () => foo++
@@ -891,16 +890,16 @@ describe("xclap", function() {
     });
     const exeEvents = ["lookup", "function", "function"];
 
-    xclap.on("execute", data => {
+    xrun.on("execute", data => {
       expect(data.type).to.equal(exeEvents[0]);
       exeEvents.shift();
     });
 
     let doneItem = 0;
-    xclap.on("done-item", () => doneItem++);
+    xrun.on("done-item", () => doneItem++);
 
     return asyncVerify(
-      next => xclap.run("foo", next),
+      next => xrun.run("foo", next),
       () => {
         expect(doneItem).to.equal(2);
         expect(dep).to.equal(1);
@@ -912,7 +911,7 @@ describe("xclap", function() {
   it("should execute a dep as serial array", () => {
     let foo = 0,
       foo2 = 0;
-    const xclap = new XClap({
+    const xrun = new XRun({
       foo: {
         dep: ["foo2"],
         task: () => foo++
@@ -921,13 +920,13 @@ describe("xclap", function() {
     });
     const exeEvents = ["lookup", "serial-arr", "lookup", "function", "function"];
 
-    xclap.on("execute", data => {
+    xrun.on("execute", data => {
       expect(data.type).to.equal(exeEvents[0]);
       exeEvents.shift();
     });
 
     return asyncVerify(
-      next => xclap.run("foo", next),
+      next => xrun.run("foo", next),
       () => {
         expect(foo).to.equal(1);
         expect(foo2).to.equal(1);
@@ -938,7 +937,7 @@ describe("xclap", function() {
   it("should parse and execute array in a string", () => {
     let foo2 = 0,
       foo3 = 0;
-    const xclap = new XClap({
+    const xrun = new XRun({
       foo: {
         dep: "~[foo2]",
         task: "~[fooX, [foo2, fooX]]"
@@ -976,13 +975,13 @@ describe("xclap", function() {
       "function",
       "function"
     ];
-    xclap.on("execute", data => {
+    xrun.on("execute", data => {
       expect(data.type).to.equal(exeEvents[0]);
       exeEvents.shift();
     });
 
     return asyncVerify(
-      next => xclap.run("foo", next),
+      next => xrun.run("foo", next),
       () => {
         expect(foo2).to.equal(4);
         expect(foo3).to.equal(2);
@@ -993,7 +992,7 @@ describe("xclap", function() {
   it("should execute a dep as serial and then concurrent array", () => {
     let foo = 0,
       foo2 = 0;
-    const xclap = new XClap({
+    const xrun = new XRun({
       foo: {
         dep: [["foo2"]],
         task: () => foo++
@@ -1002,13 +1001,13 @@ describe("xclap", function() {
     });
     const exeEvents = ["lookup", "serial-arr", "concurrent-arr", "lookup", "function", "function"];
 
-    xclap.on("execute", data => {
+    xrun.on("execute", data => {
       expect(data.type).to.equal(exeEvents[0]);
       exeEvents.shift();
     });
 
     return asyncVerify(
-      next => xclap.run("foo", next),
+      next => xrun.run("foo", next),
       () => {
         expect(foo).to.equal(1);
         expect(foo2).to.equal(1);
@@ -1018,19 +1017,19 @@ describe("xclap", function() {
 
   it("should await a promise a task function returned", () => {
     let foo2 = 0;
-    const xclap = new XClap({
+    const xrun = new XRun({
       foo: () => new Promise(resolve => setTimeout(() => resolve("foo2"), 10)),
       foo2: () => foo2++
     });
 
     const exeEvents = ["lookup", "function", "lookup", "function"];
-    xclap.on("execute", data => {
+    xrun.on("execute", data => {
       expect(data.type).to.equal(exeEvents[0]);
       exeEvents.shift();
     });
 
     return asyncVerify(
-      next => xclap.run("foo", next),
+      next => xrun.run("foo", next),
       () => {
         expect(foo2).to.equal(1);
       }
@@ -1040,8 +1039,8 @@ describe("xclap", function() {
   it("should supply context as this to task function", () => {
     let foo = 0,
       foo3 = 0;
-    const xclap = new XClap();
-    xclap.load({
+    const xrun = new XRun();
+    xrun.load({
       foo2: {
         dep: "set a=0",
         task: ["foo3"]
@@ -1067,13 +1066,13 @@ describe("xclap", function() {
       "shell",
       "function"
     ];
-    xclap.on("execute", data => {
+    xrun.on("execute", data => {
       expect(data.type).to.equal(exeEvents[0]);
       exeEvents.shift();
     });
 
     return asyncVerify(
-      next => xclap.run("foo2", next),
+      next => xrun.run("foo2", next),
       () => {
         expect(foo).to.equal(1);
         expect(foo3).to.equal(1);
@@ -1084,20 +1083,20 @@ describe("xclap", function() {
   it("should ignore value returned by task function that's not string/function/array", () => {
     let foo;
 
-    const xclap = new XClap({
+    const xrun = new XRun({
       foo: () => (foo = 999)
     });
 
     const events = [];
 
     const exeEvents = ["lookup", "function"];
-    xclap.on("execute", data => {
+    xrun.on("execute", data => {
       expect(data.type).to.equal(exeEvents[0]);
       exeEvents.shift();
     });
 
     return asyncVerify(
-      next => xclap.run("foo", next),
+      next => xrun.run("foo", next),
       () => {
         expect(foo).to.equal(999);
       }
@@ -1105,32 +1104,32 @@ describe("xclap", function() {
   });
 
   it("should handle error from event handler", () => {
-    const xclap = new XClap({
+    const xrun = new XRun({
       foo: () => undefined
     });
-    xclap.on("execute", data => {
+    xrun.on("execute", data => {
       throw new Error("test");
     });
-    return asyncVerify(expectError(next => xclap.run("foo", next)));
+    return asyncVerify(expectError(next => xrun.run("foo", next)));
   });
 
   it("should support load tasks", () => {
-    const xclap = new XClap();
-    xclap.load("1", {
+    const xrun = new XRun();
+    xrun.load("1", {
       foo: () => {
         throw new Error("test");
       }
     });
-    return asyncVerify(expectErrorToBe(next => xclap.run("1/foo", next), "test"));
+    return asyncVerify(expectErrorToBe(next => xrun.run("1/foo", next), "test"));
   });
 
   it("should handle direct error from exe a function task", () => {
-    const xclap = new XClap({
+    const xrun = new XRun({
       foo: () => {
         throw new Error("test");
       }
     });
-    return asyncVerify(expectErrorToBe(next => xclap.run("foo", next), "test"));
+    return asyncVerify(expectErrorToBe(next => xrun.run("foo", next), "test"));
   });
 
   it("should exit on error", () => {
@@ -1145,16 +1144,16 @@ describe("xclap", function() {
       defer.resolve();
     };
 
-    const xclap = new XClap({
+    const xrun = new XRun({
       foo: () => {
         throw new Error("test");
       }
     });
 
     return asyncVerify(
-      () => xclap.run("foo"),
+      () => xrun.run("foo"),
       runFinally(() => intercept.restore()),
-      // wait for xclap to execute foo, catch the error, and then try to exit
+      // wait for xrun to execute foo, catch the error, and then try to exit
       defer.wait(),
       () => {
         // restore process.exit
@@ -1175,16 +1174,16 @@ describe("xclap", function() {
       testStatus = "called";
     };
     const defer = runDefer(500);
-    const xclap = new XClap({
+    const xrun = new XRun({
       foo: () => {
         defer.resolve();
         throw new Error("test");
       }
     });
-    xclap.stopOnError = false;
+    xrun.stopOnError = false;
 
     return asyncVerify(
-      () => xclap.run("foo"),
+      () => xrun.run("foo"),
       runFinally(() => intercept.restore()),
       defer.wait(),
       () => xaa.delay(10),
@@ -1203,30 +1202,30 @@ describe("xclap", function() {
     process.exit = () => {
       testStatus = "called";
     };
-    const xclap = new XClap();
-    xclap._exitOnError();
+    const xrun = new XRun();
+    xrun._exitOnError();
     process.exit = ox;
     expect(testStatus).to.equal("test");
   });
 
   it("should fail for object task with unknown value type", () => {
-    const xclap = new XClap({
+    const xrun = new XRun({
       foo: ["foo2"],
       foo2: {
         desc: "foo2",
         task: true
       }
     });
-    return asyncVerify(expectError(next => xclap.run("foo", next)), err => {
+    return asyncVerify(expectError(next => xrun.run("foo", next)), err => {
       expect(err.message).to.equal("Task foo2 has unrecognize task value type Boolean");
     });
   });
 
   it("should fail for task with unknown value type", () => {
-    const xclap = new XClap({
+    const xrun = new XRun({
       foo: [true]
     });
-    return asyncVerify(expectError(next => xclap.run("foo", next)), err => {
+    return asyncVerify(expectError(next => xrun.run("foo", next)), err => {
       expect(err.message).to.equal(
         "Unable to process task foo.S because value type Boolean is unknown and no value.item"
       );
@@ -1234,17 +1233,17 @@ describe("xclap", function() {
   });
 
   it("should not fail if optional task name is not found", () => {
-    const xclap = new XClap({});
-    return asyncVerify(next => xclap.run("?foo", next));
+    const xrun = new XRun({});
+    return asyncVerify(next => xrun.run("?foo", next));
   });
 
   it("should fail if task name is not found", () => {
-    const xclap = new XClap({});
-    return asyncVerify(expectErrorToBe(next => xclap.run("foo", next), "Task foo not found"));
+    const xrun = new XRun({});
+    return asyncVerify(expectErrorToBe(next => xrun.run("foo", next), "Task foo not found"));
   });
 
   it("should show similar tasks if not found", () => {
-    const xclap = new XClap({
+    const xrun = new XRun({
       ".foo": "",
       foo1: "",
       foo2: "",
@@ -1260,65 +1259,65 @@ describe("xclap", function() {
     const intercept = xstdout.intercept(true);
 
     return asyncVerify(runFinally(() => intercept.restore()), next => {
-      xclap.exit = code => {
+      xrun.exit = code => {
         intercept.restore();
         const stdout = intercept.stdout.map(l => stripAnsi(l));
         expect(stdout[2].trim()).to.equal("Maybe try: foo1, foo2, foo3, moo, xoo");
         next();
       };
-      xclap.run("foox");
+      xrun.run("foox");
     });
   });
 
   it("should fail if namespace is not found", () => {
-    const xclap = new XClap({});
+    const xrun = new XRun({});
     return asyncVerify(
-      expectErrorToBe(next => xclap.run("foo/bar", next), "No task namespace foo exist")
+      expectErrorToBe(next => xrun.run("foo/bar", next), "No task namespace foo exist")
     );
   });
 
   it("should fail if task name is empty", () => {
-    const xclap = new XClap({});
-    return asyncVerify(expectError(next => xclap.run("", next)), err => {
+    const xrun = new XRun({});
+    return asyncVerify(expectError(next => xrun.run("", next)), err => {
       expect(err[0].message).includes(`xqitem must have a name`);
     });
   });
 
   it("should fail if task is not in namespace", () => {
-    const xclap = new XClap("foo", {
+    const xrun = new XRun("foo", {
       test: () => undefined
     });
     return asyncVerify(
-      expectErrorToBe(next => xclap.run("foo/bar", next), "Task bar in namespace foo not found")
+      expectErrorToBe(next => xrun.run("foo/bar", next), "Task bar in namespace foo not found")
     );
   });
 
   it("should fail if task is not in default namespace", () => {
-    const xclap = new XClap({
+    const xrun = new XRun({
       test: () => undefined
     });
     return asyncVerify(
-      expectErrorToBe(next => xclap.run("/bar", next), "Task bar in namespace / not found")
+      expectErrorToBe(next => xrun.run("/bar", next), "Task bar in namespace / not found")
     );
   });
 
   describe("stopOnError", function() {
     it("should throw if value is invalid", () => {
-      const xclap = new XClap();
-      expect(() => (xclap.stopOnError = "blah")).to.throw("stopOnError must be");
+      const xrun = new XRun();
+      expect(() => (xrun.stopOnError = "blah")).to.throw("stopOnError must be");
     });
 
     it("should allow to set one of the string values", () => {
-      const xclap = new XClap();
-      xclap.stopOnError = "full";
-      expect(xclap.stopOnError).to.equal("full");
+      const xrun = new XRun();
+      xrun.stopOnError = "full";
+      expect(xrun.stopOnError).to.equal("full");
     });
   });
 
   describe("_exitOnError", function() {
     let intercept;
-    const xclap = new XClap();
-    xclap.stopOnError = false;
+    const xrun = new XRun();
+    xrun.stopOnError = false;
     let saveLevel;
     beforeEach(() => {
       saveLevel = chalk.level;
@@ -1332,7 +1331,7 @@ describe("xclap", function() {
     });
 
     it("should log err if it has no stack", () => {
-      xclap._exitOnError("blah test");
+      xrun._exitOnError("blah test");
       intercept.restore();
       expect(intercept.stdout.length).to.equal(2);
       expect(intercept.stdout[1]).to.equal(" 1  blah test\n");
@@ -1345,7 +1344,7 @@ describe("xclap", function() {
       } catch (e) {
         err = e;
       }
-      xclap._exitOnError([err]);
+      xrun._exitOnError([err]);
       intercept.restore();
       expect(intercept.stdout.length).to.equal(2);
     });
@@ -1355,7 +1354,7 @@ describe("xclap", function() {
         stack: "hello",
         message: "hello"
       };
-      xclap._exitOnError([err]);
+      xrun._exitOnError([err]);
       intercept.restore();
       expect(intercept.stdout.length).to.equal(2);
     });
@@ -1365,13 +1364,13 @@ describe("xclap", function() {
         stack: "hello\n  at ..../xsh/lib/exec.js:9:9",
         message: "hello"
       };
-      xclap._exitOnError([err]);
+      xrun._exitOnError([err]);
       intercept.restore();
       expect(intercept.stdout.length).to.equal(2);
     });
 
     it("should handle err as non-array", () => {
-      xclap._exitOnError(new Error("test 1"));
+      xrun._exitOnError(new Error("test 1"));
       intercept.restore();
       expect(intercept.stdout.length).to.be.above(2);
       expect(intercept.stdout[1]).include("1  test 1");
@@ -1380,14 +1379,14 @@ describe("xclap", function() {
   });
 
   it("getNamespaces should return namespaces in order of overrides", () => {
-    const xclap = new XClap("test", {
+    const xrun = new XRun("test", {
       foo: () => undefined
     });
-    xclap.load("blah", {});
-    xclap.load({ namespace: "foo", overrides: "blah" }, {});
-    xclap.load({ namespace: "blah", overrides: "hello" }, {});
-    xclap.load("hello", {});
-    expect(xclap.getNamespaces()).to.deep.equal(["/", "foo", "blah", "test", "hello"]);
+    xrun.load("blah", {});
+    xrun.load({ namespace: "foo", overrides: "blah" }, {});
+    xrun.load({ namespace: "blah", overrides: "hello" }, {});
+    xrun.load("hello", {});
+    expect(xrun.getNamespaces()).to.deep.equal(["/", "foo", "blah", "test", "hello"]);
   });
 
   it("should cancel and kill a shell exec on error", () => {
@@ -1400,11 +1399,11 @@ describe("xclap", function() {
       }
     };
 
-    const xclap = new XClap(tasks);
+    const xrun = new XRun(tasks);
     const intercept = xstdout.intercept(true);
     return asyncVerify(
       runFinally(() => intercept.restore()),
-      expectError(next => xclap.run(["sh", "fnErr"], next)),
+      expectError(next => xrun.run(["sh", "fnErr"], next)),
       defer.wait(500),
       () => xaa.delay(100),
       () => {
@@ -1421,10 +1420,10 @@ describe("xclap", function() {
   };
 
   const testAsync = tasks => {
-    const xclap = new XClap(tasks);
+    const xrun = new XRun(tasks);
 
     const exeEvents = ["lookup", "function", "lookup", "function"];
-    xclap.on("execute", data => {
+    xrun.on("execute", data => {
       expect(data.type).to.equal(exeEvents[0]);
       exeEvents.shift();
     });
@@ -1434,7 +1433,7 @@ describe("xclap", function() {
 
     const start = Date.now();
     return asyncVerify(
-      next => xclap.run("foo", next),
+      next => xrun.run("foo", next),
       () => {
         const end = Date.now();
         expect(end - start).to.be.above(29);
@@ -1453,7 +1452,7 @@ describe("xclap", function() {
       },
       foo2: () => tasks.foo2Value++
     };
-    testAsync(tasks);
+    return testAsync(tasks);
   });
 
   it("should handle async task function", () => {
@@ -1467,7 +1466,7 @@ describe("xclap", function() {
       },
       foo2: () => tasks.foo2Value++
     };
-    testAsync(tasks);
+    return testAsync(tasks);
   });
 
   const drainIt = munchy => {
@@ -1491,12 +1490,13 @@ describe("xclap", function() {
             tasks.foo2Value++;
             drainIt(m);
           }, 30);
+
           return m;
         }
       }
     };
 
-    testAsync(tasks);
+    return testAsync(tasks);
   });
 
   it("should handle function returning stream that fail", () => {

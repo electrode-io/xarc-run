@@ -2,25 +2,29 @@
 
 const assert = require("assert");
 const chalk = require("chalk");
+const myPkg = require("../package.json");
+const config = require("./config");
 
 module.exports = {
   cwd: {
     type: "string",
     alias: "w",
-    desc: `Set xclap's ${chalk.magenta("CWD")}`,
+    desc: `Set ${myPkg.name}'s ${chalk.magenta("CWD")}`,
     requireArg: true
   },
   dir: {
     type: "string",
     alias: "d",
-    desc: `Set dir to look for ${chalk.green("clap.js")} (default is ${chalk.magenta("CWD")})`,
+    desc: `Set dir to look for ${chalk.green(config.taskFile)} (default is ${chalk.magenta(
+      "CWD"
+    )})`,
     requireArg: true
   },
   npm: {
     type: "boolean",
     alias: "n",
-    default: false,
-    desc: `load npm scripts into namespace ${chalk.magenta("npm")}`
+    default: true,
+    desc: `load npm scripts into namespace ${chalk.magenta("npm")} (--no-npm to disable)`
   },
   nmbin: {
     type: "boolean",
@@ -71,6 +75,6 @@ module.exports = {
   require: {
     type: "string array",
     alias: "r",
-    desc: "require module for tasks instead of loading xclap.js"
+    desc: `require module for tasks instead of loading ${config.taskFile}. require from path is CWD`
   }
 };

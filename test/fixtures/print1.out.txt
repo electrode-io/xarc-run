@@ -17,7 +17,7 @@
 [2m[32m                   tasks: "test dir CWD/~/test"[39m[22m
 [34m  foo5 ---------[39m [33mtask as an array with dir[39m
 [2m[32m                   tasks: ["a","~$test dir CWD/~/test"][39m[22m
-[36m  foo6 .........[39m [35mexec(tty) 'echo xclap.exec task'[39m
+[36m  foo6 .........[39m [35mexec(tty) 'echo xrun.exec task'[39m
 [34m  missing_task -[39m [33mmissing task[39m
 [36m  no_dep .......[39m [33mtask has no dep[39m
 [2m[32m                   tasks: ["test"][39m[22m
@@ -53,7 +53,7 @@
 [2m[32m                   tasks: "test dir CWD/~/test"[39m[22m
 [34m  foo5 ---------[39m [33mtask as an array with dir[39m
 [2m[32m                   tasks: ["a","~$test dir CWD/~/test"][39m[22m
-[36m  foo6 .........[39m [35mexec(tty) 'echo xclap.exec task'[39m
+[36m  foo6 .........[39m [35mexec(tty) 'echo xrun.exec task'[39m
 [34m  missing_task -[39m [33mmissing task[39m
 [36m  no_dep .......[39m [33mtask has no dep[39m
 [2m[32m                   tasks: ["test"][39m[22m

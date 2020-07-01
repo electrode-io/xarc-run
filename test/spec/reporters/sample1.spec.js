@@ -1,6 +1,6 @@
 "use strict";
 
-const xclap = require("../../..");
+const xrun = require("../../..");
 const sample1 = require("../../fixtures/sample1");
 const expect = require("chai").expect;
 const xstdout = require("xstdout");
@@ -97,13 +97,13 @@ Done Process x1/x1foo serial array ["?woofoo",["foo2","foo4"],"foo5a","foo6","fo
 `;
 
     const intercept = xstdout.intercept(true);
-    xclap.load(sample1);
-    xclap.load("x1", {
+    xrun.load(sample1);
+    xrun.load("x1", {
       x1foo: ["?woofoo", ["foo2", "foo4"], "foo5a", "foo6", "foo7"]
     });
 
     return asyncVerify(
-      next => xclap.run("x1foo", next),
+      next => xrun.run("x1foo", next),
       () => {
         intercept.restore();
         // drop tasks output and keep reporter activities only
@@ -164,7 +164,7 @@ Done Process /foo2ba serial array ["xfoo1","xfoo2","~$echo test anon shell",["."
 `;
 
     let intercept = xstdout.intercept(true);
-    xclap.load(sample1);
+    xrun.load(sample1);
 
     let eventReceived;
     let waitedPending;
@@ -173,11 +173,11 @@ Done Process /foo2ba serial array ["xfoo1","xfoo2","~$echo test anon shell",["."
       runTimeout(5000),
       runFinally(() => intercept.restore()),
       expectError(next => {
-        xclap.once("spawn-async", a => {
-          xclap.waitAllPending(() => (waitedPending = true));
+        xrun.once("spawn-async", a => {
+          xrun.waitAllPending(() => (waitedPending = true));
           eventReceived = true;
         });
-        xclap.run("foo2ba", next);
+        xrun.run("foo2ba", next);
       }),
       error => {
         expect(error.message).to.equal("xerr");

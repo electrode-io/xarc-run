@@ -2,13 +2,11 @@
 
 // testing the finally hook
 
-const XClap = require("../../lib/xclap");
+const XRun = require("../../lib/xrun");
 const expect = require("chai").expect;
 const xstdout = require("xstdout");
-const chalk = require("chalk");
-const assert = require("assert");
 
-describe("xclap finally", function() {
+describe("xrun finally", function() {
   let logs = [];
   const tasks = {
     fnFail: () => {
@@ -46,13 +44,13 @@ describe("xclap finally", function() {
     },
     shFooX: {
       task: "~$blah",
-      finally: "~$echo err $XCLAP_ERR fail $XCLAP_FAILED"
+      finally: "~$echo err $XRUN_ERR fail $XRUN_FAILED"
     },
     fnSh: {
       task: () => {
         throw new Error();
       },
-      finally: "~$echo fhSh err $XCLAP_ERR fail $XCLAP_FAILED"
+      finally: "~$echo fhSh err $XRUN_ERR fail $XRUN_FAILED"
     },
     fooConcurrent: [["fnFoo", "fnFail", "fnFooX"]],
     shConcurrent: [["shFoo", "fnFoo"]]
@@ -63,13 +61,13 @@ describe("xclap finally", function() {
   });
 
   it("should invoke simple function hook", done => {
-    const xclap = new XClap(tasks);
-    xclap.stopOnError = "soft";
-    xclap.on("execute", data => {
+    const xrun = new XRun(tasks);
+    xrun.stopOnError = "soft";
+    xrun.on("execute", data => {
       const fin = data.qItem.isFinally ? " X" : "";
       logs.push(`${data.type}${fin}`);
     });
-    xclap.run("fooConcurrent", err => {
+    xrun.run("fooConcurrent", err => {
       expect(err.message).to.equal("fnFail throwing");
       expect(logs.sort()).to.deep.equal(
         [
@@ -99,14 +97,14 @@ describe("xclap finally", function() {
   });
 
   it("should invoke simple shell hook", done => {
-    const xclap = new XClap(tasks);
-    xclap.stopOnError = "soft";
-    xclap.on("execute", data => {
+    const xrun = new XRun(tasks);
+    xrun.stopOnError = "soft";
+    xrun.on("execute", data => {
       const fin = data.qItem.isFinally ? " X" : "";
       logs.push(`${data.type}${fin}`);
     });
     const intercept = xstdout.intercept(true);
-    xclap.run("shConcurrent", () => {
+    xrun.run("shConcurrent", () => {
       intercept.restore();
       expect(intercept.stdout.map(x => x.trim())).to.deep.equal([
         "sleep 1",
@@ -136,14 +134,14 @@ describe("xclap finally", function() {
   });
 
   it("should invoke simple shell hook", done => {
-    const xclap = new XClap(tasks);
-    xclap.stopOnError = "soft";
-    xclap.on("execute", data => {
+    const xrun = new XRun(tasks);
+    xrun.stopOnError = "soft";
+    xrun.on("execute", data => {
       const fin = data.qItem.isFinally ? " X" : "";
       logs.push(`${data.type}${fin}`);
     });
     const intercept = xstdout.intercept(true);
-    xclap.run(["shFooX", "fnSh"], () => {
+    xrun.run(["shFooX", "fnSh"], () => {
       intercept.restore();
       expect(logs).to.deep.equal([
         "concurrent-arr",
