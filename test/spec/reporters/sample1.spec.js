@@ -83,8 +83,8 @@ Optional Task woofoo not found
 >Done Process x1/x1foo.S concurrent array ["foo2","foo4"]
 -Process /foo5a concurrent array ["~$echo foo5a 1","exec {a=b} 'echo foo5a 2'"]
 ..Execute echo foo5a 1
---Execute exec {a=b} 'echo foo5a 2'
 >>Done Execute echo foo5a 1
+--Execute exec {a=b} 'echo foo5a 2'
 >>Done Execute exec {a=b} 'echo foo5a 2'
 >Done Process /foo5a concurrent array ["~$echo foo5a 1","exec {a=b} 'echo foo5a 2'"]
 .Process /foo6 serial array ["env{FOO=bar}","exec 'echo foo6 $FOO'"]

@@ -104,7 +104,10 @@ const tasks = {
     },
     finally: () => console.log("foo4 finally")
   },
-  foo5a: concurrent("~$echo foo5a 1", exec("echo foo5a 2", { execOptions: { env: { a: "b" } } })),
+  foo5a: concurrent(
+    "~$echo foo5a 1",
+    exec("echo foo5a 2", { xrun: { delayRunMs: 100 }, execOptions: { env: { a: "b" } } })
+  ),
   foo6: [env({ FOO: "bar" }), xrun.exec("echo foo6 $FOO")],
   foo7: {
     desc: "foo7",
