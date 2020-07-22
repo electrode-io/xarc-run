@@ -43,7 +43,7 @@ function xrun(argv, offset, clapMode = false) {
 
   if (numTasks === 0) {
     logger.log(chalk.red("No tasks found - please load some."));
-  } else if (opts.list !== undefined) {
+  } else if (cmdArgs.parsed.source.list !== "default") {
     flushLogger(opts);
     const ns = opts.list && opts.list.split(",").map(x => x.trim());
     try {

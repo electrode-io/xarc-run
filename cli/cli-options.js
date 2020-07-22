@@ -35,7 +35,8 @@ module.exports = {
   list: {
     type: "string",
     alias: "l",
-    desc: "List tasks names from list of comma separated namespaces (default is all namespaces)"
+    desc: "List tasks names from list of comma separated namespaces (default is all namespaces)",
+    default: ""
   },
   full: {
     type: "count",
