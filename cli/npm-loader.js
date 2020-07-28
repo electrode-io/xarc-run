@@ -36,7 +36,8 @@ module.exports = (xrun, options) => {
     logger.log(`Loaded npm scripts from ${pkgName} into namespace ${chalk.magenta("npm")}`);
   }
 
-  const pkgConfig = config.getPkgOpt(Pkg);
+  const pkgOptField = config.getPkgOpt(Pkg);
+  const pkgConfig = pkgOptField && Pkg[pkgOptField];
 
   if (pkgConfig) {
     const tasks = Object.assign({}, pkgConfig.tasks);
