@@ -56,10 +56,13 @@ function searchTaskFile(search, opts) {
 
 function loadTaskFile(name) {
   if (Path.extname(name) === ".ts") {
-    logger.log("loading ts-node/register");
-    optionalRequire("ts-node/register", {
+    logger.log("loading ts-node/register/transpile-only");
+    optionalRequire("ts-node/register/transpile-only", {
       fail: e => {
-        logger.log("Unable to load ts-node/register, TypeScript may not work.", e.message);
+        logger.log(
+          "Unable to load ts-node/register/transpile-only, TypeScript may not work.",
+          e.message
+        );
       }
     });
   }
