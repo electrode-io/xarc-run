@@ -80,7 +80,9 @@ function processTasks(tasks, loadMsg, ns = "xrun") {
     tasks(xrun);
     logger.log(`Called export function from ${loadMsg}`);
   } else if (typeof tasks === "object") {
-    if (Object.keys(tasks).length > 0) {
+    if (tasks.default) {
+      processTasks(tasks.default, `${loadMsg} default export`, ns);
+    } else if (Object.keys(tasks).length > 0) {
       xrun.load(ns, tasks);
       logger.log(`Loaded tasks from ${loadMsg} into namespace ${chalk.magenta(ns)}`);
     } else {
