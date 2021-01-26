@@ -129,7 +129,7 @@ function loadTasks(opts, searchResult) {
   }
 }
 
-function parseArgs(argv, start, clapMode = false) {
+function parseArgs(argv, start, clapMode = false, myPath = __dirname) {
   function getOpt(name) {
     if (cliOptions.hasOwnProperty(name)) {
       return cliOptions[name];

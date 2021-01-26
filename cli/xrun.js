@@ -2,7 +2,6 @@
 
 const Path = require("path");
 const parseCmdArgs = require("./parse-cmd-args");
-const runner = require("..");
 const chalk = require("chalk");
 const logger = require("../lib/logger");
 const usage = require("./usage");
@@ -11,6 +10,8 @@ const Fs = require("fs");
 const xsh = require("xsh");
 const cliOptions = require("./cli-options");
 const parseArray = require("../lib/util/parse-array");
+const requireAt = require("require-at");
+const optionalRequire = require("optional-require")(require);
 
 function flushLogger(opts) {
   logger.quiet(opts && opts.quiet);
@@ -21,7 +22,7 @@ function exit(code) {
   process.exit(code);
 }
 
-function xrun(argv, offset, clapMode = false) {
+function xrun(argv, offset, clapMode = false, xrunPath = "") {
   if (!argv) {
     argv = process.argv;
     offset = 2;
@@ -36,13 +37,35 @@ function xrun(argv, offset, clapMode = false) {
     return exit(0);
   }
 
-  const cmdArgs = parseCmdArgs(argv, offset, clapMode);
+  // handle situation where node.js thinks this pkg is at a diff dir than where it's
+  // physically installed, a scenario in case pkg mgr installs using symlinks
+  let runner;
+  const foundReq = [
+    xrunPath, // first look for it in path passed from cli
+    "@xarc/run", // let node.js resolve by package name
+    ".." // finally load from definitive known location
+  ].find(p => p && (runner = optionalRequire(p)));
+  const foundPath = Path.dirname(require.resolve(foundReq));
+
+  const cmdArgs = parseCmdArgs(argv, offset, clapMode, foundPath);
   const opts = cmdArgs.opts;
 
   const numTasks = runner.countTasks();
 
   if (numTasks === 0) {
-    logger.log(chalk.red("No tasks found - please load some."));
+    const fromCwd = Path.dirname(requireAt(process.cwd()).resolve("@xarc/run"));
+    const fromMyDir = Path.dirname(require.resolve(".."));
+    logger.log(`${chalk.red("*** No tasks found ***")}
+  This could be due to your task file 'xclap.js' or 'xrun-tasks.js' didn't load any tasks,
+  but it's more likely that there are multiple copies of this package (@xarc/run) installed.
+  Here are some attempts to detect them from CWD and my dir.  They should be the same:
+    - resolved from CWD: '${fromCwd}'
+    - resolved from my dir: '${fromMyDir}'
+    - actual dir used: '${foundPath}'
+
+  For reference, current __dirname is:
+    - '${__dirname}'
+`);
   } else if (cmdArgs.parsed.source.list !== "default") {
     flushLogger(opts);
     const ns = opts.list && opts.list.split(",").map(x => x.trim());
