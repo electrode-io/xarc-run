@@ -70,7 +70,7 @@ function loadTaskFile(name) {
   return optionalRequire(name, {
     fail: e => {
       const errMsg = chalk.red(`Unable to load ${xsh.pathCwd.replace(name, ".")}`);
-      logger.log(`${errMsg}: ${xsh.pathCwd.replace(e.stack, ".", "g")}`);
+      logger.error(`${errMsg}: ${xsh.pathCwd.replace(e.stack, ".", "g")}`);
     }
   });
 }
