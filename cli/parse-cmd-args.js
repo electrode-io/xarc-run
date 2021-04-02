@@ -94,13 +94,6 @@ function processTasks(tasks, loadMsg, ns = "xrun") {
 }
 
 function loadTasks(opts, searchResult) {
-  if (!opts.require && !searchResult.xrunFile) {
-    logger.quiet(false);
-    logger.log(`No ${config.taskFile} found - ${myPkg.name} has nothing to do
-    Please create ${config.taskFile} - sample: https://www.npmjs.com/package/${myPkg.name}#a-simple-example `);
-    exit(1);
-  }
-
   npmLoader(xrun, opts);
 
   if (opts.require) {
@@ -120,12 +113,12 @@ function loadTasks(opts, searchResult) {
         processTasks(tasks, loadMsg);
       }
     });
-  } else {
-    const tasks = searchResult.xrunFile && loadTaskFile(searchResult.xrunFile);
-    if (!tasks) return;
-
-    const loadMsg = chalk.green(`${xsh.pathCwd.replace(searchResult.xrunFile)}`);
-    processTasks(tasks, loadMsg);
+  } else if (searchResult.xrunFile) {
+    const tasks = loadTaskFile(searchResult.xrunFile);
+    if (tasks) {
+      const loadMsg = chalk.green(`${xsh.pathCwd.replace(searchResult.xrunFile)}`);
+      processTasks(tasks, loadMsg);
+    }
   }
 }
 
@@ -264,6 +257,7 @@ function parseArgs(argv, start, clapMode = false, myPath = __dirname) {
     cutOff: cutOff,
     cliArgs: cliArgs,
     taskArgs: taskArgs,
+    searchResult,
     opts,
     tasks,
     parsed

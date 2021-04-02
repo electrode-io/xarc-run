@@ -95,6 +95,20 @@ describe("logger", function() {
     logger.quiet(false);
   });
 
+  it("should log error even in quiet mode", () => {
+    logger.quiet(true);
+    const intercept = xstdout.intercept(true);
+
+    try {
+      logger.error("test");
+    } finally {
+      intercept.restore();
+    }
+
+    expect(intercept.stdout.join("")).includes("test");
+    logger.quiet(false);
+  });
+
   it("should save to buffer in quiet mode", () => {
     logger.quiet(true);
     logger.buffering(true);

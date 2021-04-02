@@ -55,15 +55,26 @@ function xrun(argv, offset, clapMode = false, xrunPath = "") {
   if (numTasks === 0) {
     const fromCwd = Path.dirname(requireAt(process.cwd()).resolve("@xarc/run"));
     const fromMyDir = Path.dirname(require.resolve(".."));
-    logger.log(`${chalk.red("*** No tasks found ***")}
-  This could be due to your task file 'xclap.js' or 'xrun-tasks.js' didn't load any tasks,
-  but it's more likely that there are multiple copies of this package (@xarc/run) installed.
-  Here are some attempts to detect them from CWD and my dir.  They should be the same:
+    const info = cmdArgs.searchResult.xrunFile
+      ? `
+This could be due to a few reasons:
+
+  1. your task file ${cmdArgs.searchResult.xrunFile} didn't load any tasks or contains errors.
+  2. there are multiple copies of this package (@xarc/run) installed in "node_modules".
+
+Here are some attempts to detect them from CWD and my dir.  They should be the same:
+
     - resolved from CWD: '${fromCwd}'
     - resolved from my dir: '${fromMyDir}'
     - actual dir used: '${foundPath}'
-
-  For reference, current __dirname is:
+`
+      : `
+You do not have a "xrun-tasks.js|ts" file, so the only tasks may come from your
+'package.json' scripts, and you probably don't have any defined there either.
+`;
+    logger.error(`${chalk.red("*** No tasks found ***")}
+${info}
+For reference, current __dirname is:
     - '${__dirname}'
 `);
   } else if (cmdArgs.parsed.source.list !== "default") {
