@@ -1,5 +1,6 @@
 [![NPM version][npm-image]][npm-url] [![Build Status][ci-shield]][ci-url]
 [![Dependency Status][daviddm-image]][daviddm-url] [![devDependency Status][daviddm-dev-image]][daviddm-dev-url]
+[![coverage][coverage-image]][coverage-url]
 
 # @xarc/run
 
@@ -550,3 +551,5 @@ Licensed under the [Apache License, Version 2.0](https://www.apache.org/licenses
 [auto complete with namespace]: REFERENCE.md#auto-complete-with-namespace
 [npm]: https://www.npmjs.com/package/npm
 [node.js stream]: https://nodejs.org/api/stream.html
+[coverage-image]: https://coveralls.io/repos/github/electrode-io/xarc-run/badge.svg?branch=master
+[coverage-url]: https://coveralls.io/github/electrode-io/xarc-run?branch=master
