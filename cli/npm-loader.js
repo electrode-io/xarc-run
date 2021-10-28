@@ -5,6 +5,7 @@ const chalk = require("chalk");
 const readPkgUp = require("read-pkg-up");
 const myPkg = require("../package.json");
 const config = require("./config");
+const env = require("./env");
 
 module.exports = (xrun, options) => {
   const readPkg = readPkgUp.sync();
@@ -15,7 +16,7 @@ module.exports = (xrun, options) => {
 
   const Pkg = readPkg.packageJson;
 
-  const pkgName = chalk.magenta(readPkg.path.replace(process.cwd(), "CWD"));
+  const pkgName = chalk.magenta(readPkg.path.replace(process.cwd(), "."));
 
   if (Pkg.scripts && options.npm !== false) {
     const scripts = {};
@@ -33,7 +34,11 @@ module.exports = (xrun, options) => {
       }
     }
     xrun.load("npm", scripts);
-    logger.log(`Loaded npm scripts from ${pkgName} into namespace ${chalk.magenta("npm")}`);
+    if (env.get(env.xrunPackagePath) !== readPkg.path) {
+      logger.log(`Loaded npm scripts from ${pkgName} into namespace ${chalk.magenta("npm")}`);
+    }
+
+    env.set(env.xrunPackagePath, readPkg.path);
   }
 
   const pkgOptField = config.getPkgOpt(Pkg);

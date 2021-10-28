@@ -15,12 +15,26 @@ const npmLoader = require("./npm-loader");
 const ck = require("chalker");
 const requireAt = require("require-at");
 const config = require("./config");
+const env = require("./env");
 
 function exit(code) {
   process.exit(code);
 }
 
-function updateCwd(dir, opts) {
+function safeGet(from, paths) {
+  for (const p of paths) {
+    if (from) {
+      from = from[p];
+    } else {
+      break;
+    }
+  }
+
+  return from;
+}
+
+function updateCwd(dir) {
+  dir = dir || process.cwd();
   const newCwd = Path.isAbsolute(dir) ? dir : Path.resolve(dir);
 
   try {
@@ -28,10 +42,12 @@ function updateCwd(dir, opts) {
     if (newCwd !== cwd) {
       process.chdir(newCwd);
       logger.log(`CWD changed to ${chalk.magenta(newCwd)}`);
-    } else {
+    } else if (env.get(env.xrunCwd) !== cwd) {
       logger.log(`CWD is ${chalk.magenta(cwd)}`);
     }
-    opts.cwd = newCwd;
+    env.set(env.xrunCwd, newCwd);
+
+    return newCwd;
   } catch (err) {
     logger.log(`chdir ${chalk.magenta(newCwd)} ${chalk.red("failed")}`);
     exit(1);
@@ -44,11 +60,14 @@ function searchTaskFile(search, opts) {
   const loadResult = searchUpTaskFile(xrunDir, search);
 
   if (!loadResult.found) {
-    const x = chalk.magenta(xsh.pathCwd.replace(xrunDir));
-    logger.log(`No ${chalk.green(config.taskFile)} found in ${x}`);
+    if (env.get(env.xrunTaskFile) !== "not found") {
+      const x = chalk.magenta(xsh.pathCwd.replace(xrunDir, "./"));
+      logger.log(`No ${chalk.green(config.taskFile)} found in ${x}`);
+    }
+    env.set(env.xrunTaskFile, "not found");
   } else if (search) {
     // force CWD to where xrun task file was found
-    updateCwd(loadResult.dir, opts);
+    opts.cwd = updateCwd(loadResult.dir);
   }
 
   return loadResult;
@@ -56,7 +75,9 @@ function searchTaskFile(search, opts) {
 
 function loadTaskFile(name) {
   if (Path.extname(name) === ".ts") {
-    logger.log("loading ts-node/register/transpile-only");
+    if (!env.get(env.xrunId)) {
+      logger.log("loading ts-node/register/transpile-only");
+    }
     optionalRequire("ts-node/register/transpile-only", {
       fail: e => {
         logger.log(
@@ -78,14 +99,16 @@ function loadTaskFile(name) {
 function processTasks(tasks, loadMsg, ns = "xrun") {
   if (typeof tasks === "function") {
     tasks(xrun);
-    logger.log(`Called export function from ${loadMsg}`);
+    if (loadMsg) {
+      logger.log(`Loaded tasks by calling export function from ${loadMsg}`);
+    }
   } else if (typeof tasks === "object") {
     if (tasks.default) {
       processTasks(tasks.default, `${loadMsg} default export`, ns);
     } else if (Object.keys(tasks).length > 0) {
       xrun.load(ns, tasks);
       logger.log(`Loaded tasks from ${loadMsg} into namespace ${chalk.magenta(ns)}`);
-    } else {
+    } else if (loadMsg) {
       logger.log(`Loaded ${loadMsg}`);
     }
   } else {
@@ -111,15 +134,25 @@ function loadTasks(opts, searchResult) {
       if (tasks) {
         const loadMsg = chalk.green(xmod);
         processTasks(tasks, loadMsg);
+        return true;
       }
     });
   } else if (searchResult.xrunFile) {
     const tasks = loadTaskFile(searchResult.xrunFile);
     if (tasks) {
-      const loadMsg = chalk.green(`${xsh.pathCwd.replace(searchResult.xrunFile)}`);
-      processTasks(tasks, loadMsg);
+      processTasks(
+        tasks,
+        env.get(env.xrunTaskFile) !== searchResult.xrunFile
+          ? chalk.green(`${xsh.pathCwd.replace(searchResult.xrunFile, ".")}`)
+          : ""
+      );
+      env.set(env.xrunTaskFile, searchResult.xrunFile);
+
+      return true;
     }
   }
+
+  return false;
 }
 
 function parseArgs(argv, start, clapMode = false, myPath = __dirname) {
@@ -218,19 +251,25 @@ function parseArgs(argv, start, clapMode = false, myPath = __dirname) {
 
   const myDir = xsh.pathCwd.replace(Path.dirname(__dirname), ".");
 
-  logger.log(`${chalk.green(myPkg.name)} version ${myPkg.version} at ${chalk.magenta(myDir)}`);
-  logger.log(
-    `${chalk.green("node.js")} version ${process.version} at ${chalk.magenta(process.execPath)}`
-  );
+  if (env.get(env.xrunVersion) !== myPkg.version || env.get(env.xrunBinDir) !== myDir) {
+    logger.log(`${chalk.green(myPkg.name)} version ${myPkg.version} at ${chalk.magenta(myDir)}`);
+  }
+
+  if (env.get(env.xrunNodeBin) !== process.execPath) {
+    logger.log(
+      `${chalk.green("node.js")} version ${process.version} at ${chalk.magenta(process.execPath)}`
+    );
+  }
+
+  env.set(env.xrunVersion, myPkg.version);
+  env.set(env.xrunBinDir, myDir);
+  env.set(env.xrunNodeBin, process.execPath);
 
   // don't search if user has explicitly set CWD
   const search = !opts.cwd;
 
-  if (opts.cwd) {
-    updateCwd(opts.cwd, opts);
-  } else {
-    opts.cwd = process.cwd();
-  }
+  const saveCwd = env.get(env.xrunCwd);
+  opts.cwd = updateCwd(opts.cwd);
 
   let searchResult = {};
 
@@ -241,17 +280,65 @@ function parseArgs(argv, start, clapMode = false, myPath = __dirname) {
   const Pkg = optionalRequire(Path.join(opts.cwd, "package.json"), { default: {} });
 
   const pkgOptField = config.getPkgOpt(Pkg);
+  const pkgConfig = {};
 
   if (pkgOptField) {
-    const pkgConfig = Object.assign({}, Pkg[pkgOptField]);
+    pkgConfig = Object.assign(pkgConfig, Pkg[pkgOptField]);
     delete pkgConfig.cwd; // not allow pkg config to override cwd
     delete pkgConfig.tasks;
     nc.applyConfig(pkgConfig, parsed);
-    const pkgName = chalk.magenta("CWD/package.json");
+    const pkgName = chalk.magenta("./package.json");
     logger.log(`Applied ${chalk.green(pkgOptField)} options from ${pkgName}`);
   }
 
-  loadTasks(opts, searchResult);
+  const loaded = loadTasks(opts, searchResult, Pkg);
+
+  const loadProviderModules = () => {
+    const providerSearches = Object.keys(
+      Object.assign({}, Pkg.optionalDependencies, Pkg.devDependencies, Pkg.dependencies)
+    );
+
+    providerSearches.forEach(mod => {
+      let modPkg;
+      try {
+        modPkg = require(`${mod}/package.json`);
+      } catch (_err) {
+        return;
+      }
+      const provider = modPkg.xrunProvider;
+      if (!loaded) {
+        if (!provider && !safeGet(modPkg, ["dependencies", myPkg.name])) {
+          // module is not marked as a provider and doesn't have @xarc/run as dep, assume not
+          // a provider
+          return;
+        }
+        // module looks like a provider and user does not have tasks loaded, continue
+        // to see if module exports `loadTasks`
+      } else if (!provider) {
+        // not explicitly a provider and user has tasks, do nothing with it
+        return;
+      }
+
+      const req = (provider && provider.module && `/${provider.module}`) || "";
+      const providerMod = optionalRequire(`${mod}${req}`);
+      if (providerMod) {
+        const loadMsg = saveCwd !== opts.cwd ? `provider module ${mod}` : "";
+        if (!loaded && providerMod.loadTasks) {
+          // if user doesn't have any tasks loaded, and the provider exports loadTasks, then
+          // automatically load tasks from provider
+          processTasks(providerMod.loadTasks, loadMsg);
+        } else if (provider) {
+          // else only load if module explicitly marked itself as a provider
+          processTasks(providerMod.loadTasks || providerMod, loadMsg);
+        }
+      }
+    });
+  };
+
+  // user has no tasks or explicitly enable searching for provider modules
+  if (loaded === false || pkgConfig.loadProviderModules) {
+    loadProviderModules();
+  }
 
   return {
     cutOff: cutOff,

@@ -12,6 +12,7 @@ const cliOptions = require("./cli-options");
 const parseArray = require("../lib/util/parse-array");
 const requireAt = require("require-at");
 const optionalRequire = require("optional-require")(require);
+const env = require("./env");
 
 function flushLogger(opts) {
   logger.quiet(opts && opts.quiet);
@@ -126,17 +127,25 @@ For reference, current __dirname is:
     const nmBin = Path.join(opts.cwd, "node_modules", ".bin");
     if (Fs.existsSync(nmBin)) {
       const x = chalk.magenta(`${xsh.pathCwd.replace(nmBin, ".")}`);
-      if (!process.env.PATH.match(new RegExp(`${nmBin}(${Path.delimiter}|$)`))) {
+
+      const pathStr = env.get(envPath.envKey) || "";
+      if (!pathStr.match(new RegExp(`${nmBin}(${Path.delimiter}|$)`))) {
         envPath.addToFront(nmBin);
         logger.log(`Added ${x} to PATH`);
-      } else {
+      } else if (!env.get(env.xrunId)) {
         logger.log(`PATH already contains ${x}`);
       }
     }
   }
 
-  if (!process.env.hasOwnProperty("FORCE_COLOR")) {
-    process.env.FORCE_COLOR = "1";
+  if (!env.get(env.xrunId)) {
+    env.set(env.xrunId, "1");
+  } else {
+    env.set(env.xrunId, parseInt(env.get(env.xrunId)) + 1);
+  }
+
+  if (!env.has(env.forceColor)) {
+    env.set(env.forceColor, "1");
   }
 
   if (runner.stopOnError === undefined || cmdArgs.parsed.source.soe !== "default") {
