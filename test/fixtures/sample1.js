@@ -65,7 +65,7 @@ const tasks = {
     ["a", "b", ["a", "c"], "xfoo4", "b", "xfoo4", () => console.log("concurrent anon")],
     "xfoo4"
   ),
-  xerr: cb => {
+  xerr: _cb => {
     throw new Error("xerr");
   },
   foo2ba: [

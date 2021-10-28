@@ -1,7 +1,6 @@
 "use strict";
 
 const NSOrder = require("../../lib/ns-order");
-const xstdout = require("xstdout");
 const expect = require("chai").expect;
 
 describe("ns-order", function() {

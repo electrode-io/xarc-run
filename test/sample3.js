@@ -10,7 +10,7 @@ xrun.load({
   foo3: [
     "~$echo hello",
     function() {
-      this.run([".", "foo4", () => console.log("blah")], (err, value) => {
+      this.run([".", "foo4", () => console.log("blah")], (_err, _value) => {
         console.log("blah blah");
       });
     }

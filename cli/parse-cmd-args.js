@@ -155,7 +155,7 @@ function loadTasks(opts, searchResult) {
   return false;
 }
 
-function parseArgs(argv, start, clapMode = false, myPath = __dirname) {
+function parseArgs(argv, start, clapMode = false) {
   function getOpt(name) {
     if (cliOptions.hasOwnProperty(name)) {
       return cliOptions[name];
@@ -280,7 +280,7 @@ function parseArgs(argv, start, clapMode = false, myPath = __dirname) {
   const Pkg = optionalRequire(Path.join(opts.cwd, "package.json"), { default: {} });
 
   const pkgOptField = config.getPkgOpt(Pkg);
-  const pkgConfig = {};
+  let pkgConfig = {};
 
   if (pkgOptField) {
     pkgConfig = Object.assign(pkgConfig, Pkg[pkgOptField]);

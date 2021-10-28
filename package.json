@@ -6,7 +6,10 @@
   "scripts": {
     "pretest": "echo hello",
     "test": "mocha --recursive test/spec",
+    "lint": "eslint bin cli lib test",
+    "coveralls": "cat coverage/lcov.info | coveralls",
     "coverage": "nyc --all --reporter=lcov --reporter=text --reporter=text-summary npm test",
+    "check": "npm run coverage && npm run coveralls && npm run lint",
     "format": "prettier --write --print-width 100 lib/*.js test/**/*.js",
     "xfoo2": "echo xfoo2 from npm scripts"
   },
@@ -87,6 +90,8 @@
   },
   "devDependencies": {
     "chai": "^4.0.0",
+    "coveralls": "^3.1.1",
+    "eslint": "^8.1.0",
     "mocha": "^7.1.1",
     "munchy": "^1.0.7",
     "nyc": "^11.0.2",

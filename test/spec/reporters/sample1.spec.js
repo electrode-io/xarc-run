@@ -109,7 +109,7 @@ Done Process x1/x1foo serial array ["?woofoo",["foo2","foo4"],"foo5a","foo6","fo
         // drop tasks output and keep reporter activities only
         const output = intercept.stdout
           .filter(x => x.match(/^\[/))
-          .map(x => x.replace(/ \([0-9\.]+ ms\)/, ""))
+          .map(x => x.replace(/ \([0-9.]+ ms\)/, ""))
           .map(x => x.replace(/^\[[^\]]+\] /, ""))
           .join("");
         expect(output).to.equal(expectOutput);
@@ -173,7 +173,7 @@ Done Process /foo2ba serial array ["xfoo1","xfoo2","~$echo test anon shell",["."
       runTimeout(5000),
       runFinally(() => intercept.restore()),
       expectError(next => {
-        xrun.once("spawn-async", a => {
+        xrun.once("spawn-async", _a => {
           xrun.waitAllPending(() => (waitedPending = true));
           eventReceived = true;
         });
@@ -198,7 +198,7 @@ Done Process /foo2ba serial array ["xfoo1","xfoo2","~$echo test anon shell",["."
         intercept.restore();
         const output = intercept.stdout
           .filter(x => x.match(/^\[/))
-          .map(x => x.replace(/ \([0-9\.]+ ms\)/, ""))
+          .map(x => x.replace(/ \([0-9.]+ ms\)/, ""))
           .map(x => x.replace(/^\[[^\]]+\] /, ""))
           .join("");
         expect(output).to.equal(expectOutput);
